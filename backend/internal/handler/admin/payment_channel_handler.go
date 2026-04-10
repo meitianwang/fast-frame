@@ -34,7 +34,7 @@ func (h *PaymentChannelHandler) List(c *gin.Context) {
 		out = append(out, *dto.PaymentChannelFromService(&channels[i]))
 	}
 
-	response.Success(c, gin.H{"channels": out})
+	response.Success(c, out)
 }
 
 // Create handles POST /api/v1/admin/pay/channels

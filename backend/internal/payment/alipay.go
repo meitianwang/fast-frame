@@ -472,9 +472,13 @@ func (p *AlipayProvider) extractAndVerifyResponse(rawBody []byte, responseKey st
 		case '"':
 			// Skip string content to avoid counting braces inside strings
 			end++
-			for end < len(rawBody) && rawBody[end] != '"' {
+			for end < len(rawBody) {
 				if rawBody[end] == '\\' {
-					end++ // skip escaped character
+					end += 2 // skip backslash and the escaped character
+					continue
+				}
+				if rawBody[end] == '"' {
+					break
 				}
 				end++
 			}

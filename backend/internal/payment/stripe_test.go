@@ -46,40 +46,46 @@ func TestMapRefundStatus(t *testing.T) {
 	}
 }
 
-func TestCentsFromCNY(t *testing.T) {
+func TestToSmallestUnit(t *testing.T) {
 	tests := []struct {
-		cny   string
-		cents int64
+		amount   string
+		currency string
+		want     int64
 	}{
-		{"1.00", 100},
-		{"0.01", 1},
-		{"99.99", 9999},
-		{"100.50", 10050},
+		{"1.00", "cny", 100},
+		{"0.01", "cny", 1},
+		{"99.99", "cny", 9999},
+		{"100.50", "usd", 10050},
+		{"500", "jpy", 500},   // zero-decimal currency
+		{"1000", "krw", 1000}, // zero-decimal currency
 	}
 	for _, tt := range tests {
-		d, _ := decimal.NewFromString(tt.cny)
-		got := centsFromCNY(d)
-		if got != tt.cents {
-			t.Errorf("centsFromCNY(%s) = %d, want %d", tt.cny, got, tt.cents)
+		d, _ := decimal.NewFromString(tt.amount)
+		got := toSmallestUnit(d, tt.currency)
+		if got != tt.want {
+			t.Errorf("toSmallestUnit(%s, %s) = %d, want %d", tt.amount, tt.currency, got, tt.want)
 		}
 	}
 }
 
-func TestDecimalFromCents(t *testing.T) {
+func TestFromSmallestUnit(t *testing.T) {
 	tests := []struct {
-		cents int64
-		want  string
+		units    int64
+		currency string
+		want     string
 	}{
-		{100, "1"},
-		{1, "0.01"},
-		{9999, "99.99"},
-		{10050, "100.5"},
+		{100, "cny", "1"},
+		{1, "cny", "0.01"},
+		{9999, "cny", "99.99"},
+		{10050, "usd", "100.5"},
+		{500, "jpy", "500"},   // zero-decimal currency
+		{1000, "krw", "1000"}, // zero-decimal currency
 	}
 	for _, tt := range tests {
-		got := decimalFromCents(tt.cents)
+		got := fromSmallestUnit(tt.units, tt.currency)
 		want, _ := decimal.NewFromString(tt.want)
 		if !got.Equal(want) {
-			t.Errorf("decimalFromCents(%d) = %s, want %s", tt.cents, got, tt.want)
+			t.Errorf("fromSmallestUnit(%d, %s) = %s, want %s", tt.units, tt.currency, got, tt.want)
 		}
 	}
 }

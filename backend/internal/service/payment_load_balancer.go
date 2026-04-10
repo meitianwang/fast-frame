@@ -302,10 +302,21 @@ func (lb *PaymentLoadBalancer) QueryMethodLimits(ctx context.Context, paymentTyp
 	return results, nil
 }
 
+// shanghaiLoc is cached to avoid repeated LoadLocation calls and panic risk in minimal Docker images.
+var shanghaiLoc *time.Location
+
+func init() {
+	var err error
+	shanghaiLoc, err = time.LoadLocation("Asia/Shanghai")
+	if err != nil {
+		// Fallback to fixed +08:00 offset if tzdata is not available
+		shanghaiLoc = time.FixedZone("CST", 8*60*60)
+	}
+}
+
 // getBizDayStartUTC returns the start of the current business day (00:00 Asia/Shanghai) as UTC.
 // This matches the TypeScript original which uses Shanghai timezone for daily limit windows.
 func getBizDayStartUTC(now time.Time) time.Time {
-	loc, _ := time.LoadLocation("Asia/Shanghai")
-	shanghai := now.In(loc)
-	return time.Date(shanghai.Year(), shanghai.Month(), shanghai.Day(), 0, 0, 0, 0, loc).UTC()
+	shanghai := now.In(shanghaiLoc)
+	return time.Date(shanghai.Year(), shanghai.Month(), shanghai.Day(), 0, 0, 0, 0, shanghaiLoc).UTC()
 }

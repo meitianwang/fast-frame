@@ -35,7 +35,7 @@ func (h *PaymentSubscriptionPlanHandler) List(c *gin.Context) {
 		out = append(out, *dto.SubscriptionPlanFromService(&plans[i]))
 	}
 
-	response.Success(c, gin.H{"plans": out})
+	response.Success(c, out)
 }
 
 // Create handles POST /api/v1/admin/pay/subscription-plans

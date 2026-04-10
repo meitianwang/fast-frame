@@ -50,7 +50,7 @@ func (h *PaymentProviderInstanceHandler) List(c *gin.Context) {
 		out = append(out, h.instanceToResponse(inst))
 	}
 
-	response.Success(c, gin.H{"instances": out})
+	response.Success(c, out)
 }
 
 // Create handles POST /api/v1/admin/pay/provider-instances

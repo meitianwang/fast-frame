@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/Wei-Shaw/sub2api/internal/domain"
 	"github.com/Wei-Shaw/sub2api/internal/service"
@@ -65,18 +66,32 @@ func (p *StripeProvider) DefaultLimits() map[string]service.MethodDefaultLimits 
 	}
 }
 
-// centsFromCNY converts a CNY decimal amount to the smallest currency unit (cents/fen).
-func centsFromCNY(amount decimal.Decimal) int64 {
+// zeroDecimalCurrencies lists currencies that use the major unit directly (no cents).
+// See: https://docs.stripe.com/currencies#zero-decimal
+var zeroDecimalCurrencies = map[string]bool{
+	"bif": true, "clp": true, "djf": true, "gnf": true, "jpy": true,
+	"kmf": true, "krw": true, "mga": true, "pyg": true, "rwf": true,
+	"ugx": true, "vnd": true, "vuv": true, "xaf": true, "xof": true, "xpf": true,
+}
+
+// toSmallestUnit converts a decimal amount to the smallest currency unit for Stripe.
+func toSmallestUnit(amount decimal.Decimal, currency string) int64 {
+	if zeroDecimalCurrencies[strings.ToLower(currency)] {
+		return amount.Round(0).IntPart()
+	}
 	return amount.Mul(decimal.NewFromInt(100)).Round(0).IntPart()
 }
 
-// decimalFromCents converts a cent-denominated int64 back to a decimal amount.
-func decimalFromCents(cents int64) decimal.Decimal {
-	return decimal.NewFromInt(cents).Div(decimal.NewFromInt(100))
+// fromSmallestUnit converts a Stripe smallest-unit int64 back to a decimal amount.
+func fromSmallestUnit(units int64, currency string) decimal.Decimal {
+	if zeroDecimalCurrencies[strings.ToLower(currency)] {
+		return decimal.NewFromInt(units)
+	}
+	return decimal.NewFromInt(units).Div(decimal.NewFromInt(100))
 }
 
 func (p *StripeProvider) CreatePayment(_ context.Context, req service.CreatePaymentRequest) (*service.CreatePaymentResponse, error) {
-	amountInCents := centsFromCNY(req.Amount)
+	amountInCents := toSmallestUnit(req.Amount, p.config.Currency)
 
 	params := &stripe.PaymentIntentParams{
 		Amount:   stripe.Int64(amountInCents),
@@ -111,7 +126,7 @@ func (p *StripeProvider) QueryOrder(_ context.Context, tradeNo string) (*service
 	resp := &service.QueryOrderResponse{
 		TradeNo: pi.ID,
 		Status:  status,
-		Amount:  decimalFromCents(pi.Amount),
+		Amount:  fromSmallestUnit(pi.Amount, p.config.Currency),
 	}
 
 	return resp, nil
@@ -152,14 +167,14 @@ func (p *StripeProvider) VerifyNotification(_ context.Context, rawBody []byte, h
 	return &service.PaymentNotification{
 		TradeNo: pi.ID,
 		OrderID: orderID,
-		Amount:  decimalFromCents(pi.Amount),
+		Amount:  fromSmallestUnit(pi.Amount, p.config.Currency),
 		Status:  status,
 		RawData: string(rawBody),
 	}, nil
 }
 
 func (p *StripeProvider) Refund(_ context.Context, req service.RefundRequest) (*service.RefundResponse, error) {
-	amountInCents := centsFromCNY(req.Amount)
+	amountInCents := toSmallestUnit(req.Amount, p.config.Currency)
 
 	params := &stripe.RefundParams{
 		PaymentIntent: stripe.String(req.TradeNo),

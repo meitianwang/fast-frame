@@ -213,6 +213,27 @@ const routes: RouteRecordRaw[] = [
     }
   },
   {
+    path: '/purchase/result',
+    name: 'PaymentResult',
+    component: () => import('@/views/user/PaymentResultView.vue'),
+    meta: {
+      requiresAuth: true,
+      requiresAdmin: false,
+      title: 'Payment Result',
+      titleKey: 'payment.status.title'
+    }
+  },
+  {
+    path: '/purchase/stripe-popup',
+    name: 'StripePopup',
+    component: () => import('@/views/user/StripePopupView.vue'),
+    meta: {
+      requiresAuth: false,
+      requiresAdmin: false,
+      title: 'Stripe Payment'
+    }
+  },
+  {
     path: '/sora',
     name: 'Sora',
     component: () => import('@/views/user/SoraView.vue'),
@@ -415,6 +436,17 @@ const routes: RouteRecordRaw[] = [
       requiresAdmin: true,
       title: 'Subscription Plans',
       titleKey: 'payment.admin.subscriptionPlans'
+    }
+  },
+  {
+    path: '/admin/payment/providers',
+    name: 'AdminPaymentProviders',
+    component: () => import('@/views/admin/PaymentProviderInstancesView.vue'),
+    meta: {
+      requiresAuth: true,
+      requiresAdmin: true,
+      title: 'Provider Instances',
+      titleKey: 'payment.admin.providerInstances'
     }
   },
 

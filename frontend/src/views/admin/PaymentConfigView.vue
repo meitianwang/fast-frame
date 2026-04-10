@@ -1,6 +1,7 @@
 <template>
   <AppLayout>
     <div class="mx-auto max-w-4xl px-4 py-6">
+      <PaymentAdminNav />
       <h1 class="mb-6 text-xl font-bold text-gray-900 dark:text-white">{{ t('payment.admin.paymentConfig') }}</h1>
 
       <div v-if="loading" class="flex items-center justify-center py-12">
@@ -70,12 +71,24 @@
                 <input id="cfg-fee-alipay" v-model="configs['pay_fee_rate_alipay']" type="number" step="0.01" min="0" max="100" class="input w-full" placeholder="0" />
               </div>
               <div>
+                <label for="cfg-fee-alipay-direct" class="mb-1 block text-sm text-gray-600 dark:text-slate-400">{{ t('payment.alipay') }} ({{ t('payment.admin.direct') }}) (%)</label>
+                <input id="cfg-fee-alipay-direct" v-model="configs['pay_fee_rate_alipay_direct']" type="number" step="0.01" min="0" max="100" class="input w-full" placeholder="0" />
+              </div>
+              <div>
                 <label for="cfg-fee-wxpay" class="mb-1 block text-sm text-gray-600 dark:text-slate-400">{{ t('payment.wechatPay') }} (%)</label>
                 <input id="cfg-fee-wxpay" v-model="configs['pay_fee_rate_wxpay']" type="number" step="0.01" min="0" max="100" class="input w-full" placeholder="0" />
               </div>
               <div>
+                <label for="cfg-fee-wxpay-direct" class="mb-1 block text-sm text-gray-600 dark:text-slate-400">{{ t('payment.wechatPay') }} ({{ t('payment.admin.direct') }}) (%)</label>
+                <input id="cfg-fee-wxpay-direct" v-model="configs['pay_fee_rate_wxpay_direct']" type="number" step="0.01" min="0" max="100" class="input w-full" placeholder="0" />
+              </div>
+              <div>
                 <label for="cfg-fee-stripe" class="mb-1 block text-sm text-gray-600 dark:text-slate-400">Stripe (%)</label>
                 <input id="cfg-fee-stripe" v-model="configs['pay_fee_rate_stripe']" type="number" step="0.01" min="0" max="100" class="input w-full" placeholder="0" />
+              </div>
+              <div>
+                <label for="cfg-fee-easypay" class="mb-1 block text-sm text-gray-600 dark:text-slate-400">{{ t('payment.easypay') }} (%)</label>
+                <input id="cfg-fee-easypay" v-model="configs['pay_fee_rate_easypay']" type="number" step="0.01" min="0" max="100" class="input w-full" placeholder="0" />
               </div>
             </div>
           </div>
@@ -89,12 +102,69 @@
                 <input id="cfg-daily-alipay" v-model="configs['pay_max_daily_amount_alipay']" type="number" step="0.01" min="0" class="input w-full" placeholder="0 (unlimited)" />
               </div>
               <div>
+                <label for="cfg-daily-alipay-direct" class="mb-1 block text-sm text-gray-600 dark:text-slate-400">{{ t('payment.alipay') }} ({{ t('payment.admin.direct') }})</label>
+                <input id="cfg-daily-alipay-direct" v-model="configs['pay_max_daily_amount_alipay_direct']" type="number" step="0.01" min="0" class="input w-full" placeholder="0 (unlimited)" />
+              </div>
+              <div>
                 <label for="cfg-daily-wxpay" class="mb-1 block text-sm text-gray-600 dark:text-slate-400">{{ t('payment.wechatPay') }}</label>
                 <input id="cfg-daily-wxpay" v-model="configs['pay_max_daily_amount_wxpay']" type="number" step="0.01" min="0" class="input w-full" placeholder="0 (unlimited)" />
               </div>
               <div>
+                <label for="cfg-daily-wxpay-direct" class="mb-1 block text-sm text-gray-600 dark:text-slate-400">{{ t('payment.wechatPay') }} ({{ t('payment.admin.direct') }})</label>
+                <input id="cfg-daily-wxpay-direct" v-model="configs['pay_max_daily_amount_wxpay_direct']" type="number" step="0.01" min="0" class="input w-full" placeholder="0 (unlimited)" />
+              </div>
+              <div>
                 <label for="cfg-daily-stripe" class="mb-1 block text-sm text-gray-600 dark:text-slate-400">Stripe</label>
                 <input id="cfg-daily-stripe" v-model="configs['pay_max_daily_amount_stripe']" type="number" step="0.01" min="0" class="input w-full" placeholder="0 (unlimited)" />
+              </div>
+              <div>
+                <label for="cfg-daily-easypay" class="mb-1 block text-sm text-gray-600 dark:text-slate-400">{{ t('payment.easypay') }}</label>
+                <input id="cfg-daily-easypay" v-model="configs['pay_max_daily_amount_easypay']" type="number" step="0.01" min="0" class="input w-full" placeholder="0 (unlimited)" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Cancel Rate Limit -->
+          <div class="rounded-xl border p-6 border-gray-200 dark:border-slate-700">
+            <h3 class="mb-4 text-sm font-semibold text-gray-700 dark:text-slate-300">{{ t('payment.admin.cancelRateLimit') }}</h3>
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+              <div>
+                <label for="cfg-cancel-window" class="mb-1 block text-sm text-gray-600 dark:text-slate-400">{{ t('payment.admin.cancelRateLimitWindow') }}</label>
+                <input id="cfg-cancel-window" v-model="configs['pay_cancel_rate_limit_window']" type="number" step="1" min="1" class="input w-full" placeholder="5" />
+              </div>
+              <div>
+                <label for="cfg-cancel-unit" class="mb-1 block text-sm text-gray-600 dark:text-slate-400">{{ t('payment.admin.cancelRateLimitUnit') }}</label>
+                <select id="cfg-cancel-unit" v-model="configs['pay_cancel_rate_limit_unit']" class="input w-full">
+                  <option value="minute">{{ t('payment.admin.cancelRateLimitUnitMinute') }}</option>
+                  <option value="hour">{{ t('payment.admin.cancelRateLimitUnitHour') }}</option>
+                  <option value="day">{{ t('payment.admin.cancelRateLimitUnitDay') }}</option>
+                </select>
+              </div>
+              <div>
+                <label for="cfg-cancel-max" class="mb-1 block text-sm text-gray-600 dark:text-slate-400">{{ t('payment.admin.cancelRateLimitMax') }}</label>
+                <input id="cfg-cancel-max" v-model="configs['pay_cancel_rate_limit_max']" type="number" step="1" min="0" class="input w-full" placeholder="3" />
+              </div>
+              <div>
+                <label for="cfg-cancel-mode" class="mb-1 block text-sm text-gray-600 dark:text-slate-400">{{ t('payment.admin.cancelRateLimitMode') }}</label>
+                <select id="cfg-cancel-mode" v-model="configs['pay_cancel_rate_limit_mode']" class="input w-full">
+                  <option value="rolling">{{ t('payment.admin.cancelRateLimitModeRolling') }}</option>
+                  <option value="fixed">{{ t('payment.admin.cancelRateLimitModeFixed') }}</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Help Content -->
+          <div class="rounded-xl border p-6 border-gray-200 dark:border-slate-700">
+            <h3 class="mb-4 text-sm font-semibold text-gray-700 dark:text-slate-300">{{ t('payment.admin.helpContent') }}</h3>
+            <div class="grid grid-cols-1 gap-4">
+              <div>
+                <label for="cfg-help-image" class="mb-1 block text-sm text-gray-600 dark:text-slate-400">{{ t('payment.admin.helpImageUrl') }}</label>
+                <input id="cfg-help-image" v-model="configs['pay_help_image_url']" class="input w-full" placeholder="https://example.com/help.png" maxlength="500" />
+              </div>
+              <div>
+                <label for="cfg-help-text" class="mb-1 block text-sm text-gray-600 dark:text-slate-400">{{ t('payment.admin.helpText') }}</label>
+                <textarea id="cfg-help-text" v-model="configs['pay_help_text']" rows="3" class="input w-full" maxlength="1000" />
               </div>
             </div>
           </div>
@@ -115,6 +185,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AppLayout from '@/components/layout/AppLayout.vue'
+import PaymentAdminNav from '@/components/admin/PaymentAdminNav.vue'
 import { adminPayAPI } from '@/api/admin/pay'
 import { useAppStore } from '@/stores'
 
@@ -146,7 +217,7 @@ onMounted(async () => {
   }
 })
 
-const VALID_PAYMENT_TYPES = new Set(['alipay', 'alipay_direct', 'wxpay', 'wxpay_direct', 'stripe'])
+const VALID_PAYMENT_TYPES = new Set(['alipay', 'alipay_direct', 'wxpay', 'wxpay_direct', 'stripe', 'easypay'])
 
 function validateAmounts(): string | null {
   const minAmount = parseFloat(configs.value['pay_min_recharge_amount'] || '0')
@@ -172,7 +243,7 @@ function validateFeeRates(): string | null {
   for (const key of Object.keys(configs.value)) {
     if (key.startsWith('pay_fee_rate_')) {
       const rate = parseFloat(configs.value[key] || '0')
-      if (rate < 0 || rate > 100) return 'Fee rate must be between 0 and 100%'
+      if (rate < 0 || rate > 100) return t('payment.admin.invalidFeeRate')
     }
   }
   return null

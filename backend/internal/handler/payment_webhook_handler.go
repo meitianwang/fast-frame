@@ -87,7 +87,7 @@ func (h *PaymentWebhookHandler) NotifyStripe(c *gin.Context) {
 	rawBody, err := io.ReadAll(io.LimitReader(c.Request.Body, maxWebhookBodySize))
 	if err != nil {
 		slog.Warn("stripe webhook: failed to read body", "error", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to read body"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "failed to read body"})
 		return
 	}
 

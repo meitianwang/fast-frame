@@ -104,6 +104,7 @@ type PaymentConfigDTO struct {
 	MaxDailyRechargeAmount string            `json:"max_daily_recharge_amount"`
 	BalancePaymentDisabled bool              `json:"balance_payment_disabled"`
 	MaxPendingOrders       int               `json:"max_pending_orders"`
+	PendingCount           int               `json:"pending_count"`
 	MethodLimits           []MethodLimitDTO  `json:"method_limits"`
 }
 
@@ -159,6 +160,7 @@ type PaymentDashboardDTO struct {
 	TotalOrderCount int                          `json:"total_order_count"`
 	DailySeries     []service.DailySeriesPoint   `json:"daily_series"`
 	PaymentMethods  []service.PaymentMethodStat  `json:"payment_methods"`
+	Leaderboard     []service.LeaderboardEntry   `json:"leaderboard,omitempty"`
 }
 
 // --- Mapper functions ---

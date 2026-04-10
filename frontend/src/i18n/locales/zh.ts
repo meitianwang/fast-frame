@@ -310,6 +310,12 @@ export default {
     now: '现在',
     unknown: '未知',
     minutes: '分钟',
+    prev: '上一页',
+    view: '查看',
+    deleted: '已删除',
+    saved: '已保存',
+    nameRequired: '名称不能为空',
+    confirmDelete: '确定要删除此项吗？',
     time: {
       never: '从未',
       justNow: '刚刚',
@@ -4928,6 +4934,8 @@ export default {
     weekly: '每周',
     monthly: '每月',
     daysRemaining: '剩余 {days} 天',
+    today: '今天',
+    tomorrow: '明天',
     expiresOn: '{date} 到期',
     resetIn: '{time} 后重置',
     windowNotActive: '等待首次使用',
@@ -5221,6 +5229,8 @@ export default {
     alipay: '支付宝',
     alipayIconText: '支',
     wechatPay: '微信支付',
+    easypay: '易支付',
+    easypayIconText: '易',
     dailyLimitReached: '今日充值额度已满，请使用其他支付方式',
     dailyLimitReachedShort: '今日额度已满',
     selectMethod: '选择{method}作为支付方式',
@@ -5231,6 +5241,8 @@ export default {
     invalidAmount: '金额需在范围内，且最多支持 2 位小数（精确到分）',
     minAmount: '单笔最低充值 ¥{amount}',
     maxAmount: '单笔最高充值 ¥{amount}',
+    viaEasypay: '聚合支付',
+    viaDirect: '官方直连',
 
     tabs: {
       topUp: '充值',
@@ -5252,7 +5264,13 @@ export default {
       days: '天',
       day: '天',
       week: '周',
-      month: '月'
+      month: '月',
+      months: '个月',
+      weeks: '周',
+      usageLimits: '用量限额',
+      dailyLimit: '日限额: ${amount}',
+      weeklyLimit: '周限额: ${amount}',
+      monthlyLimit: '月限额: ${amount}'
     },
 
     confirm: {
@@ -5279,7 +5297,13 @@ export default {
       notRedirected: '未跳转？点击前往{channel}',
       goto: '前往{channel}支付',
       openScan: '请打开{channel}扫一扫完成支付',
-      qrFailed: '二维码生成失败，请返回重试'
+      qrFailed: '二维码生成失败，请返回重试',
+      stripeLoading: '正在加载 Stripe...',
+      stripeRetry: '重试',
+      stripePay: '立即支付',
+      stripeNoKey: 'Stripe 配置不完整，请联系管理员。',
+      pollFailed: '无法查询支付状态，请检查网络连接。',
+      pollRetry: '重试'
     },
 
     status: {
@@ -5298,7 +5322,23 @@ export default {
       error: '支付异常',
       errorMsg: '支付状态异常，请联系管理员处理。',
       done: '完成',
-      backToRecharge: '返回充值'
+      backToRecharge: '返回充值',
+      pollTimeout: '处理时间较长，请稍后在订单列表中查看最新状态。',
+      checking: '正在查询支付状态...',
+      title: '支付结果'
+    },
+
+    stripePopup: {
+      init: '正在初始化...',
+      orderId: '订单号',
+      loadFailed: '支付组件加载失败，请关闭窗口重试',
+      payFailed: '支付失败，请重试',
+      closeWindow: '关闭窗口',
+      redirecting: '正在跳转到支付页面...',
+      loadingForm: '正在加载支付表单...',
+      successClosing: '支付成功，窗口即将自动关闭...',
+      closeWindowManually: '手动关闭窗口',
+      payAmount: '支付 ¥{amount}'
     },
 
     orderStatus: {
@@ -5332,7 +5372,8 @@ export default {
       refundAmountHint: '请输入退款金额',
       refundReason: '退款原因',
       refundReasonHint: '可选，填写退款原因',
-      refundRequested: '退款申请已提交'
+      refundRequested: '退款申请已提交',
+      totalOrders: '总订单数'
     },
 
     admin: {
@@ -5388,8 +5429,10 @@ export default {
       balanceDisabled: '禁用余额充值',
       autoRefund: '自动退款',
       feeRates: '手续费率',
+      direct: '直连',
       dailyLimits: '各支付方式每日限额',
       configSaved: '配置已保存',
+      invalidFeeRate: '手续费率必须在 0 到 100% 之间',
       channelName: '渠道名称',
       platform: '平台',
       groupId: '分组 ID',
@@ -5405,12 +5448,58 @@ export default {
       validity: '有效期',
       validityDays: '有效天数',
       validityUnit: '有效期单位',
+      unitDay: '天',
+      unitWeek: '周',
+      unitMonth: '月',
       forSale: '上架销售',
       notForSale: '未上架',
       showLastDays: '显示最近 {days} 天',
       noPlans: '暂无订阅计划',
       strategyRoundRobin: '轮询',
-      strategyMinAmount: '最小金额'
+      strategyMinAmount: '最小金额',
+      cancelRateLimit: '取消速率限制',
+      cancelRateLimitWindow: '窗口大小',
+      cancelRateLimitUnit: '窗口单位',
+      cancelRateLimitMax: '最大取消次数',
+      cancelRateLimitUnitMinute: '分钟',
+      cancelRateLimitUnitHour: '小时',
+      cancelRateLimitUnitDay: '天',
+      cancelRateLimitMode: '窗口模式',
+      cancelRateLimitModeRolling: '滚动窗口',
+      cancelRateLimitModeFixed: '固定窗口',
+      providerInstances: '支付商户实例',
+      noProviderInstances: '暂无支付商户实例',
+      providerKey: '支付渠道类型',
+      instanceName: '实例名称',
+      supportedTypes: '支持的支付方式',
+      refundEnabled: '支持退款',
+      instanceLimits: '实例限额',
+      instanceConfig: '商户凭据',
+      todayAmount: '今日金额',
+      addProviderInstance: '添加支付商户',
+      editProviderInstance: '编辑支付商户',
+      syncFromGroups: '从分组同步',
+      syncFromGroupsHint: '从 Sub2API 分组导入渠道',
+      selectGroupsToSync: '选择要导入为渠道的分组',
+      alreadyImported: '已导入',
+      syncSuccess: '渠道同步成功',
+      noGroupsToSync: '暂无可同步的分组',
+      successRate: '成功率',
+      successCount: '成功数',
+      leaderboard: '充值排行',
+      leaderboardUser: '用户',
+      leaderboardAmount: '累计充值',
+      leaderboardOrders: '订单数',
+      dateFrom: '起始日期',
+      dateTo: '截止日期',
+      userSearch: '用户 ID',
+      userSearchPlaceholder: '按用户 ID 筛选',
+      helpContent: '帮助内容',
+      helpImageUrl: '帮助图片 URL',
+      helpText: '帮助文字',
+      userBalance: '用户余额',
+      insufficientBalance: '用户余额不足以覆盖退款金额',
+      subscriptionDaysRemaining: '订阅剩余天数'
     }
   }
 }

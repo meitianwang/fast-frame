@@ -29,9 +29,12 @@ func (h *PaymentOrderHandler) List(c *gin.Context) {
 
 	var filter service.PaymentOrderListFilter
 	if v := c.Query("user_id"); v != "" {
-		if id, err := strconv.ParseInt(v, 10, 64); err == nil {
-			filter.UserID = &id
+		id, err := strconv.ParseInt(v, 10, 64)
+		if err != nil {
+			response.BadRequest(c, "Invalid user_id: must be an integer")
+			return
 		}
+		filter.UserID = &id
 	}
 	if v := c.Query("status"); v != "" {
 		if !isValidOrderStatus(v) {
@@ -51,12 +54,18 @@ func (h *PaymentOrderHandler) List(c *gin.Context) {
 		filter.PaymentType = &v
 	}
 	if v := c.Query("date_from"); v != "" {
-		if t, err := time.Parse(time.RFC3339, v); err == nil {
+		if t, err := time.Parse(time.RFC3339, v); err != nil {
+			response.BadRequest(c, "Invalid date_from: must be RFC3339 format")
+			return
+		} else {
 			filter.DateFrom = &t
 		}
 	}
 	if v := c.Query("date_to"); v != "" {
-		if t, err := time.Parse(time.RFC3339, v); err == nil {
+		if t, err := time.Parse(time.RFC3339, v); err != nil {
+			response.BadRequest(c, "Invalid date_to: must be RFC3339 format")
+			return
+		} else {
 			filter.DateTo = &t
 		}
 	}

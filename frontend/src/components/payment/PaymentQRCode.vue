@@ -28,6 +28,17 @@
       </div>
     </div>
 
+    <!-- Poll failure warning -->
+    <div v-if="pollFailed && !expired" class="w-full rounded-lg border border-yellow-300 bg-yellow-50 p-3 text-center dark:border-yellow-700 dark:bg-yellow-900/30">
+      <p class="text-sm text-yellow-700 dark:text-yellow-400">{{ t('payment.qr.pollFailed') }}</p>
+      <button
+        @click="retryPolling"
+        class="mt-2 text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+      >
+        {{ t('payment.qr.pollRetry') }}
+      </button>
+    </div>
+
     <!-- Payment Content (when not expired) -->
     <template v-if="!expired">
       <!-- Auto Redirect (mobile/H5) -->
@@ -72,15 +83,34 @@
         </p>
       </template>
 
-      <!-- Stripe Payment (placeholder - requires Stripe JS SDK integration) -->
+      <!-- Stripe Payment -->
       <template v-else>
         <div class="w-full max-w-md space-y-4">
           <div v-if="!clientSecret" class="rounded-lg border-2 border-dashed p-8 text-center border-gray-300 dark:border-slate-700">
             <p class="text-sm text-gray-500 dark:text-slate-400">{{ t('payment.qr.initFailed') }}</p>
           </div>
-          <div v-else class="rounded-lg border p-4 border-gray-200 bg-white dark:border-slate-700 dark:bg-slate-900">
-            <p class="text-sm text-gray-500 dark:text-slate-400">{{ t('payment.qr.stripeRedirect') }}</p>
-          </div>
+          <template v-else>
+            <div v-if="stripeLoading" class="flex items-center justify-center py-8">
+              <div class="h-8 w-8 animate-spin rounded-full border-2 border-[#635bff] border-t-transparent" />
+              <span class="ml-3 text-sm text-gray-500 dark:text-slate-400">{{ t('payment.qr.stripeLoading') }}</span>
+            </div>
+            <div v-else-if="stripeError" class="rounded-lg border-2 border-dashed p-8 text-center border-red-300 dark:border-red-700">
+              <p class="text-sm text-red-500 dark:text-red-400">{{ stripeError }}</p>
+              <button @click="initStripe" class="mt-3 text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400">
+                {{ t('payment.qr.stripeRetry') }}
+              </button>
+            </div>
+            <div v-else>
+              <div ref="stripeElementRef" class="rounded-lg border p-4 border-gray-200 bg-white dark:border-slate-700 dark:bg-slate-800" />
+              <button
+                @click="handleStripeSubmit"
+                :disabled="stripeSubmitting"
+                class="mt-4 w-full rounded-lg py-3 font-medium text-white bg-[#635bff] hover:bg-[#5851db] disabled:opacity-50"
+              >
+                {{ stripeSubmitting ? t('payment.processing') : t('payment.qr.stripePay') }}
+              </button>
+            </div>
+          </template>
         </div>
       </template>
     </template>
@@ -105,7 +135,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import QRCode from 'qrcode'
 import { payAPI } from '@/api/pay'
@@ -124,9 +154,12 @@ const props = withDefaults(
     payAmount?: number
     expiresAt: string
     isMobile?: boolean
+    isEmbedded?: boolean
+    accessToken?: string
   }>(),
   {
-    isMobile: false
+    isMobile: false,
+    isEmbedded: false
   }
 )
 
@@ -154,6 +187,16 @@ const imageLoading = ref(false)
 const cancelBlocked = ref(false)
 const redirected = ref(false)
 
+const pollFailed = ref(false)
+
+const stripeLoading = ref(false)
+const stripeError = ref('')
+const stripeSubmitting = ref(false)
+const stripeElementRef = ref<HTMLDivElement | null>(null)
+let stripeInstance: any = null
+let stripeElements: any = null
+let stripePaymentMethodListenerAdded = false
+
 const isStripe = computed(() => props.paymentType?.includes('stripe'))
 const shouldAutoRedirect = computed(
   () => !expired.value && !isStripe.value && !!props.payUrl && (props.isMobile || !props.qrCode)
@@ -165,7 +208,12 @@ const channelLabel = computed(() => getPaymentMethodLabel(props.paymentType || '
 watch(shouldAutoRedirect, (val) => {
   if (val && !redirected.value && props.payUrl && isSafePaymentUrl(props.payUrl)) {
     redirected.value = true
-    window.location.replace(props.payUrl)
+    if (props.isEmbedded) {
+      // In embedded (iframe) context, open in new tab to avoid replacing parent
+      window.open(props.payUrl, '_blank', 'noopener,noreferrer')
+    } else {
+      window.location.replace(props.payUrl)
+    }
   }
 }, { immediate: true })
 
@@ -245,8 +293,118 @@ async function pollStatus() {
       console.warn(`[PaymentQRCode] Polling stopped after ${MAX_POLL_FAILURES} consecutive failures`)
       clearInterval(pollInterval)
       pollInterval = null
+      pollFailed.value = true
       emit('pollStopped')
     }
+  }
+}
+
+function retryPolling() {
+  if (pollInterval) {
+    clearInterval(pollInterval)
+    pollInterval = null
+  }
+  pollFailed.value = false
+  consecutivePollFailures = 0
+  pollStatus()
+  pollInterval = setInterval(pollStatus, POLL_INTERVAL_MS)
+}
+
+function loadStripeJs(): Promise<any> {
+  return new Promise((resolve, reject) => {
+    if ((window as any).Stripe) {
+      resolve((window as any).Stripe)
+      return
+    }
+    // Avoid duplicate script tags if already loading
+    const existing = document.querySelector('script[src="https://js.stripe.com/v3/"]')
+    if (existing) {
+      existing.addEventListener('load', () => resolve((window as any).Stripe), { once: true })
+      existing.addEventListener('error', () => reject(new Error('Failed to load Stripe.js')), { once: true })
+      return
+    }
+    const script = document.createElement('script')
+    script.src = 'https://js.stripe.com/v3/'
+    script.onload = () => resolve((window as any).Stripe)
+    script.onerror = () => reject(new Error('Failed to load Stripe.js'))
+    document.head.appendChild(script)
+  })
+}
+
+async function initStripe() {
+  if (!props.clientSecret) return
+  stripeLoading.value = true
+  stripeError.value = ''
+  try {
+    const Stripe = await loadStripeJs()
+    const configResp = await payAPI.getConfig()
+    const publishableKey = configResp.stripe_publishable_key
+    if (!publishableKey) {
+      stripeError.value = t('payment.qr.stripeNoKey')
+      return
+    }
+    stripeInstance = Stripe(publishableKey)
+    const isDark = document.documentElement.classList.contains('dark')
+    stripeElements = stripeInstance.elements({
+      clientSecret: props.clientSecret,
+      appearance: {
+        theme: isDark ? 'night' : 'stripe',
+        variables: isDark ? {
+          colorBackground: '#1e293b',
+          colorText: '#e2e8f0',
+          colorDanger: '#ef4444',
+          borderRadius: '8px'
+        } : undefined
+      }
+    })
+    const paymentElement = stripeElements.create('payment')
+    await nextTick()
+    if (stripeElementRef.value && !isUnmounted) {
+      paymentElement.mount(stripeElementRef.value)
+      // Add payment method change listener only once to prevent duplicates
+      if (!stripePaymentMethodListenerAdded) {
+        stripePaymentMethodListenerAdded = true
+        paymentElement.on('change', (event: any) => {
+          if (event.error) {
+            stripeError.value = event.error.message
+          } else {
+            stripeError.value = ''
+          }
+        })
+      }
+    }
+  } catch (err: any) {
+    stripeError.value = err?.message || t('payment.qr.initFailed')
+  } finally {
+    stripeLoading.value = false
+  }
+}
+
+async function handleStripeSubmit() {
+  if (!stripeInstance || !stripeElements || stripeSubmitting.value) return
+  stripeSubmitting.value = true
+  try {
+    const returnUrl = new URL('/purchase/result', window.location.origin)
+    returnUrl.searchParams.set('out_trade_no', String(props.orderId))
+    if (props.accessToken) {
+      returnUrl.searchParams.set('access_token', props.accessToken)
+    }
+    const { error } = await stripeInstance.confirmPayment({
+      elements: stripeElements,
+      confirmParams: {
+        return_url: returnUrl.toString()
+      },
+      redirect: 'if_required'
+    })
+    if (error) {
+      stripeError.value = error.message || t('payment.qr.initFailed')
+    } else {
+      emit('statusChange', 'paid')
+    }
+  } catch (err: any) {
+    stripeError.value = err?.message || t('payment.qr.initFailed')
+  } finally {
+    stripeSubmitting.value = false
   }
 }
 
@@ -255,6 +413,9 @@ onMounted(() => {
   timerInterval = setInterval(updateTimer, TIMER_INTERVAL_MS)
   pollStatus()
   pollInterval = setInterval(pollStatus, POLL_INTERVAL_MS)
+  if (isStripe.value && props.clientSecret) {
+    initStripe()
+  }
 })
 
 onUnmounted(() => {
@@ -265,13 +426,21 @@ onUnmounted(() => {
   timerInterval = null
   pollInterval = null
   pollAbort = null
+  stripeInstance = null
+  stripeElements = null
 })
 
-// Stop polling when expired
+// Stop polling and timer when expired
 watch(expired, (val) => {
-  if (val && pollInterval) {
-    clearInterval(pollInterval)
-    pollInterval = null
+  if (val) {
+    if (pollInterval) {
+      clearInterval(pollInterval)
+      pollInterval = null
+    }
+    if (timerInterval) {
+      clearInterval(timerInterval)
+      timerInterval = null
+    }
   }
 })
 

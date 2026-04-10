@@ -70,6 +70,7 @@ var allowedPaymentConfigKeys = map[string]bool{
 	"pay_max_daily_amount_wxpay":       true,
 	"pay_max_daily_amount_stripe":      true,
 	"pay_auto_refund_enabled":          true,
+	"pay_grace_period_minutes":         true,
 }
 
 // Update handles PUT /api/v1/admin/pay/config

@@ -33,6 +33,27 @@
       {{ plan.description }}
     </p>
 
+    <!-- Rate multiplier (from group info if available) -->
+    <div v-if="(plan as any).rate_multiplier" class="mb-3">
+      <div class="flex items-baseline gap-2">
+        <span class="text-xs text-slate-400 dark:text-slate-500">{{ t('payment.channel.rate') }}</span>
+        <span class="text-sm font-medium" :class="accentClass">1 : {{ (plan as any).rate_multiplier }}</span>
+      </div>
+    </div>
+
+    <!-- Usage Limits -->
+    <div v-if="hasLimits" class="mb-4 space-y-1">
+      <p v-if="(plan as any).daily_limit" class="text-xs text-slate-600 dark:text-slate-400">
+        {{ t('payment.plan.dailyLimit', { amount: (plan as any).daily_limit }) }}
+      </p>
+      <p v-if="(plan as any).weekly_limit" class="text-xs text-slate-600 dark:text-slate-400">
+        {{ t('payment.plan.weeklyLimit', { amount: (plan as any).weekly_limit }) }}
+      </p>
+      <p v-if="(plan as any).monthly_limit" class="text-xs text-slate-600 dark:text-slate-400">
+        {{ t('payment.plan.monthlyLimit', { amount: (plan as any).monthly_limit }) }}
+      </p>
+    </div>
+
     <!-- Features -->
     <div v-if="features.length > 0" class="mb-5">
       <p class="mb-2 text-xs text-slate-400 dark:text-slate-500">{{ t('payment.channel.features') }}</p>
@@ -84,6 +105,11 @@ const { t } = useI18n()
 const features = computed(() =>
   props.plan.features ? props.plan.features.split(',').map((f) => f.trim()).filter(Boolean) : []
 )
+
+const hasLimits = computed(() => {
+  const p = props.plan as any
+  return p.daily_limit || p.weekly_limit || p.monthly_limit
+})
 
 const periodLabel = computed(() => formatPeriodLabel(props.plan.validity_days, props.plan.validity_unit, t))
 const periodSuffix = computed(() => formatPeriodSuffix(props.plan.validity_days, props.plan.validity_unit, t))

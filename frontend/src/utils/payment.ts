@@ -5,11 +5,21 @@
 import type { Composer } from 'vue-i18n'
 
 /**
- * Format ISO date string to locale string
+ * Format ISO date string to a consistent locale string.
+ * Uses explicit options so the output is stable across browsers.
  */
 export function formatPaymentDate(dateStr: string): string {
   const date = new Date(dateStr)
-  return isNaN(date.getTime()) ? '-' : date.toLocaleString()
+  if (isNaN(date.getTime())) return '-'
+  return date.toLocaleString(undefined, {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  })
 }
 
 /**
@@ -38,9 +48,10 @@ export function getPaymentStatusBadgeClass(status: string): string {
  * Get payment method display label via i18n
  */
 export function getPaymentMethodLabel(type: string, t: Composer['t']): string {
-  if (type?.includes('alipay')) return t('payment.alipay')
-  if (type?.includes('wxpay') || type?.includes('wechat')) return t('payment.wechatPay')
-  if (type?.includes('stripe')) return 'Stripe'
+  if (type.includes('easypay')) return t('payment.easypay')
+  if (type.includes('alipay')) return t('payment.alipay')
+  if (type.includes('wxpay') || type.includes('wechat')) return t('payment.wechatPay')
+  if (type.includes('stripe')) return 'Stripe'
   return type
 }
 
@@ -48,6 +59,7 @@ export function getPaymentMethodLabel(type: string, t: Composer['t']): string {
  * Get payment icon type from payment type string
  */
 export function getPaymentIconType(type: string): string {
+  if (type.includes('easypay')) return 'easypay'
   if (type.includes('alipay')) return 'alipay'
   if (type.includes('wxpay') || type.includes('wechat')) return 'wxpay'
   if (type.includes('stripe')) return 'stripe'
@@ -59,6 +71,7 @@ export function getPaymentIconType(type: string): string {
  */
 export function getPaymentButtonClass(type: string): string {
   const iconType = getPaymentIconType(type)
+  if (iconType === 'easypay') return 'bg-[#ff6600] hover:bg-[#e55c00]'
   if (iconType === 'alipay') return 'bg-[#00AEEF] hover:bg-[#009ad6]'
   if (iconType === 'wxpay') return 'bg-[#07C160] hover:bg-[#06ae56]'
   if (iconType === 'stripe') return 'bg-[#635bff] hover:bg-[#5851db]'
@@ -74,14 +87,14 @@ export function formatPeriodLabel(
   t: Composer['t']
 ): string {
   const unit = validityUnit || 'day'
-  if (unit === 'month')
-    return validityDays === 30 || validityDays === 1
-      ? t('payment.plan.monthly')
-      : `${validityDays} ${t('payment.plan.days')}`
-  if (unit === 'week')
-    return validityDays === 7 || validityDays === 1
-      ? t('payment.plan.weekly')
-      : `${validityDays} ${t('payment.plan.days')}`
+  if (unit === 'month') {
+    if (validityDays === 1) return t('payment.plan.monthly')
+    return `${validityDays} ${t('payment.plan.months')}`
+  }
+  if (unit === 'week') {
+    if (validityDays === 1) return t('payment.plan.weekly')
+    return `${validityDays} ${t('payment.plan.weeks')}`
+  }
   return `${validityDays} ${t('payment.plan.days')}`
 }
 
@@ -104,6 +117,7 @@ export function formatPeriodSuffix(
  */
 export function getPaymentSelectedClass(type: string): string {
   const iconType = getPaymentIconType(type)
+  if (iconType === 'easypay') return 'border-[#ff6600] bg-orange-50 dark:bg-orange-950 text-slate-900 dark:text-slate-100 shadow-sm'
   if (iconType === 'alipay') return 'border-[#00AEEF] bg-blue-50 dark:bg-blue-950 text-slate-900 dark:text-slate-100 shadow-sm'
   if (iconType === 'wxpay') return 'border-[#07C160] bg-green-50 dark:bg-green-950 text-slate-900 dark:text-slate-100 shadow-sm'
   if (iconType === 'stripe') return 'border-[#635bff] bg-indigo-50 dark:bg-indigo-950 text-slate-900 dark:text-slate-100 shadow-sm'
@@ -115,6 +129,7 @@ export function getPaymentSelectedClass(type: string): string {
  */
 export function getPaymentRadioBorderClass(type: string): string {
   const iconType = getPaymentIconType(type)
+  if (iconType === 'easypay') return 'border-[#ff6600]'
   if (iconType === 'alipay') return 'border-[#00AEEF]'
   if (iconType === 'wxpay') return 'border-[#07C160]'
   if (iconType === 'stripe') return 'border-[#635bff]'
@@ -126,6 +141,7 @@ export function getPaymentRadioBorderClass(type: string): string {
  */
 export function getPaymentBrandColor(type: string): string {
   const iconType = getPaymentIconType(type)
+  if (iconType === 'easypay') return '#ff6600'
   if (iconType === 'alipay') return '#00AEEF'
   if (iconType === 'wxpay') return '#07C160'
   if (iconType === 'stripe') return '#635bff'
@@ -137,37 +153,27 @@ export function getPaymentBrandColor(type: string): string {
  */
 export function getPaymentConfirmSelectedClass(type: string): string {
   const iconType = getPaymentIconType(type)
+  if (iconType === 'easypay') return 'border-[#ff6600] bg-orange-50/50 dark:bg-orange-950/30 ring-1 ring-current/20'
   if (iconType === 'alipay') return 'border-[#00AEEF] bg-blue-50/50 dark:bg-blue-950/30 ring-1 ring-current/20'
   if (iconType === 'wxpay') return 'border-[#07C160] bg-green-50/50 dark:bg-green-950/30 ring-1 ring-current/20'
   if (iconType === 'stripe') return 'border-[#635bff] bg-indigo-50/50 dark:bg-indigo-950/30 ring-1 ring-current/20'
   return 'border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/30 ring-1 ring-current/20'
 }
 
-/** Allowed payment gateway domains for redirect safety */
-const ALLOWED_PAYMENT_DOMAINS = [
-  'alipay.com',
-  'alipaydev.com',
-  'tenpay.com',
-  'qq.com',
-  'weixin.qq.com',
-  'wechatpay.cn',
-  'stripe.com',
-  'checkout.stripe.com'
-]
-
 /**
  * Validate a URL is safe for payment redirect.
- * Checks: protocol (http/https only), no credentials, domain allowlist.
+ * Only checks protocol (http/https) and absence of embedded credentials.
+ * Domain is NOT restricted because EasyPay and other aggregators use
+ * arbitrary third-party domains that cannot be enumerated.
+ * The pay_url is always sourced from our own backend, which already
+ * validates provider responses.
  */
 export function isSafePaymentUrl(url: string): boolean {
   try {
     const parsed = new URL(url)
     if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return false
     if (parsed.username || parsed.password) return false
-    const hostname = parsed.hostname.toLowerCase()
-    return ALLOWED_PAYMENT_DOMAINS.some(
-      (domain) => hostname === domain || hostname.endsWith('.' + domain)
-    )
+    return true
   } catch {
     return false
   }
@@ -175,3 +181,23 @@ export function isSafePaymentUrl(url: string): boolean {
 
 /** Amount input validation pattern: digits with up to 2 decimal places */
 export const AMOUNT_TEXT_PATTERN = /^\d*(\.\d{0,2})?$/
+
+/**
+ * Detect if the current device is mobile.
+ * Uses navigator.userAgentData if available, falls back to UA string and touch detection.
+ */
+export function detectDeviceIsMobile(): boolean {
+  if ((navigator as any).userAgentData?.mobile) return true
+  const ua = navigator.userAgent
+  if (/Android|iPhone|iPad|iPod|webOS|BlackBerry|IEMobile|Opera Mini/i.test(ua)) return true
+  // Touch capability + small screen as fallback
+  if ('ontouchstart' in window && window.innerWidth < 768) return true
+  return false
+}
+
+/**
+ * Check if a payment type is a redirect-based payment (no QR, just redirect)
+ */
+export function isRedirectPayment(type: string): boolean {
+  return type === 'alipay_direct'
+}

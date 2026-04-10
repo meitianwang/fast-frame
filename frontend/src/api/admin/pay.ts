@@ -69,8 +69,6 @@ export async function retryOrder(id: number): Promise<{ message: string }> {
  * @param req.order_id - Target order ID
  * @param req.amount - Refund amount as decimal string (must not exceed order amount)
  * @param req.reason - Optional reason
- * @param req.force - Force refund (bypass provider, deduct balance only)
- * @param req.deduct_balance - Whether to deduct from user's balance
  */
 export async function processRefund(req: {
   order_id: number
@@ -103,7 +101,7 @@ export async function updateConfig(
   configs: Record<string, string>
 ): Promise<{ message: string; updated: number }> {
   for (const key of Object.keys(configs)) {
-    if (!key.startsWith('pay_') || !/^pay_[a-z][a-z0-9_]*$/.test(key)) {
+    if (!/^pay_[a-z][a-z0-9_]*$/.test(key)) {
       throw new Error(`Invalid config key: ${key}. Must start with 'pay_' and contain only lowercase letters, digits, and underscores`)
     }
     if (key.length > 64) {

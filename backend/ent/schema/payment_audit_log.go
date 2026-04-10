@@ -54,7 +54,6 @@ func (PaymentAuditLog) Edges() []ent.Edge {
 		edge.From("order", PaymentOrder.Type).
 			Ref("audit_logs").
 			Field("order_id").
-			Unique().
 			Required(),
 	}
 }

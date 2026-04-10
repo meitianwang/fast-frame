@@ -17,6 +17,19 @@
                 <option value="failed">{{ t('payment.orderStatus.failed') }}</option>
                 <option value="expired">{{ t('payment.orderStatus.expired') }}</option>
                 <option value="cancelled">{{ t('payment.orderStatus.cancelled') }}</option>
+                <option value="refund_requested">{{ t('payment.orderStatus.refund_requested') }}</option>
+                <option value="refunding">{{ t('payment.orderStatus.refunding') }}</option>
+                <option value="refunded">{{ t('payment.orderStatus.refunded') }}</option>
+                <option value="partially_refunded">{{ t('payment.orderStatus.partially_refunded') }}</option>
+                <option value="refund_failed">{{ t('payment.orderStatus.refund_failed') }}</option>
+              </select>
+            </div>
+            <!-- Page Size -->
+            <div class="w-full sm:w-28">
+              <select v-model="pageSize" @change="reload()" class="input w-full">
+                <option :value="20">20</option>
+                <option :value="50">50</option>
+                <option :value="100">100</option>
               </select>
             </div>
           </div>
@@ -24,6 +37,26 @@
       </template>
 
       <template #default>
+        <!-- Summary Cards -->
+        <div v-if="summary" class="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div class="rounded-lg border p-3 border-gray-200 dark:border-slate-700">
+            <p class="text-xs text-gray-500 dark:text-slate-400">{{ t('payment.orders.totalOrders') }}</p>
+            <p class="text-lg font-bold text-gray-900 dark:text-white">{{ summary.total }}</p>
+          </div>
+          <div class="rounded-lg border p-3 border-gray-200 dark:border-slate-700">
+            <p class="text-xs text-gray-500 dark:text-slate-400">{{ t('payment.orderStatus.pending') }}</p>
+            <p class="text-lg font-bold text-yellow-600 dark:text-yellow-400">{{ summary.pending }}</p>
+          </div>
+          <div class="rounded-lg border p-3 border-gray-200 dark:border-slate-700">
+            <p class="text-xs text-gray-500 dark:text-slate-400">{{ t('payment.orderStatus.completed') }}</p>
+            <p class="text-lg font-bold text-green-600 dark:text-green-400">{{ summary.completed }}</p>
+          </div>
+          <div class="rounded-lg border p-3 border-gray-200 dark:border-slate-700">
+            <p class="text-xs text-gray-500 dark:text-slate-400">{{ t('payment.orderStatus.failed') }}</p>
+            <p class="text-lg font-bold text-red-600 dark:text-red-400">{{ summary.failed }}</p>
+          </div>
+        </div>
+
         <!-- Loading -->
         <div v-if="loading" class="flex items-center justify-center py-12">
           <div class="h-8 w-8 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" role="status" aria-label="Loading" />
@@ -34,8 +67,10 @@
           {{ t('payment.orders.empty') }}
         </div>
 
-        <!-- Orders Table -->
-        <div v-else class="overflow-x-auto">
+        <!-- Orders -->
+        <template v-else>
+        <!-- Orders Table (Desktop) -->
+        <div class="hidden sm:block overflow-x-auto">
           <table class="w-full text-sm">
             <thead>
               <tr class="border-b border-gray-200 dark:border-slate-700">
@@ -83,6 +118,40 @@
             </tbody>
           </table>
         </div>
+
+        <!-- Orders Cards (Mobile) -->
+        <div class="sm:hidden space-y-3">
+          <div
+            v-for="order in orders"
+            :key="'m-' + order.id"
+            class="rounded-xl border p-4 border-gray-200 dark:border-slate-700"
+          >
+            <div class="flex items-center justify-between">
+              <span class="text-lg font-semibold text-gray-900 dark:text-slate-100">¥{{ order.amount }}</span>
+              <span
+                class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium"
+                :class="getPaymentStatusBadgeClass(order.status)"
+              >
+                {{ t(`payment.orderStatus.${order.status}`) }}
+              </span>
+            </div>
+            <div class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-500 dark:text-slate-400">
+              <span>#{{ order.id }}</span>
+              <span>{{ getPaymentLabel(order.payment_type) }}</span>
+              <span>{{ order.order_type === 'subscription' ? t('payment.orders.subscription') : t('payment.orders.balance') }}</span>
+            </div>
+            <div class="mt-1 text-xs text-gray-400 dark:text-slate-500">{{ formatPaymentDate(order.created_at) }}</div>
+            <div v-if="canRequestRefund(order)" class="mt-3">
+              <button
+                @click="openRefundDialog(order)"
+                class="text-sm font-medium text-red-600 hover:text-red-700 dark:text-red-400"
+              >
+                {{ t('payment.orders.requestRefund') }}
+              </button>
+            </div>
+          </div>
+        </div>
+        </template>
 
         <!-- Pagination -->
         <div v-if="pagination" class="mt-4 flex items-center justify-between">
@@ -169,6 +238,8 @@ const orders = ref<UserPaymentOrder[]>([])
 const pagination = ref<{ page: number; pages: number; total: number } | null>(null)
 const statusFilter = ref('')
 const currentPage = ref(1)
+const pageSize = ref(20)
+const summary = ref<{ total: number; pending: number; completed: number; failed: number } | null>(null)
 
 // Refund dialog
 const refundDialogOpen = ref(false)
@@ -182,9 +253,22 @@ async function loadOrders() {
   loading.value = true
   try {
     const filters = statusFilter.value ? { status: statusFilter.value } : undefined
-    const data = await payAPI.listOrders(currentPage.value, 20, filters)
+    const data = await payAPI.listOrders(currentPage.value, pageSize.value, filters)
     orders.value = data.items || []
     pagination.value = { page: data.page, pages: data.pages, total: data.total }
+    // Compute summary from total counts if available, otherwise from loaded items
+    if ((data as any).summary) {
+      summary.value = (data as any).summary
+    } else if (!summary.value) {
+      // Approximate from current page data (first load only)
+      const items = data.items || []
+      summary.value = {
+        total: data.total,
+        pending: items.filter((o: UserPaymentOrder) => o.status === 'pending').length,
+        completed: items.filter((o: UserPaymentOrder) => o.status === 'completed').length,
+        failed: items.filter((o: UserPaymentOrder) => o.status === 'failed').length
+      }
+    }
   } catch (err: unknown) {
     appStore.showError(err instanceof Error ? err.message : t('common.error'))
   } finally {

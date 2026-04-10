@@ -236,8 +236,6 @@ func (p *WxPayProvider) Refund(ctx context.Context, req service.RefundRequest) (
 	refundStatus := "pending"
 	if result.Status == "SUCCESS" {
 		refundStatus = "success"
-	} else if result.Status == "CLOSED" || result.Status == "ABNORMAL" {
-		refundStatus = "failed"
 	}
 
 	return &service.RefundResponse{

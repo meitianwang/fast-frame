@@ -1,6 +1,7 @@
 <template>
   <AppLayout>
     <div class="mx-auto max-w-6xl px-4 py-6">
+      <PaymentAdminNav />
       <h1 class="mb-6 text-xl font-bold text-gray-900 dark:text-white">{{ t('payment.admin.dashboard') }}</h1>
 
       <!-- Time Range Selector -->
@@ -22,6 +23,13 @@
 
       <div v-if="loading" class="flex items-center justify-center py-12">
         <div class="h-8 w-8 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" role="status" aria-label="Loading" />
+      </div>
+
+      <div v-else-if="loadError" class="py-12 text-center">
+        <p class="text-red-500 dark:text-red-400">{{ loadError }}</p>
+        <button @click="loadDashboard" class="mt-4 text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400">
+          {{ t('common.refresh') }}
+        </button>
       </div>
 
       <template v-else-if="data">
@@ -66,9 +74,35 @@
               <div class="flex items-center gap-4">
                 <span class="text-sm font-medium text-gray-900 dark:text-white">¥{{ pm.amount }}</span>
                 <span class="text-sm text-gray-500 dark:text-slate-400">{{ pm.count }} {{ t('payment.admin.ordersUnit') }}</span>
+                <span class="text-sm text-gray-500 dark:text-slate-400">
+                  {{ t('payment.admin.successRate') }}: {{ (pm.success_rate * 100).toFixed(1) }}%
+                </span>
               </div>
             </div>
           </div>
+        </div>
+
+        <!-- Leaderboard -->
+        <div v-if="data.leaderboard && data.leaderboard.length > 0" class="mt-8 rounded-xl border p-6 border-gray-200 dark:border-slate-700">
+          <h3 class="mb-4 text-sm font-medium text-gray-700 dark:text-slate-300">{{ t('payment.admin.leaderboard') }}</h3>
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-gray-200 dark:border-slate-700">
+                <th class="px-3 py-2 text-left font-medium text-gray-500 dark:text-slate-400">#</th>
+                <th class="px-3 py-2 text-left font-medium text-gray-500 dark:text-slate-400">{{ t('payment.admin.leaderboardUser') }}</th>
+                <th class="px-3 py-2 text-right font-medium text-gray-500 dark:text-slate-400">{{ t('payment.admin.leaderboardAmount') }}</th>
+                <th class="px-3 py-2 text-right font-medium text-gray-500 dark:text-slate-400">{{ t('payment.admin.leaderboardOrders') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(user, idx) in data.leaderboard" :key="user.user_id" class="border-b border-gray-100 dark:border-slate-800">
+                <td class="px-3 py-2 text-gray-500 dark:text-slate-400">{{ idx + 1 }}</td>
+                <td class="px-3 py-2 text-gray-900 dark:text-slate-100">{{ user.user_email || `#${user.user_id}` }}</td>
+                <td class="px-3 py-2 text-right font-medium text-gray-900 dark:text-slate-100">¥{{ user.amount }}</td>
+                <td class="px-3 py-2 text-right text-gray-600 dark:text-slate-400">{{ user.count }}</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </template>
     </div>
@@ -80,20 +114,21 @@ import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Chart, registerables } from 'chart.js'
 import AppLayout from '@/components/layout/AppLayout.vue'
+import PaymentAdminNav from '@/components/admin/PaymentAdminNav.vue'
 import { adminPayAPI } from '@/api/admin/pay'
-import { useAppStore } from '@/stores'
 import type { PaymentDashboardData } from '@/types'
 
 Chart.register(...registerables)
 
 const { t } = useI18n()
-const appStore = useAppStore()
 
 const loading = ref(true)
+const loadError = ref('')
 const days = ref(30)
 const data = ref<PaymentDashboardData | null>(null)
 const chartCanvas = ref<HTMLCanvasElement | null>(null)
 let chartInstance: Chart | null = null
+let darkModeObserver: MutationObserver | null = null
 
 function selectDays(d: number) {
   if (loading.value || days.value === d) return
@@ -103,13 +138,14 @@ function selectDays(d: number) {
 
 async function loadDashboard() {
   loading.value = true
+  loadError.value = ''
   try {
     data.value = await adminPayAPI.getDashboard(days.value)
     await nextTick()
     renderChart()
   } catch (err: unknown) {
     data.value = null
-    appStore.showError(err instanceof Error ? err.message : t('common.error'))
+    loadError.value = err instanceof Error ? err.message : t('common.error')
   } finally {
     loading.value = false
   }
@@ -119,6 +155,10 @@ onBeforeUnmount(() => {
   if (chartInstance) {
     chartInstance.destroy()
     chartInstance = null
+  }
+  if (darkModeObserver) {
+    darkModeObserver.disconnect()
+    darkModeObserver = null
   }
 })
 
@@ -170,5 +210,14 @@ function renderChart() {
   })
 }
 
-onMounted(loadDashboard)
+onMounted(() => {
+  loadDashboard()
+  darkModeObserver = new MutationObserver(() => {
+    if (data.value) renderChart()
+  })
+  darkModeObserver.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['class']
+  })
+})
 </script>

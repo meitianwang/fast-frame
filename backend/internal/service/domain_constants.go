@@ -257,6 +257,7 @@ const (
 	SettingKeyPayMaxDailyAmountAlipay   = "pay_max_daily_amount_alipay"   // 支付宝全局日限额
 	SettingKeyPayMaxDailyAmountWxpay    = "pay_max_daily_amount_wxpay"    // 微信支付全局日限额
 	SettingKeyPayMaxDailyAmountStripe   = "pay_max_daily_amount_stripe"   // Stripe 全局日限额
+	SettingKeyPayGracePeriodMinutes    = "pay_grace_period_minutes"       // 过期订单宽限期（分钟，默认 5）
 
 	// Cancel rate limiting settings
 	SettingKeyPayCancelRateLimitEnabled    = "pay_cancel_rate_limit_enabled"     // 启用取消频率限制 ("true"/"false")

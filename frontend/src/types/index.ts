@@ -1666,6 +1666,8 @@ export interface CreateOrderRequest {
   plan_id?: number
   return_url?: string
   is_mobile?: boolean
+  src_host?: string
+  src_url?: string
 }
 
 export interface CreateOrderResponse {
@@ -1690,7 +1692,11 @@ export interface PaymentConfig {
   max_daily_recharge_amount: string
   balance_payment_disabled: boolean
   max_pending_orders: number
+  pending_count: number
   method_limits: MethodLimit[]
+  help_image_url?: string
+  help_text?: string
+  stripe_publishable_key?: string
 }
 
 export interface MethodLimit {
@@ -1768,7 +1774,8 @@ export interface PaymentDashboardData {
   total_amount: string
   total_order_count: number
   daily_series: Array<{ date: string; amount: string; count: number }>
-  payment_methods: Array<{ payment_type: string; amount: string; count: number }>
+  payment_methods: Array<{ payment_type: string; amount: string; count: number; success_count: number; success_rate: number }>
+  leaderboard?: Array<{ user_id: number; user_email?: string; amount: string; count: number }>
 }
 
 export interface PaymentProviderInstance {

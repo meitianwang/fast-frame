@@ -3,6 +3,9 @@
     <div class="text-6xl" :class="config.color" role="img" :aria-label="config.label">{{ config.icon }}</div>
     <h2 class="text-xl font-bold" :class="config.color">{{ config.label }}</h2>
     <p class="text-center text-gray-500 dark:text-slate-400">{{ config.message }}</p>
+    <p v-if="pollTimedOut" class="text-center text-sm text-amber-600 dark:text-amber-400">
+      {{ t('payment.status.pollTimeout') }}
+    </p>
     <button
       @click="emit('back')"
       class="mt-4 w-full rounded-lg py-3 font-medium text-white bg-blue-600 hover:bg-blue-700 dark:hover:bg-blue-500"
@@ -16,6 +19,12 @@
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { payAPI } from '@/api/pay'
+
+declare global {
+  interface Window {
+    AlipayJSBridge?: { call: (method: string) => void }
+  }
+}
 
 const props = defineProps<{
   orderId: number
@@ -102,7 +111,9 @@ const config = computed(() => {
 
 // Timer constants
 const POLL_INTERVAL_MS = 3000
-const POLL_TIMEOUT_MS = 30000
+const POLL_TIMEOUT_MS = 120000
+
+const pollTimedOut = ref(false)
 
 const TERMINAL_STATUSES = new Set(['completed', 'expired', 'cancelled', 'failed', 'refunded', 'refund_failed'])
 
@@ -136,6 +147,29 @@ async function refreshOrder() {
   }
 }
 
+function isAlipayWebView(): boolean {
+  return /AlipayClient/i.test(navigator.userAgent)
+}
+
+let alipayCloseScheduled = false
+function autoCloseInAlipay() {
+  if (alipayCloseScheduled) return
+  alipayCloseScheduled = true
+  setTimeout(() => {
+    try {
+      if (window.AlipayJSBridge) {
+        window.AlipayJSBridge.call('closeWebview')
+      } else {
+        document.addEventListener('AlipayJSBridgeReady', () => {
+          window.AlipayJSBridge?.call('closeWebview')
+        }, { once: true })
+      }
+    } catch {
+      // Silently fail if bridge is not available
+    }
+  }, 2000)
+}
+
 onMounted(() => {
   const s = currentStatus.value
   // Only poll for intermediate states
@@ -143,8 +177,17 @@ onMounted(() => {
     refreshOrder()
     pollInterval = setInterval(refreshOrder, POLL_INTERVAL_MS)
     pollTimeout = setTimeout(() => {
-      if (pollInterval) clearInterval(pollInterval)
+      if (pollInterval) {
+        clearInterval(pollInterval)
+        pollInterval = null
+        pollTimedOut.value = true
+      }
     }, POLL_TIMEOUT_MS)
+  }
+
+  // Auto-close in Alipay WebView on success
+  if (s === 'completed' && isAlipayWebView()) {
+    autoCloseInAlipay()
   }
 })
 
@@ -163,6 +206,10 @@ watch(currentStatus, (val) => {
   if (TERMINAL_STATUSES.has(val) && pollInterval) {
     clearInterval(pollInterval)
     pollInterval = null
+  }
+  // Auto-close in Alipay WebView when order completes
+  if (val === 'completed' && isAlipayWebView()) {
+    autoCloseInAlipay()
   }
 })
 </script>

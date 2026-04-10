@@ -67,6 +67,7 @@
             :plans="plans"
             :enabled-payment-types="config?.enabled_payment_types || []"
             :loading="orderLoading"
+            :method-limits="methodLimitsMap"
             @submit="handleSubscribeSubmit"
           />
 
@@ -98,20 +99,59 @@
               </div>
             </div>
           </div>
+
+          <!-- Help Section -->
+          <div v-if="config?.help_image_url || config?.help_text" class="mt-8 rounded-xl border p-4 border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800/60">
+            <img
+              v-if="config.help_image_url"
+              :src="config.help_image_url"
+              alt="Help"
+              class="mb-3 max-h-48 cursor-zoom-in rounded-lg object-contain"
+              loading="lazy"
+              @click="helpImageOpen = true"
+            />
+            <p v-if="config.help_text" class="text-sm text-slate-600 dark:text-slate-400 whitespace-pre-line">{{ config.help_text }}</p>
+          </div>
+
+          <!-- Help Image Zoom Modal -->
+          <Teleport to="body">
+            <div
+              v-if="helpImageOpen && config?.help_image_url"
+              class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+              @click="helpImageOpen = false"
+            >
+              <img
+                :src="config.help_image_url"
+                alt="Help"
+                class="max-h-[90vh] max-w-[90vw] rounded-lg object-contain"
+                @click.stop
+              />
+              <button
+                @click="helpImageOpen = false"
+                class="absolute right-4 top-4 rounded-full bg-black/50 p-2 text-white hover:bg-black/70"
+                :aria-label="t('common.close')"
+              >
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </Teleport>
         </div>
 
         <!-- Step: Paying -->
         <div v-else-if="step === 'paying' && orderResult" class="mx-auto max-w-md">
           <PaymentQRCode
-            :order-id="orderResult.order_id"
-            :pay-url="orderResult.pay_url"
-            :qr-code="orderResult.qr_code"
-            :client-secret="orderResult.client_secret"
-            :payment-type="orderResult.payment_type"
-            :amount="parseFloat(orderResult.amount)"
-            :pay-amount="orderResult.pay_amount ? parseFloat(orderResult.pay_amount) : undefined"
-            :expires-at="orderResult.expires_at"
+            :order-id="orderResult!.order_id"
+            :pay-url="orderResult!.pay_url"
+            :qr-code="orderResult!.qr_code"
+            :client-secret="orderResult!.client_secret"
+            :payment-type="orderResult!.payment_type"
+            :amount="parseFloat(orderResult!.amount)"
+            :pay-amount="orderResult!.pay_amount ? parseFloat(orderResult!.pay_amount) : undefined"
+            :expires-at="orderResult!.expires_at"
             :is-mobile="isMobile"
+            :access-token="orderResult!.access_token"
             @status-change="handleStatusChange"
             @back="resetToForm"
           />
@@ -143,7 +183,7 @@ import PaySubscribeSection from '@/components/payment/PaySubscribeSection.vue'
 import PaymentQRCode from '@/components/payment/PaymentQRCode.vue'
 import OrderStatusCard from '@/components/payment/OrderStatusCard.vue'
 import { payAPI } from '@/api/pay'
-import { formatPaymentDate, getPaymentStatusBadgeClass } from '@/utils/payment'
+import { formatPaymentDate, getPaymentStatusBadgeClass, detectDeviceIsMobile } from '@/utils/payment'
 import type {
   PaymentConfig,
   PaymentChannel,
@@ -163,6 +203,7 @@ const isMobile = ref(false)
 
 const step = ref<'form' | 'paying' | 'result'>('form')
 const mainTab = ref<'topup' | 'subscribe'>('topup')
+const helpImageOpen = ref(false)
 
 const topUpRef = ref<InstanceType<typeof PayTopUpSection> | null>(null)
 const subscribeRef = ref<InstanceType<typeof PaySubscribeSection> | null>(null)
@@ -195,7 +236,7 @@ const methodLimitsMap = computed(() => {
 })
 
 onMounted(async () => {
-  isMobile.value = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+  isMobile.value = detectDeviceIsMobile()
 
   try {
     const [configData, channelsData, plansData, ordersData] = await Promise.all([
@@ -209,7 +250,7 @@ onMounted(async () => {
     channels.value = channelsData
     plans.value = plansData
     recentOrders.value = ordersData.items || []
-    pendingCount.value = (ordersData.items || []).filter((o) => o.status === 'pending').length
+    pendingCount.value = configData.pending_count ?? 0
 
     if (configData.balance_payment_disabled) {
       mainTab.value = 'subscribe'
@@ -283,11 +324,14 @@ function resetToForm() {
   topUpRef.value?.resetForm()
   subscribeRef.value?.resetSelection()
   authStore.refreshUser()
-  payAPI.listOrders(1, 5).then((data) => {
-    recentOrders.value = data.items || []
-    pendingCount.value = (data.items || []).filter((o) => o.status === 'pending').length
+  Promise.all([
+    payAPI.listOrders(1, 5),
+    payAPI.getConfig()
+  ]).then(([ordersData, configData]) => {
+    recentOrders.value = ordersData.items || []
+    pendingCount.value = configData.pending_count ?? 0
   }).catch(() => {
-    // Non-critical: order list reload failure doesn't block user flow
+    // Non-critical: reload failure doesn't block user flow
   })
 }
 

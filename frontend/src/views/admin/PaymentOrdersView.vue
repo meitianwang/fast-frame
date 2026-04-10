@@ -1,5 +1,8 @@
 <template>
   <AppLayout>
+    <div class="px-4 pt-4">
+      <PaymentAdminNav />
+    </div>
     <TablePageLayout>
       <template #filters>
         <div class="flex flex-wrap items-center gap-3">
@@ -17,7 +20,30 @@
             <option value="alipay">{{ t('payment.alipay') }}</option>
             <option value="wxpay">{{ t('payment.wechatPay') }}</option>
             <option value="stripe">Stripe</option>
+            <option value="easypay">{{ t('payment.easypay') }}</option>
           </select>
+          <input
+            v-model="filters.user_id"
+            @change="reload"
+            type="number"
+            min="1"
+            :placeholder="t('payment.admin.userSearchPlaceholder')"
+            class="input w-full sm:w-36"
+          />
+          <input
+            v-model="filters.date_from"
+            @change="reload"
+            type="date"
+            :placeholder="t('payment.admin.dateFrom')"
+            class="input w-full sm:w-40"
+          />
+          <input
+            v-model="filters.date_to"
+            @change="reload"
+            type="date"
+            :placeholder="t('payment.admin.dateTo')"
+            class="input w-full sm:w-40"
+          />
         </div>
       </template>
 
@@ -49,8 +75,8 @@
                 <td class="px-3 py-3 text-gray-900 dark:text-slate-100">#{{ order.id }}</td>
                 <td class="px-3 py-3 text-gray-600 dark:text-slate-400">{{ order.user_email || `#${order.user_id}` }}</td>
                 <td class="px-3 py-3 font-medium text-gray-900 dark:text-slate-100">¥{{ order.amount }}</td>
-                <td class="px-3 py-3 text-gray-600 dark:text-slate-400">{{ order.order_type }}</td>
-                <td class="px-3 py-3 text-gray-600 dark:text-slate-400">{{ order.payment_type }}</td>
+                <td class="px-3 py-3 text-gray-600 dark:text-slate-400">{{ t(`payment.orders.${order.order_type}`) }}</td>
+                <td class="px-3 py-3 text-gray-600 dark:text-slate-400">{{ getPaymentMethodLabel(order.payment_type, t) }}</td>
                 <td class="px-3 py-3">
                   <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium" :class="getPaymentStatusBadgeClass(order.status)">
                     {{ t(`payment.orderStatus.${order.status}`) }}
@@ -96,10 +122,11 @@
         <!-- Pagination -->
         <div v-if="pagination" class="mt-4 flex items-center justify-between">
           <span class="text-sm text-gray-500 dark:text-slate-400">{{ t('common.total') }}: {{ pagination.total }}</span>
-          <div class="flex gap-2">
+          <div class="flex items-center gap-2">
             <button :disabled="pagination.page <= 1" @click="goToPage(pagination.page - 1)" class="btn btn-secondary btn-sm">
               {{ t('common.prev') }}
             </button>
+            <span class="text-sm text-gray-600 dark:text-slate-400">{{ pagination.page }} / {{ pagination.pages }}</span>
             <button :disabled="pagination.page >= pagination.pages" @click="goToPage(pagination.page + 1)" class="btn btn-secondary btn-sm">
               {{ t('common.next') }}
             </button>
@@ -116,6 +143,8 @@
       v-if="refundOrder"
       :order-id="refundOrder.id"
       :order-amount="refundOrder.amount"
+      :order-type="refundOrder.order_type"
+      :user-id="refundOrder.user_id"
       @close="refundOrder = null"
       @refunded="loadOrders"
     />
@@ -136,11 +165,12 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AppLayout from '@/components/layout/AppLayout.vue'
+import PaymentAdminNav from '@/components/admin/PaymentAdminNav.vue'
 import TablePageLayout from '@/components/layout/TablePageLayout.vue'
 import PaymentOrderDetail from '@/components/admin/PaymentOrderDetail.vue'
 import PaymentRefundDialog from '@/components/admin/PaymentRefundDialog.vue'
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
-import { getPaymentStatusBadgeClass, formatPaymentDate } from '@/utils/payment'
+import { getPaymentStatusBadgeClass, formatPaymentDate, getPaymentMethodLabel } from '@/utils/payment'
 import { adminPayAPI } from '@/api/admin/pay'
 import { useAppStore } from '@/stores'
 import type { AdminPaymentOrder, BasePaginationResponse } from '@/types'
@@ -154,7 +184,7 @@ const loading = ref(true)
 const orders = ref<AdminPaymentOrder[]>([])
 const pagination = ref<{ page: number; pages: number; total: number } | null>(null)
 const currentPage = ref(1)
-const filters = reactive({ status: '', order_type: '', payment_type: '' })
+const filters = reactive({ status: '', order_type: '', payment_type: '', user_id: '', date_from: '', date_to: '' })
 
 const detailOrderId = ref<number | null>(null)
 const refundOrder = ref<AdminPaymentOrder | null>(null)
@@ -162,10 +192,13 @@ const refundOrder = ref<AdminPaymentOrder | null>(null)
 async function loadOrders() {
   loading.value = true
   try {
-    const f: { status?: string; order_type?: string; payment_type?: string } = {}
+    const f: { status?: string; order_type?: string; payment_type?: string; user_id?: number; date_from?: string; date_to?: string } = {}
     if (filters.status) f.status = filters.status
     if (filters.order_type) f.order_type = filters.order_type
     if (filters.payment_type) f.payment_type = filters.payment_type
+    if (filters.user_id) f.user_id = Number(filters.user_id)
+    if (filters.date_from) f.date_from = filters.date_from
+    if (filters.date_to) f.date_to = filters.date_to
 
     const data: BasePaginationResponse<AdminPaymentOrder> = await adminPayAPI.listOrders(currentPage.value, 20, f)
     orders.value = data.items || []

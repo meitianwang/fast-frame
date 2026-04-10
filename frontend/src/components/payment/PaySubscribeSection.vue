@@ -5,6 +5,7 @@
     :plan="selectedPlan"
     :payment-types="enabledPaymentTypes"
     :loading="loading"
+    :method-limits="methodLimits"
     @back="selectedPlan = null"
     @submit="(type) => emit('submit', type)"
   />
@@ -24,12 +25,13 @@
 import { ref } from 'vue'
 import SubscriptionConfirm from '@/components/payment/SubscriptionConfirm.vue'
 import SubscriptionPlanCard from '@/components/payment/SubscriptionPlanCard.vue'
-import type { PaymentSubscriptionPlan } from '@/types'
+import type { PaymentSubscriptionPlan, MethodLimit } from '@/types'
 
 const props = defineProps<{
   plans: PaymentSubscriptionPlan[]
   enabledPaymentTypes: string[]
   loading: boolean
+  methodLimits?: Record<string, MethodLimit>
 }>()
 
 const emit = defineEmits<{

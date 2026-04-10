@@ -84,17 +84,19 @@ func (s *PaymentOrderExpiryService) Stop() {
 }
 
 func (s *PaymentOrderExpiryService) runOnce() {
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
-
-	orders, err := s.orderRepo.ListExpiredPending(ctx, time.Now(), 50)
+	listCtx, listCancel := context.WithTimeout(context.Background(), 10*time.Second)
+	orders, err := s.orderRepo.ListExpiredPending(listCtx, time.Now(), 50)
+	listCancel()
 	if err != nil {
 		slog.Warn("failed to list expired pending orders", "error", err)
 		return
 	}
 
 	for _, order := range orders {
-		s.expireOrder(ctx, &order)
+		// Give each order its own timeout to avoid one slow provider query starving the rest.
+		orderCtx, orderCancel := context.WithTimeout(context.Background(), 15*time.Second)
+		s.expireOrder(orderCtx, &order)
+		orderCancel()
 	}
 }
 

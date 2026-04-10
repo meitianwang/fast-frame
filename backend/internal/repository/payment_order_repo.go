@@ -433,9 +433,10 @@ func (r *paymentOrderRepository) GetDashboardStats(ctx context.Context, since ti
 		return nil, err
 	}
 
-	// Payment methods breakdown
+	// Payment methods breakdown (with success count and rate)
 	rows2, err := r.sql.QueryContext(ctx,
-		`SELECT payment_type, COALESCE(SUM(amount), 0), COUNT(*)
+		`SELECT payment_type, COALESCE(SUM(amount), 0), COUNT(*),
+			COUNT(*) FILTER (WHERE status IN ('completed', 'refunding', 'refunded', 'refund_failed', 'partially_refunded'))
 		FROM payment_orders
 		WHERE paid_at >= $1 AND status IN (`+statusPlaceholders+`)
 		GROUP BY payment_type`,
@@ -447,13 +448,42 @@ func (r *paymentOrderRepository) GetDashboardStats(ctx context.Context, since ti
 	for rows2.Next() {
 		var pm service.PaymentMethodStat
 		var amtStr string
-		if err := rows2.Scan(&pm.PaymentType, &amtStr, &pm.Count); err != nil {
+		if err := rows2.Scan(&pm.PaymentType, &amtStr, &pm.Count, &pm.SuccessCount); err != nil {
 			return nil, err
 		}
 		pm.Amount, _ = decimal.NewFromString(amtStr)
+		if pm.Count > 0 {
+			pm.SuccessRate = float64(pm.SuccessCount) / float64(pm.Count)
+		}
 		data.PaymentMethods = append(data.PaymentMethods, pm)
 	}
 	if err := rows2.Err(); err != nil {
+		return nil, err
+	}
+
+	// Leaderboard: top 10 users by amount
+	rows3, err := r.sql.QueryContext(ctx,
+		`SELECT po.user_id, po.user_email, COALESCE(SUM(po.amount), 0), COUNT(*)
+		FROM payment_orders po
+		WHERE po.paid_at >= $1 AND po.status IN (`+statusPlaceholders+`)
+		GROUP BY po.user_id, po.user_email
+		ORDER BY SUM(po.amount) DESC
+		LIMIT 10`,
+		sinceArgs...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows3.Close()
+	for rows3.Next() {
+		var entry service.LeaderboardEntry
+		var amtStr string
+		if err := rows3.Scan(&entry.UserID, &entry.UserEmail, &amtStr, &entry.Count); err != nil {
+			return nil, err
+		}
+		entry.Amount, _ = decimal.NewFromString(amtStr)
+		data.Leaderboard = append(data.Leaderboard, entry)
+	}
+	if err := rows3.Err(); err != nil {
 		return nil, err
 	}
 

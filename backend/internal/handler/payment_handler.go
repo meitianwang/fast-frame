@@ -297,6 +297,14 @@ func (h *PaymentHandler) GetConfig(c *gin.Context) {
 		}
 	}
 
+	var pendingCount int
+	subject, ok := middleware2.GetAuthSubjectFromContext(c)
+	if ok {
+		if cnt, err := h.orderService.CountPendingByUserID(ctx, subject.UserID); err == nil {
+			pendingCount = cnt
+		}
+	}
+
 	response.Success(c, dto.PaymentConfigDTO{
 		EnabledPaymentTypes:    enabledTypes,
 		MinRechargeAmount:      h.configService.GetMinRechargeAmount(ctx).String(),
@@ -304,6 +312,7 @@ func (h *PaymentHandler) GetConfig(c *gin.Context) {
 		MaxDailyRechargeAmount: h.configService.GetMaxDailyRechargeAmount(ctx).String(),
 		BalancePaymentDisabled: h.configService.IsBalancePaymentDisabled(ctx),
 		MaxPendingOrders:       h.configService.GetMaxPendingOrders(ctx),
+		PendingCount:           pendingCount,
 		MethodLimits:           methodLimits,
 	})
 }

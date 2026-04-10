@@ -75,8 +75,7 @@ func (SubscriptionPlan) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("group", Group.Type).
 			Ref("subscription_plans").
-			Field("group_id").
-			Unique(),
+			Field("group_id"),
 		edge.To("orders", PaymentOrder.Type),
 	}
 }

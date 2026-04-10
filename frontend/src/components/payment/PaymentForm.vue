@@ -137,6 +137,12 @@
               >
                 {{ t('payment.dailyLimitReachedShort') }}
               </span>
+              <span
+                v-else-if="getPaymentSublabel(type)"
+                class="text-[10px] tracking-wide text-slate-400"
+              >
+                {{ getPaymentSublabel(type) }}
+              </span>
             </span>
           </span>
         </button>
@@ -149,6 +155,14 @@
         {{ t('payment.methodLimitReached') }}
       </p>
     </div>
+
+    <!-- Single method unavailable notice -->
+    <p
+      v-else-if="enabledPaymentTypes.length === 1 && methodLimits && methodLimits[effectivePaymentType] && !methodLimits[effectivePaymentType].available"
+      class="text-xs text-amber-600 dark:text-amber-300"
+    >
+      {{ t('payment.methodLimitReached') }}
+    </p>
 
     <!-- Fee Breakdown -->
     <div
@@ -279,7 +293,7 @@ const feeAmount = computed(() => {
 const payAmount = computed(() => {
   if (feeRate.value <= 0 || selectedAmount.value <= 0) return selectedAmount.value
   const amountCents = Math.round(selectedAmount.value * 100)
-  const feeCents = Math.round(feeAmount.value * 100)
+  const feeCents = Math.ceil((amountCents * feeRate.value) / 100)
   return (amountCents + feeCents) / 100
 })
 
@@ -341,6 +355,14 @@ function handleSubmit() {
 
 function isMethodUnavailable(type: string): boolean {
   return props.methodLimits?.[type]?.available === false
+}
+
+function getPaymentSublabel(type: string): string {
+  // Show provider info as sublabel for disambiguation (e.g. "via EasyPay")
+  if (type === 'alipay' || type === 'wxpay') return t('payment.viaEasypay')
+  if (type === 'alipay_direct') return t('payment.viaDirect')
+  if (type === 'wxpay_direct') return t('payment.viaDirect')
+  return ''
 }
 
 function getMethodButtonClass(type: string): string {

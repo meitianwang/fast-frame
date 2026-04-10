@@ -1,5 +1,8 @@
 <template>
   <AppLayout>
+    <div class="px-4 pt-4">
+      <PaymentAdminNav />
+    </div>
     <TablePageLayout>
       <template #filters>
         <div class="flex items-center justify-between">
@@ -87,9 +90,9 @@
           <div>
             <label for="plan-unit" class="mb-1 block text-sm font-medium text-gray-700 dark:text-slate-300">{{ t('payment.admin.validityUnit') }}</label>
             <select id="plan-unit" v-model="form.validity_unit" class="input w-full">
-              <option value="day">Day</option>
-              <option value="week">Week</option>
-              <option value="month">Month</option>
+              <option value="day">{{ t('payment.admin.unitDay') }}</option>
+              <option value="week">{{ t('payment.admin.unitWeek') }}</option>
+              <option value="month">{{ t('payment.admin.unitMonth') }}</option>
             </select>
           </div>
           <div>
@@ -143,6 +146,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AppLayout from '@/components/layout/AppLayout.vue'
+import PaymentAdminNav from '@/components/admin/PaymentAdminNav.vue'
 import TablePageLayout from '@/components/layout/TablePageLayout.vue'
 import BaseDialog from '@/components/common/BaseDialog.vue'
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
@@ -249,6 +253,10 @@ async function handleSave() {
   }
   if (!form.price || parseFloat(form.price) <= 0) {
     appStore.showError(t('payment.admin.price') + ' > 0')
+    return
+  }
+  if (form.original_price && parseFloat(form.original_price) > 0 && parseFloat(form.original_price) < parseFloat(form.price)) {
+    appStore.showError(t('payment.admin.originalPrice') + ' ≥ ' + t('payment.admin.price'))
     return
   }
 

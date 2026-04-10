@@ -310,6 +310,12 @@ export default {
     now: 'Now',
     unknown: 'Unknown',
     minutes: 'min',
+    prev: 'Previous',
+    view: 'View',
+    deleted: 'Deleted',
+    saved: 'Saved',
+    nameRequired: 'Name is required',
+    confirmDelete: 'Are you sure you want to delete this item?',
     time: {
       never: 'Never',
       justNow: 'Just now',
@@ -4766,6 +4772,8 @@ export default {
     weekly: 'Weekly',
     monthly: 'Monthly',
     daysRemaining: '{days} days remaining',
+    today: 'Today',
+    tomorrow: 'Tomorrow',
     expiresOn: 'Expires on {date}',
     resetIn: 'Resets in {time}',
     windowNotActive: 'Awaiting first use',
@@ -5032,6 +5040,8 @@ export default {
     alipay: 'Alipay',
     alipayIconText: 'A',
     wechatPay: 'WeChat Pay',
+    easypay: 'EasyPay',
+    easypayIconText: 'E',
     dailyLimitReached: 'Daily limit reached, please use another payment method',
     dailyLimitReachedShort: 'Daily limit reached',
     selectMethod: 'Select {method} as payment method',
@@ -5042,6 +5052,8 @@ export default {
     invalidAmount: 'Amount must be within range and support up to 2 decimal places',
     minAmount: 'Minimum per transaction: ¥{amount}',
     maxAmount: 'Maximum per transaction: ¥{amount}',
+    viaEasypay: 'via EasyPay',
+    viaDirect: 'Direct',
 
     tabs: {
       topUp: 'Top Up',
@@ -5063,7 +5075,13 @@ export default {
       days: 'days',
       day: 'day',
       week: 'week',
-      month: 'month'
+      month: 'month',
+      months: 'months',
+      weeks: 'weeks',
+      usageLimits: 'Usage Limits',
+      dailyLimit: 'Daily: ${amount}',
+      weeklyLimit: 'Weekly: ${amount}',
+      monthlyLimit: 'Monthly: ${amount}'
     },
 
     confirm: {
@@ -5090,7 +5108,13 @@ export default {
       notRedirected: 'Not redirected? Open {channel}',
       goto: 'Open {channel} to pay',
       openScan: 'Open {channel} and scan to complete payment',
-      qrFailed: 'Failed to generate QR code. Please go back and try again.'
+      qrFailed: 'Failed to generate QR code. Please go back and try again.',
+      stripeLoading: 'Loading Stripe...',
+      stripeRetry: 'Try Again',
+      stripePay: 'Pay Now',
+      stripeNoKey: 'Stripe configuration is incomplete. Please contact the administrator.',
+      pollFailed: 'Unable to check payment status. Please check your network connection.',
+      pollRetry: 'Retry'
     },
 
     status: {
@@ -5109,7 +5133,23 @@ export default {
       error: 'Payment Error',
       errorMsg: 'Payment status is abnormal. Please contact the administrator.',
       done: 'Done',
-      backToRecharge: 'Back to Recharge'
+      backToRecharge: 'Back to Recharge',
+      pollTimeout: 'Processing is taking longer than expected. Please check the order list for the latest status.',
+      checking: 'Checking payment status...',
+      title: 'Payment Result'
+    },
+
+    stripePopup: {
+      init: 'Initializing...',
+      orderId: 'Order ID',
+      loadFailed: 'Failed to load payment component. Please close the window and try again.',
+      payFailed: 'Payment failed. Please try again.',
+      closeWindow: 'Close window',
+      redirecting: 'Redirecting to payment page...',
+      loadingForm: 'Loading payment form...',
+      successClosing: 'Payment successful. This window will close automatically...',
+      closeWindowManually: 'Close window manually',
+      payAmount: 'Pay ¥{amount}'
     },
 
     orderStatus: {
@@ -5143,7 +5183,8 @@ export default {
       refundAmountHint: 'Enter refund amount',
       refundReason: 'Reason',
       refundReasonHint: 'Optional reason for refund',
-      refundRequested: 'Refund request submitted'
+      refundRequested: 'Refund request submitted',
+      totalOrders: 'Total Orders'
     },
 
     admin: {
@@ -5199,8 +5240,10 @@ export default {
       balanceDisabled: 'Disable Balance Payment',
       autoRefund: 'Auto Refund',
       feeRates: 'Fee Rates',
+      direct: 'Direct',
       dailyLimits: 'Daily Limits per Method',
       configSaved: 'Configuration saved',
+      invalidFeeRate: 'Fee rate must be between 0 and 100%',
       channelName: 'Channel Name',
       platform: 'Platform',
       groupId: 'Group ID',
@@ -5216,12 +5259,58 @@ export default {
       validity: 'Validity',
       validityDays: 'Validity Days',
       validityUnit: 'Validity Unit',
+      unitDay: 'Day',
+      unitWeek: 'Week',
+      unitMonth: 'Month',
       forSale: 'For Sale',
       notForSale: 'Not For Sale',
       showLastDays: 'Show last {days} days',
       noPlans: 'No subscription plans configured',
       strategyRoundRobin: 'Round Robin',
-      strategyMinAmount: 'Min Amount'
+      strategyMinAmount: 'Min Amount',
+      cancelRateLimit: 'Cancel Rate Limit',
+      cancelRateLimitWindow: 'Window Size',
+      cancelRateLimitUnit: 'Window Unit',
+      cancelRateLimitMax: 'Max Cancels',
+      cancelRateLimitUnitMinute: 'Minute',
+      cancelRateLimitUnitHour: 'Hour',
+      cancelRateLimitUnitDay: 'Day',
+      cancelRateLimitMode: 'Window Mode',
+      cancelRateLimitModeRolling: 'Rolling',
+      cancelRateLimitModeFixed: 'Fixed',
+      providerInstances: 'Provider Instances',
+      noProviderInstances: 'No payment provider instances configured',
+      providerKey: 'Provider Type',
+      instanceName: 'Instance Name',
+      supportedTypes: 'Supported Types',
+      refundEnabled: 'Refund Enabled',
+      instanceLimits: 'Instance Limits',
+      instanceConfig: 'Instance Credentials',
+      todayAmount: 'Today Amount',
+      addProviderInstance: 'Add Provider Instance',
+      editProviderInstance: 'Edit Provider Instance',
+      syncFromGroups: 'Sync from Groups',
+      syncFromGroupsHint: 'Import channels from Sub2API groups',
+      selectGroupsToSync: 'Select groups to import as channels',
+      alreadyImported: 'Already imported',
+      syncSuccess: 'Channels synced successfully',
+      noGroupsToSync: 'No groups available for sync',
+      successRate: 'Success Rate',
+      successCount: 'Succeeded',
+      leaderboard: 'Top Users',
+      leaderboardUser: 'User',
+      leaderboardAmount: 'Total Spent',
+      leaderboardOrders: 'Orders',
+      dateFrom: 'From',
+      dateTo: 'To',
+      userSearch: 'User ID',
+      userSearchPlaceholder: 'Filter by user ID',
+      helpContent: 'Help Content',
+      helpImageUrl: 'Help Image URL',
+      helpText: 'Help Text',
+      userBalance: 'User Balance',
+      insufficientBalance: 'User balance is less than refund amount',
+      subscriptionDaysRemaining: 'Subscription days remaining'
     }
   }
 }

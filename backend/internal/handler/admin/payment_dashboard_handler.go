@@ -51,5 +51,6 @@ func (h *PaymentDashboardHandler) GetStats(c *gin.Context) {
 		TotalOrderCount: stats.TotalOrderCount,
 		DailySeries:     dailySeries,
 		PaymentMethods:  paymentMethods,
+		Leaderboard:     stats.Leaderboard,
 	})
 }

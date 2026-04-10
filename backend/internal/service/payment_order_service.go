@@ -271,6 +271,12 @@ func (s *PaymentConfigService) IsAutoRefundEnabled(ctx context.Context) bool {
 	return s.getString(ctx, "pay_auto_refund_enabled", "false") == "true"
 }
 
+// GetGracePeriodMinutes returns the number of minutes after expiration during which
+// a payment notification is still accepted. Default: 5 minutes.
+func (s *PaymentConfigService) GetGracePeriodMinutes(ctx context.Context) int {
+	return s.getInt(ctx, SettingKeyPayGracePeriodMinutes, 5)
+}
+
 func (s *PaymentConfigService) IsBalancePaymentDisabled(ctx context.Context) bool {
 	return s.getString(ctx, "pay_balance_payment_disabled", "false") == "true"
 }
@@ -429,6 +435,7 @@ type RawDashboardData struct {
 	TotalOrderCount int
 	DailySeries     []DailySeriesPoint
 	PaymentMethods  []PaymentMethodStat
+	Leaderboard     []LeaderboardEntry
 }
 
 // DailySeriesPoint holds daily aggregated amounts and counts.
@@ -440,9 +447,19 @@ type DailySeriesPoint struct {
 
 // PaymentMethodStat holds per-payment-type aggregated data.
 type PaymentMethodStat struct {
-	PaymentType string          `json:"payment_type"`
-	Amount      decimal.Decimal `json:"amount"`
-	Count       int             `json:"count"`
+	PaymentType  string          `json:"payment_type"`
+	Amount       decimal.Decimal `json:"amount"`
+	Count        int             `json:"count"`
+	SuccessCount int             `json:"success_count"`
+	SuccessRate  float64         `json:"success_rate"`
+}
+
+// LeaderboardEntry holds per-user aggregated data for the dashboard leaderboard.
+type LeaderboardEntry struct {
+	UserID    int64           `json:"user_id"`
+	UserEmail *string         `json:"user_email,omitempty"`
+	Amount    decimal.Decimal `json:"amount"`
+	Count     int             `json:"count"`
 }
 
 // --- PaymentOrderService ---
@@ -500,6 +517,11 @@ func NewPaymentOrderService(
 		redeemService:       redeemService,
 		subscriptionService: subscriptionService,
 	}
+}
+
+// CountPendingByUserID returns the number of pending orders for a user.
+func (s *PaymentOrderService) CountPendingByUserID(ctx context.Context, userID int64) (int, error) {
+	return s.orderRepo.CountPendingByUserID(ctx, userID)
 }
 
 // CreateOrder creates a new payment order following the full workflow.
@@ -904,16 +926,20 @@ func (s *PaymentOrderService) handleNotificationForPendingOrder(ctx context.Cont
 		return fmt.Errorf("amount mismatch: expected %s, got %s (diff %s)", expectedAmount, notification.Amount, diff)
 	}
 
-	// Atomic CAS: PENDING (or EXPIRED within 5-min grace) → PAID
+	// Atomic CAS: PENDING (or EXPIRED within grace period) → PAID
 	now := time.Now()
-	graceDeadline := now.Add(-5 * time.Minute)
+	graceMins := s.configService.GetGracePeriodMinutes(ctx)
+	graceDeadline := now.Add(-time.Duration(graceMins) * time.Minute)
 	ok, err := s.orderRepo.ConfirmPaidCAS(ctx, orderID, notification.TradeNo, notification.Amount, now, graceDeadline)
 	if err != nil {
 		return fmt.Errorf("confirm paid CAS: %w", err)
 	}
 	if !ok {
 		// Re-fetch to check current status
-		current, _ := s.orderRepo.GetByID(ctx, orderID)
+		current, refetchErr := s.orderRepo.GetByID(ctx, orderID)
+		if refetchErr != nil {
+			return fmt.Errorf("failed to re-fetch order %d after CAS failure: %w", orderID, refetchErr)
+		}
 		if current != nil {
 			switch current.Status {
 			case domain.PaymentOrderStatusCompleted, domain.PaymentOrderStatusRefunded:
@@ -945,7 +971,13 @@ func (s *PaymentOrderService) executeFulfillment(ctx context.Context, orderID in
 	// every status that is eligible for fulfillment (PAID, FAILED).
 	var ok bool
 	for _, fromStatus := range []string{domain.PaymentOrderStatusPaid, domain.PaymentOrderStatusFailed} {
-		ok, _ = s.orderRepo.UpdateStatusCAS(ctx, orderID, fromStatus, domain.PaymentOrderStatusRecharging)
+		var casErr error
+		ok, casErr = s.orderRepo.UpdateStatusCAS(ctx, orderID, fromStatus, domain.PaymentOrderStatusRecharging)
+		if casErr != nil {
+			slog.Error("CRITICAL: CAS failed during fulfillment — paid order may be lost",
+				"orderID", orderID, "fromStatus", fromStatus, "error", casErr)
+			return fmt.Errorf("fulfillment CAS failed: %w", casErr)
+		}
 		if ok {
 			break
 		}
@@ -968,7 +1000,10 @@ func (s *PaymentOrderService) executeFulfillment(ctx context.Context, orderID in
 		order.FailedAt = &failedNow
 		failedReason := err.Error()
 		order.FailedReason = &failedReason
-		_ = s.orderRepo.Update(ctx, order)
+		if updateErr := s.orderRepo.Update(ctx, order); updateErr != nil {
+			slog.Error("CRITICAL: failed to persist FAILED status after fulfillment error",
+				"orderID", orderID, "fulfillmentErr", err, "updateErr", updateErr)
+		}
 		s.writeAuditLog(ctx, orderID, "ORDER_FAILED", fmt.Sprintf("fulfillment error: %v", err))
 		return nil // Don't return error to webhook caller — let platform retry
 	}
@@ -977,7 +1012,10 @@ func (s *PaymentOrderService) executeFulfillment(ctx context.Context, orderID in
 	completedNow := time.Now()
 	order.Status = domain.PaymentOrderStatusCompleted
 	order.CompletedAt = &completedNow
-	_ = s.orderRepo.Update(ctx, order)
+	if updateErr := s.orderRepo.Update(ctx, order); updateErr != nil {
+		slog.Error("CRITICAL: fulfillment succeeded but failed to persist COMPLETED status — may cause duplicate fulfillment on retry",
+			"orderID", orderID, "error", updateErr)
+	}
 	s.writeAuditLog(ctx, orderID, "ORDER_COMPLETED", "")
 
 	return nil
@@ -1073,7 +1111,10 @@ func (s *PaymentOrderService) RefundOrder(ctx context.Context, req RefundOrderRe
 			order.FailedAt = &now
 			reason := fmt.Sprintf("gateway: %v; restore: %v", refundErr, restoreErr)
 			order.FailedReason = &reason
-			_ = s.orderRepo.Update(ctx, order)
+			if updateErr := s.orderRepo.Update(ctx, order); updateErr != nil {
+				slog.Error("CRITICAL: failed to persist REFUND_FAILED status",
+					"orderID", req.OrderID, "error", updateErr)
+			}
 			s.writeAuditLog(ctx, req.OrderID, "REFUND_FAILED",
 				fmt.Sprintf("gateway error: %v; restore error: %v", refundErr, restoreErr))
 			return fmt.Errorf("refund failed and could not restore: %w", refundErr)
@@ -1087,15 +1128,23 @@ func (s *PaymentOrderService) RefundOrder(ctx context.Context, req RefundOrderRe
 
 	// Both phases succeeded — determine if partial or full refund
 	now := time.Now()
-	if req.Amount.LessThan(order.Amount) {
-		order.Status = domain.PaymentOrderStatusPartiallyRefunded
-	} else {
-		order.Status = domain.PaymentOrderStatusRefunded
+	// Accumulate refund amount for partial refunds
+	totalRefunded := req.Amount
+	if order.RefundAmount != nil {
+		totalRefunded = order.RefundAmount.Add(req.Amount)
 	}
-	order.RefundAmount = &req.Amount
+	if totalRefunded.GreaterThanOrEqual(order.Amount) {
+		order.Status = domain.PaymentOrderStatusRefunded
+	} else {
+		order.Status = domain.PaymentOrderStatusPartiallyRefunded
+	}
+	order.RefundAmount = &totalRefunded
 	order.RefundReason = stringPtrIfNotEmpty(req.Reason)
 	order.RefundAt = &now
-	_ = s.orderRepo.Update(ctx, order)
+	if updateErr := s.orderRepo.Update(ctx, order); updateErr != nil {
+		slog.Error("CRITICAL: refund succeeded at gateway but failed to persist order status",
+			"orderID", req.OrderID, "error", updateErr)
+	}
 
 	s.writeAuditLog(ctx, req.OrderID, "ORDER_REFUNDED",
 		fmt.Sprintf("amount=%s, reason=%s, operator=%s, partial=%v", req.Amount, req.Reason, req.Operator, req.Amount.LessThan(order.Amount)))
@@ -1131,7 +1180,9 @@ func (s *PaymentOrderService) RequestRefund(ctx context.Context, orderID, userID
 	// Store refund request details
 	order.RefundAmount = &amount
 	order.RefundReason = stringPtrIfNotEmpty(reason)
-	_ = s.orderRepo.Update(ctx, order)
+	if updateErr := s.orderRepo.Update(ctx, order); updateErr != nil {
+		slog.Error("failed to persist refund request details", "orderID", orderID, "error", updateErr)
+	}
 
 	operator := fmt.Sprintf("user:%d", userID)
 	s.writeAuditLogWithOperator(ctx, orderID, "REFUND_REQUESTED",
@@ -1175,7 +1226,9 @@ func (s *PaymentOrderService) deductForRefund(ctx context.Context, order *Paymen
 	switch order.OrderType {
 	case domain.PaymentOrderTypeBalance:
 		// Deduct the refund amount from user balance
-		return s.userService.UpdateBalance(ctx, order.UserID, -refundAmount.InexactFloat64())
+		// Note: UpdateBalance uses float64; we use InexactFloat64 with 2-decimal rounding
+		// to minimize precision loss at the boundary.
+		return s.userService.UpdateBalance(ctx, order.UserID, -refundAmount.Round(2).InexactFloat64())
 
 	case domain.PaymentOrderTypeSubscription:
 		if order.SubscriptionGroupID == nil {
@@ -1201,7 +1254,7 @@ func (s *PaymentOrderService) deductForRefund(ctx context.Context, order *Paymen
 func (s *PaymentOrderService) restoreAfterRefundFailure(ctx context.Context, order *PaymentOrder, refundAmount decimal.Decimal, revokedSubID int64) error {
 	switch order.OrderType {
 	case domain.PaymentOrderTypeBalance:
-		return s.userService.UpdateBalance(ctx, order.UserID, refundAmount.InexactFloat64())
+		return s.userService.UpdateBalance(ctx, order.UserID, refundAmount.Round(2).InexactFloat64())
 
 	case domain.PaymentOrderTypeSubscription:
 		if revokedSubID > 0 && order.SubscriptionGroupID != nil && order.SubscriptionDays != nil {
@@ -1292,7 +1345,7 @@ func (s *PaymentOrderService) fulfillBalanceOrder(ctx context.Context, order *Pa
 	code := &RedeemCode{
 		Code:  order.RechargeCode,
 		Type:  RedeemTypeBalance,
-		Value: order.Amount.InexactFloat64(),
+		Value: order.Amount.Round(2).InexactFloat64(),
 		Notes: fmt.Sprintf("payment order #%d", order.ID),
 	}
 	if err := s.redeemService.CreateCode(ctx, code); err != nil {
@@ -1342,8 +1395,13 @@ func (s *PaymentOrderService) queryProviderPaymentStatus(ctx context.Context, or
 	if order.ProviderInstanceID == nil {
 		return false, nil
 	}
+
+	// Bound the provider query so a slow upstream doesn't block cancel indefinitely.
+	queryCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+
 	providerKey := PaymentTypeToProviderKey(order.PaymentType)
-	inst, err := s.instanceRepo.GetByID(ctx, *order.ProviderInstanceID)
+	inst, err := s.instanceRepo.GetByID(queryCtx, *order.ProviderInstanceID)
 	if err != nil {
 		return false, nil
 	}
@@ -1364,7 +1422,7 @@ func (s *PaymentOrderService) queryProviderPaymentStatus(ctx context.Context, or
 		tradeNo = *order.PaymentTradeNo
 	}
 
-	result, err := provider.QueryOrder(ctx, tradeNo)
+	result, err := provider.QueryOrder(queryCtx, tradeNo)
 	if err != nil {
 		return false, nil
 	}
@@ -1459,12 +1517,12 @@ func (s *PaymentOrderService) writeAuditLogWithOperator(ctx context.Context, ord
 func generateRechargeCode(orderID int64) string {
 	idStr := strconv.FormatInt(orderID, 10)
 	const prefix = "s2p_"
-	const randomLen = 8 // 4 bytes → 8 hex chars
+	const randomLen = 16 // 8 bytes → 16 hex chars
 	maxIDLen := 32 - len(prefix) - randomLen
 	if len(idStr) > maxIDLen {
 		idStr = idStr[:maxIDLen]
 	}
-	b := make([]byte, 4)
+	b := make([]byte, 8)
 	_, _ = rand.Read(b)
 	return prefix + idStr + hex.EncodeToString(b)
 }
@@ -1522,19 +1580,18 @@ func (s *PaymentOrderService) checkCancelRateLimit(ctx context.Context, userID i
 
 // cancelRateLimitWindowStart computes the window start time for cancel rate limiting.
 func cancelRateLimitWindowStart(now time.Time, windowSize int, unit, mode string) time.Time {
-	loc, _ := time.LoadLocation("Asia/Shanghai")
-	nowLocal := now.In(loc)
+	nowLocal := now.In(shanghaiLoc)
 
 	if mode == "fixed" {
 		switch unit {
 		case "minute":
-			start := time.Date(nowLocal.Year(), nowLocal.Month(), nowLocal.Day(), nowLocal.Hour(), nowLocal.Minute(), 0, 0, loc)
+			start := time.Date(nowLocal.Year(), nowLocal.Month(), nowLocal.Day(), nowLocal.Hour(), nowLocal.Minute(), 0, 0, shanghaiLoc)
 			return start.Add(-time.Duration(windowSize-1) * time.Minute).UTC()
 		case "hour":
-			start := time.Date(nowLocal.Year(), nowLocal.Month(), nowLocal.Day(), nowLocal.Hour(), 0, 0, 0, loc)
+			start := time.Date(nowLocal.Year(), nowLocal.Month(), nowLocal.Day(), nowLocal.Hour(), 0, 0, 0, shanghaiLoc)
 			return start.Add(-time.Duration(windowSize-1) * time.Hour).UTC()
 		default: // day
-			start := time.Date(nowLocal.Year(), nowLocal.Month(), nowLocal.Day(), 0, 0, 0, 0, loc)
+			start := time.Date(nowLocal.Year(), nowLocal.Month(), nowLocal.Day(), 0, 0, 0, 0, shanghaiLoc)
 			return start.AddDate(0, 0, -(windowSize - 1)).UTC()
 		}
 	}

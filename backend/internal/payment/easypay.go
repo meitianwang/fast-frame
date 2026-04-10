@@ -196,7 +196,10 @@ func (p *EasyPayProvider) QueryOrder(ctx context.Context, tradeNo string) (*serv
 		status = "paid"
 	}
 
-	amount, _ := decimal.NewFromString(result.Money)
+	amount, err := decimal.NewFromString(result.Money)
+	if err != nil {
+		return nil, fmt.Errorf("easypay query: invalid money %q: %w", result.Money, err)
+	}
 
 	qResp := &service.QueryOrderResponse{
 		TradeNo: result.TradeNo,
@@ -205,8 +208,11 @@ func (p *EasyPayProvider) QueryOrder(ctx context.Context, tradeNo string) (*serv
 	}
 
 	if result.EndTime != "" {
-		if t, err := time.Parse("2006-01-02 15:04:05", result.EndTime); err == nil {
-			t = t.UTC()
+		loc, _ := time.LoadLocation("Asia/Shanghai")
+		if loc == nil {
+			loc = time.FixedZone("CST", 8*3600)
+		}
+		if t, err := time.ParseInLocation("2006-01-02 15:04:05", result.EndTime, loc); err == nil {
 			qResp.PaidAt = &t
 		}
 	}
@@ -335,6 +341,7 @@ func normalizeCIDList(cid string) string {
 }
 
 // Compile-time interface compliance checks.
+var _ service.PaymentProvider = (*EasyPayProvider)(nil)
 var _ service.ProviderWithDefaults = (*EasyPayProvider)(nil)
 
 // easyPaySign generates an MD5 signature for EasyPay.
@@ -368,8 +375,5 @@ func easyPaySign(params map[string]string, pkey string) string {
 // easyPayVerifySign verifies an EasyPay MD5 signature using constant-time comparison.
 func easyPayVerifySign(params map[string]string, pkey, expected string) bool {
 	computed := easyPaySign(params, pkey)
-	if len(computed) != len(expected) {
-		return false
-	}
 	return subtle.ConstantTimeCompare([]byte(computed), []byte(expected)) == 1
 }

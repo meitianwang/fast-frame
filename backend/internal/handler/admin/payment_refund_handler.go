@@ -1,7 +1,10 @@
 package admin
 
 import (
+	"fmt"
+
 	"github.com/Wei-Shaw/sub2api/internal/pkg/response"
+	"github.com/Wei-Shaw/sub2api/internal/server/middleware"
 	"github.com/Wei-Shaw/sub2api/internal/service"
 	"github.com/shopspring/decimal"
 
@@ -36,11 +39,16 @@ func (h *PaymentRefundHandler) ProcessRefund(c *gin.Context) {
 		return
 	}
 
+	operator := "admin"
+	if subject, ok := middleware.GetAuthSubjectFromContext(c); ok {
+		operator = fmt.Sprintf("admin:%d", subject.UserID)
+	}
+
 	if err := h.orderService.RefundOrder(c.Request.Context(), service.RefundOrderRequest{
 		OrderID:  req.OrderID,
 		Amount:   amount,
 		Reason:   req.Reason,
-		Operator: "admin",
+		Operator: operator,
 	}); err != nil {
 		response.ErrorFrom(c, err)
 		return

@@ -1,10 +1,16 @@
 <template>
   <AppLayout>
+    <div class="px-4 pt-4">
+      <PaymentAdminNav />
+    </div>
     <TablePageLayout>
       <template #filters>
         <div class="flex items-center justify-between">
           <h2 class="text-lg font-semibold text-gray-900 dark:text-white">{{ t('payment.admin.channels') }}</h2>
-          <button @click="openCreateDialog" class="btn btn-primary btn-sm">{{ t('common.create') }}</button>
+          <div class="flex gap-2">
+            <button @click="openSyncDialog" class="btn btn-secondary btn-sm">{{ t('payment.admin.syncFromGroups') }}</button>
+            <button @click="openCreateDialog" class="btn btn-primary btn-sm">{{ t('common.create') }}</button>
+          </div>
         </div>
       </template>
 
@@ -119,17 +125,62 @@
       @confirm="confirmDelete"
       @cancel="showDeleteConfirm = false"
     />
+
+    <!-- Sync from Groups Dialog -->
+    <BaseDialog :show="syncDialogOpen" @close="syncDialogOpen = false" :title="t('payment.admin.syncFromGroups')">
+      <p class="mb-4 text-sm text-gray-500 dark:text-slate-400">{{ t('payment.admin.selectGroupsToSync') }}</p>
+      <div v-if="syncLoading" class="flex items-center justify-center py-8">
+        <div class="h-6 w-6 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" />
+      </div>
+      <div v-else-if="syncGroups.length === 0" class="py-8 text-center text-gray-500 dark:text-slate-400">
+        {{ t('payment.admin.noGroupsToSync') }}
+      </div>
+      <div v-else class="max-h-80 space-y-2 overflow-y-auto">
+        <label
+          v-for="g in syncGroups"
+          :key="g.id"
+          class="flex items-center gap-3 rounded-lg border px-3 py-2 cursor-pointer"
+          :class="syncExistingIds.has(g.id)
+            ? 'border-gray-200 bg-gray-50 dark:border-slate-700 dark:bg-slate-800/50 opacity-60'
+            : syncSelectedIds.has(g.id)
+              ? 'border-blue-400 bg-blue-50 dark:border-blue-600 dark:bg-blue-950'
+              : 'border-gray-200 dark:border-slate-700 hover:border-gray-300 dark:hover:border-slate-600'"
+        >
+          <input
+            type="checkbox"
+            :checked="syncSelectedIds.has(g.id)"
+            :disabled="syncExistingIds.has(g.id)"
+            @change="toggleSyncGroup(g.id)"
+            class="rounded"
+          />
+          <div class="flex-1">
+            <span class="text-sm font-medium text-gray-900 dark:text-slate-100">{{ g.name }}</span>
+            <span class="ml-2 text-xs text-gray-500 dark:text-slate-400">#{{ g.id }}</span>
+            <span v-if="g.platform" class="ml-2 text-xs text-gray-400 dark:text-slate-500">{{ g.platform }}</span>
+          </div>
+          <span v-if="syncExistingIds.has(g.id)" class="text-xs text-gray-400 dark:text-slate-500">{{ t('payment.admin.alreadyImported') }}</span>
+        </label>
+      </div>
+      <div class="mt-4 flex justify-end gap-3">
+        <button @click="syncDialogOpen = false" class="btn btn-secondary">{{ t('common.cancel') }}</button>
+        <button @click="handleSync" :disabled="syncSelectedIds.size === 0 || syncImporting" class="btn btn-primary">
+          {{ syncImporting ? t('payment.processing') : t('payment.admin.syncFromGroups') }} ({{ syncSelectedIds.size }})
+        </button>
+      </div>
+    </BaseDialog>
   </AppLayout>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AppLayout from '@/components/layout/AppLayout.vue'
+import PaymentAdminNav from '@/components/admin/PaymentAdminNav.vue'
 import TablePageLayout from '@/components/layout/TablePageLayout.vue'
 import BaseDialog from '@/components/common/BaseDialog.vue'
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
 import { adminPayAPI } from '@/api/admin/pay'
+import { getAll as listGroups } from '@/api/admin/groups'
 import { useAppStore } from '@/stores'
 import type { PaymentChannel } from '@/types'
 
@@ -277,6 +328,59 @@ async function confirmDelete() {
     appStore.showSuccess(t('common.deleted'))
   } catch (err: unknown) {
     appStore.showError(err instanceof Error ? err.message : t('common.error'))
+  }
+}
+
+// Sync from Groups
+const syncDialogOpen = ref(false)
+const syncLoading = ref(false)
+const syncImporting = ref(false)
+const syncGroups = ref<Array<{ id: number; name: string; platform?: string }>>([])
+const syncSelectedIds = ref<Set<number>>(new Set())
+const syncExistingIds = computed(() => new Set(channels.value.map(ch => ch.group_id).filter(Boolean)))
+
+async function openSyncDialog() {
+  syncDialogOpen.value = true
+  syncSelectedIds.value = new Set()
+  syncLoading.value = true
+  try {
+    const groups = await listGroups()
+    syncGroups.value = (groups || []).map((g: any) => ({ id: g.id, name: g.name, platform: g.platform }))
+  } catch (err: unknown) {
+    appStore.showError(err instanceof Error ? err.message : t('common.error'))
+  } finally {
+    syncLoading.value = false
+  }
+}
+
+function toggleSyncGroup(id: number) {
+  const s = new Set(syncSelectedIds.value)
+  if (s.has(id)) s.delete(id)
+  else s.add(id)
+  syncSelectedIds.value = s
+}
+
+async function handleSync() {
+  syncImporting.value = true
+  try {
+    const selected = syncGroups.value.filter(g => syncSelectedIds.value.has(g.id))
+    for (const g of selected) {
+      await adminPayAPI.createChannel({
+        name: g.name,
+        platform: g.platform || 'claude',
+        rate_multiplier: '1.0',
+        group_id: g.id,
+        sort_order: 0,
+        enabled: true
+      })
+    }
+    syncDialogOpen.value = false
+    loadChannels()
+    appStore.showSuccess(t('payment.admin.syncSuccess'))
+  } catch (err: unknown) {
+    appStore.showError(err instanceof Error ? err.message : t('common.error'))
+  } finally {
+    syncImporting.value = false
   }
 }
 </script>
