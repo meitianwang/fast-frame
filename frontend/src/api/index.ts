@@ -10,11 +10,8 @@ export { apiClient } from './client'
 export { authAPI, isTotp2FARequired, type LoginResponse } from './auth'
 
 // User APIs
-export { keysAPI } from './keys'
-export { usageAPI } from './usage'
 export { userAPI } from './user'
 export { redeemAPI, type RedeemHistoryItem } from './redeem'
-export { userGroupsAPI } from './groups'
 export { totpAPI } from './totp'
 export { default as announcementsAPI } from './announcements'
 

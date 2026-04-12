@@ -9,42 +9,6 @@ import (
 	"github.com/Wei-Shaw/sub2api/ent"
 )
 
-// The APIKeyFunc type is an adapter to allow the use of ordinary
-// function as APIKey mutator.
-type APIKeyFunc func(context.Context, *ent.APIKeyMutation) (ent.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f APIKeyFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.APIKeyMutation); ok {
-		return f(ctx, mv)
-	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.APIKeyMutation", m)
-}
-
-// The AccountFunc type is an adapter to allow the use of ordinary
-// function as Account mutator.
-type AccountFunc func(context.Context, *ent.AccountMutation) (ent.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f AccountFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.AccountMutation); ok {
-		return f(ctx, mv)
-	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.AccountMutation", m)
-}
-
-// The AccountGroupFunc type is an adapter to allow the use of ordinary
-// function as AccountGroup mutator.
-type AccountGroupFunc func(context.Context, *ent.AccountGroupMutation) (ent.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f AccountGroupFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.AccountGroupMutation); ok {
-		return f(ctx, mv)
-	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.AccountGroupMutation", m)
-}
-
 // The AnnouncementFunc type is an adapter to allow the use of ordinary
 // function as Announcement mutator.
 type AnnouncementFunc func(context.Context, *ent.AnnouncementMutation) (ent.Value, error)
@@ -67,18 +31,6 @@ func (f AnnouncementReadFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.V
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.AnnouncementReadMutation", m)
-}
-
-// The ErrorPassthroughRuleFunc type is an adapter to allow the use of ordinary
-// function as ErrorPassthroughRule mutator.
-type ErrorPassthroughRuleFunc func(context.Context, *ent.ErrorPassthroughRuleMutation) (ent.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f ErrorPassthroughRuleFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.ErrorPassthroughRuleMutation); ok {
-		return f(ctx, mv)
-	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ErrorPassthroughRuleMutation", m)
 }
 
 // The GroupFunc type is an adapter to allow the use of ordinary
@@ -177,18 +129,6 @@ func (f PromoCodeUsageFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Val
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.PromoCodeUsageMutation", m)
 }
 
-// The ProxyFunc type is an adapter to allow the use of ordinary
-// function as Proxy mutator.
-type ProxyFunc func(context.Context, *ent.ProxyMutation) (ent.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f ProxyFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.ProxyMutation); ok {
-		return f(ctx, mv)
-	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ProxyMutation", m)
-}
-
 // The RedeemCodeFunc type is an adapter to allow the use of ordinary
 // function as RedeemCode mutator.
 type RedeemCodeFunc func(context.Context, *ent.RedeemCodeMutation) (ent.Value, error)
@@ -235,42 +175,6 @@ func (f SubscriptionPlanFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.V
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.SubscriptionPlanMutation", m)
-}
-
-// The TLSFingerprintProfileFunc type is an adapter to allow the use of ordinary
-// function as TLSFingerprintProfile mutator.
-type TLSFingerprintProfileFunc func(context.Context, *ent.TLSFingerprintProfileMutation) (ent.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f TLSFingerprintProfileFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.TLSFingerprintProfileMutation); ok {
-		return f(ctx, mv)
-	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.TLSFingerprintProfileMutation", m)
-}
-
-// The UsageCleanupTaskFunc type is an adapter to allow the use of ordinary
-// function as UsageCleanupTask mutator.
-type UsageCleanupTaskFunc func(context.Context, *ent.UsageCleanupTaskMutation) (ent.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f UsageCleanupTaskFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.UsageCleanupTaskMutation); ok {
-		return f(ctx, mv)
-	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.UsageCleanupTaskMutation", m)
-}
-
-// The UsageLogFunc type is an adapter to allow the use of ordinary
-// function as UsageLog mutator.
-type UsageLogFunc func(context.Context, *ent.UsageLogMutation) (ent.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f UsageLogFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.UsageLogMutation); ok {
-		return f(ctx, mv)
-	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.UsageLogMutation", m)
 }
 
 // The UserFunc type is an adapter to allow the use of ordinary

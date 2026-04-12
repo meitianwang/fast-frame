@@ -134,7 +134,7 @@ CREATE TABLE IF NOT EXISTS payment_channels (
     id              BIGSERIAL PRIMARY KEY,
     group_id        BIGINT UNIQUE REFERENCES groups(id) ON DELETE SET NULL,
     name            VARCHAR(100)  NOT NULL,
-    platform        VARCHAR(50)   NOT NULL DEFAULT 'claude',
+    platform        VARCHAR(50)   NOT NULL DEFAULT '',
     rate_multiplier DECIMAL(10,4) NOT NULL,
     description     TEXT,
     models          TEXT,

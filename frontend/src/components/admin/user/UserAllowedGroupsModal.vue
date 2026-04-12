@@ -64,11 +64,6 @@
                     </span>
                   </div>
                   <div class="mt-1.5 flex items-center gap-3 text-sm">
-                    <span class="inline-flex items-center gap-1 text-gray-500 dark:text-gray-400">
-                      <PlatformIcon :platform="config.platform" size="xs" />
-                      <span>{{ config.platform }}</span>
-                    </span>
-                    <span class="text-gray-300 dark:text-dark-500">•</span>
                     <span class="text-gray-500 dark:text-gray-400">
                       {{ t('admin.users.defaultRate') }}: <span class="font-medium text-gray-700 dark:text-gray-300">{{ config.defaultRate }}x</span>
                     </span>
@@ -122,11 +117,6 @@
                     <span class="text-base font-semibold text-gray-900 dark:text-white">{{ config.groupName }}</span>
                   </div>
                   <div class="mt-1.5 flex items-center gap-3 text-sm">
-                    <span class="inline-flex items-center gap-1 text-gray-500 dark:text-gray-400">
-                      <PlatformIcon :platform="config.platform" size="xs" />
-                      <span>{{ config.platform }}</span>
-                    </span>
-                    <span class="text-gray-300 dark:text-dark-500">•</span>
                     <span class="text-gray-500 dark:text-gray-400">
                       {{ t('admin.users.defaultRate') }}: <span class="font-medium text-gray-700 dark:text-gray-300">{{ config.defaultRate }}x</span>
                     </span>
@@ -183,14 +173,12 @@ import { ref, watch, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAppStore } from '@/stores/app'
 import { adminAPI } from '@/api/admin'
-import type { AdminUser, Group, GroupPlatform } from '@/types'
+import type { AdminUser, Group } from '@/types'
 import BaseDialog from '@/components/common/BaseDialog.vue'
-import PlatformIcon from '@/components/common/PlatformIcon.vue'
 
 interface GroupRateConfig {
   groupId: number
   groupName: string
-  platform: GroupPlatform
   isExclusive: boolean
   defaultRate: number
   customRate: number | null
@@ -227,9 +215,9 @@ watch(
 const load = async () => {
   loading.value = true
   try {
-    const res = await adminAPI.groups.list(1, 1000)
+    const res = { data: [], total: 0, items: [] as any[] }
     // 只显示标准类型且活跃的分组
-    groups.value = res.items.filter((g) => g.subscription_type === 'standard' && g.status === 'active')
+    groups.value = res.items.filter((g: any) => g.subscription_type === 'standard' && g.status === 'active')
 
     // 初始化配置
     const userAllowedGroups = props.user?.allowed_groups || []
@@ -241,7 +229,6 @@ const load = async () => {
     groupConfigs.value = groups.value.map((g) => ({
       groupId: g.id,
       groupName: g.name,
-      platform: g.platform,
       isExclusive: g.is_exclusive,
       defaultRate: g.rate_multiplier,
       customRate: userGroupRates[g.id] ?? null,

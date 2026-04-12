@@ -67,11 +67,9 @@ type UserSubscriptionEdges struct {
 	Group *Group `json:"group,omitempty"`
 	// AssignedByUser holds the value of the assigned_by_user edge.
 	AssignedByUser *User `json:"assigned_by_user,omitempty"`
-	// UsageLogs holds the value of the usage_logs edge.
-	UsageLogs []*UsageLog `json:"usage_logs,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [4]bool
+	loadedTypes [3]bool
 }
 
 // UserOrErr returns the User value or an error if the edge
@@ -105,15 +103,6 @@ func (e UserSubscriptionEdges) AssignedByUserOrErr() (*User, error) {
 		return nil, &NotFoundError{label: user.Label}
 	}
 	return nil, &NotLoadedError{edge: "assigned_by_user"}
-}
-
-// UsageLogsOrErr returns the UsageLogs value or an error if the edge
-// was not loaded in eager-loading.
-func (e UserSubscriptionEdges) UsageLogsOrErr() ([]*UsageLog, error) {
-	if e.loadedTypes[3] {
-		return e.UsageLogs, nil
-	}
-	return nil, &NotLoadedError{edge: "usage_logs"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -284,11 +273,6 @@ func (_m *UserSubscription) QueryGroup() *GroupQuery {
 // QueryAssignedByUser queries the "assigned_by_user" edge of the UserSubscription entity.
 func (_m *UserSubscription) QueryAssignedByUser() *UserQuery {
 	return NewUserSubscriptionClient(_m.config).QueryAssignedByUser(_m)
-}
-
-// QueryUsageLogs queries the "usage_logs" edge of the UserSubscription entity.
-func (_m *UserSubscription) QueryUsageLogs() *UsageLogQuery {
-	return NewUserSubscriptionClient(_m.config).QueryUsageLogs(_m)
 }
 
 // Update returns a builder for updating this UserSubscription.

@@ -55,8 +55,6 @@ const (
 	EdgeGroup = "group"
 	// EdgeAssignedByUser holds the string denoting the assigned_by_user edge name in mutations.
 	EdgeAssignedByUser = "assigned_by_user"
-	// EdgeUsageLogs holds the string denoting the usage_logs edge name in mutations.
-	EdgeUsageLogs = "usage_logs"
 	// Table holds the table name of the usersubscription in the database.
 	Table = "user_subscriptions"
 	// UserTable is the table that holds the user relation/edge.
@@ -80,13 +78,6 @@ const (
 	AssignedByUserInverseTable = "users"
 	// AssignedByUserColumn is the table column denoting the assigned_by_user relation/edge.
 	AssignedByUserColumn = "assigned_by"
-	// UsageLogsTable is the table that holds the usage_logs relation/edge.
-	UsageLogsTable = "usage_logs"
-	// UsageLogsInverseTable is the table name for the UsageLog entity.
-	// It exists in this package in order to avoid circular dependency with the "usagelog" package.
-	UsageLogsInverseTable = "usage_logs"
-	// UsageLogsColumn is the table column denoting the usage_logs relation/edge.
-	UsageLogsColumn = "subscription_id"
 )
 
 // Columns holds all SQL columns for usersubscription fields.
@@ -262,20 +253,6 @@ func ByAssignedByUserField(field string, opts ...sql.OrderTermOption) OrderOptio
 		sqlgraph.OrderByNeighborTerms(s, newAssignedByUserStep(), sql.OrderByField(field, opts...))
 	}
 }
-
-// ByUsageLogsCount orders the results by usage_logs count.
-func ByUsageLogsCount(opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newUsageLogsStep(), opts...)
-	}
-}
-
-// ByUsageLogs orders the results by usage_logs terms.
-func ByUsageLogs(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newUsageLogsStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
-}
 func newUserStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -295,12 +272,5 @@ func newAssignedByUserStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(AssignedByUserInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, AssignedByUserTable, AssignedByUserColumn),
-	)
-}
-func newUsageLogsStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(UsageLogsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, UsageLogsTable, UsageLogsColumn),
 	)
 }

@@ -14,13 +14,11 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/Wei-Shaw/sub2api/ent/announcementread"
-	"github.com/Wei-Shaw/sub2api/ent/apikey"
 	"github.com/Wei-Shaw/sub2api/ent/group"
 	"github.com/Wei-Shaw/sub2api/ent/paymentorder"
 	"github.com/Wei-Shaw/sub2api/ent/predicate"
 	"github.com/Wei-Shaw/sub2api/ent/promocodeusage"
 	"github.com/Wei-Shaw/sub2api/ent/redeemcode"
-	"github.com/Wei-Shaw/sub2api/ent/usagelog"
 	"github.com/Wei-Shaw/sub2api/ent/user"
 	"github.com/Wei-Shaw/sub2api/ent/userallowedgroup"
 	"github.com/Wei-Shaw/sub2api/ent/userattributevalue"
@@ -34,13 +32,11 @@ type UserQuery struct {
 	order                     []user.OrderOption
 	inters                    []Interceptor
 	predicates                []predicate.User
-	withAPIKeys               *APIKeyQuery
 	withRedeemCodes           *RedeemCodeQuery
 	withSubscriptions         *UserSubscriptionQuery
 	withAssignedSubscriptions *UserSubscriptionQuery
 	withAnnouncementReads     *AnnouncementReadQuery
 	withAllowedGroups         *GroupQuery
-	withUsageLogs             *UsageLogQuery
 	withAttributeValues       *UserAttributeValueQuery
 	withPromoCodeUsages       *PromoCodeUsageQuery
 	withPaymentOrders         *PaymentOrderQuery
@@ -80,28 +76,6 @@ func (_q *UserQuery) Unique(unique bool) *UserQuery {
 func (_q *UserQuery) Order(o ...user.OrderOption) *UserQuery {
 	_q.order = append(_q.order, o...)
 	return _q
-}
-
-// QueryAPIKeys chains the current query on the "api_keys" edge.
-func (_q *UserQuery) QueryAPIKeys() *APIKeyQuery {
-	query := (&APIKeyClient{config: _q.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := _q.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := _q.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(user.Table, user.FieldID, selector),
-			sqlgraph.To(apikey.Table, apikey.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, user.APIKeysTable, user.APIKeysColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
 }
 
 // QueryRedeemCodes chains the current query on the "redeem_codes" edge.
@@ -207,28 +181,6 @@ func (_q *UserQuery) QueryAllowedGroups() *GroupQuery {
 			sqlgraph.From(user.Table, user.FieldID, selector),
 			sqlgraph.To(group.Table, group.FieldID),
 			sqlgraph.Edge(sqlgraph.M2M, false, user.AllowedGroupsTable, user.AllowedGroupsPrimaryKey...),
-		)
-		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QueryUsageLogs chains the current query on the "usage_logs" edge.
-func (_q *UserQuery) QueryUsageLogs() *UsageLogQuery {
-	query := (&UsageLogClient{config: _q.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := _q.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := _q.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(user.Table, user.FieldID, selector),
-			sqlgraph.To(usagelog.Table, usagelog.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, user.UsageLogsTable, user.UsageLogsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -516,13 +468,11 @@ func (_q *UserQuery) Clone() *UserQuery {
 		order:                     append([]user.OrderOption{}, _q.order...),
 		inters:                    append([]Interceptor{}, _q.inters...),
 		predicates:                append([]predicate.User{}, _q.predicates...),
-		withAPIKeys:               _q.withAPIKeys.Clone(),
 		withRedeemCodes:           _q.withRedeemCodes.Clone(),
 		withSubscriptions:         _q.withSubscriptions.Clone(),
 		withAssignedSubscriptions: _q.withAssignedSubscriptions.Clone(),
 		withAnnouncementReads:     _q.withAnnouncementReads.Clone(),
 		withAllowedGroups:         _q.withAllowedGroups.Clone(),
-		withUsageLogs:             _q.withUsageLogs.Clone(),
 		withAttributeValues:       _q.withAttributeValues.Clone(),
 		withPromoCodeUsages:       _q.withPromoCodeUsages.Clone(),
 		withPaymentOrders:         _q.withPaymentOrders.Clone(),
@@ -531,17 +481,6 @@ func (_q *UserQuery) Clone() *UserQuery {
 		sql:  _q.sql.Clone(),
 		path: _q.path,
 	}
-}
-
-// WithAPIKeys tells the query-builder to eager-load the nodes that are connected to
-// the "api_keys" edge. The optional arguments are used to configure the query builder of the edge.
-func (_q *UserQuery) WithAPIKeys(opts ...func(*APIKeyQuery)) *UserQuery {
-	query := (&APIKeyClient{config: _q.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	_q.withAPIKeys = query
-	return _q
 }
 
 // WithRedeemCodes tells the query-builder to eager-load the nodes that are connected to
@@ -596,17 +535,6 @@ func (_q *UserQuery) WithAllowedGroups(opts ...func(*GroupQuery)) *UserQuery {
 		opt(query)
 	}
 	_q.withAllowedGroups = query
-	return _q
-}
-
-// WithUsageLogs tells the query-builder to eager-load the nodes that are connected to
-// the "usage_logs" edge. The optional arguments are used to configure the query builder of the edge.
-func (_q *UserQuery) WithUsageLogs(opts ...func(*UsageLogQuery)) *UserQuery {
-	query := (&UsageLogClient{config: _q.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	_q.withUsageLogs = query
 	return _q
 }
 
@@ -732,14 +660,12 @@ func (_q *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 	var (
 		nodes       = []*User{}
 		_spec       = _q.querySpec()
-		loadedTypes = [11]bool{
-			_q.withAPIKeys != nil,
+		loadedTypes = [9]bool{
 			_q.withRedeemCodes != nil,
 			_q.withSubscriptions != nil,
 			_q.withAssignedSubscriptions != nil,
 			_q.withAnnouncementReads != nil,
 			_q.withAllowedGroups != nil,
-			_q.withUsageLogs != nil,
 			_q.withAttributeValues != nil,
 			_q.withPromoCodeUsages != nil,
 			_q.withPaymentOrders != nil,
@@ -766,13 +692,6 @@ func (_q *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 	}
 	if len(nodes) == 0 {
 		return nodes, nil
-	}
-	if query := _q.withAPIKeys; query != nil {
-		if err := _q.loadAPIKeys(ctx, query, nodes,
-			func(n *User) { n.Edges.APIKeys = []*APIKey{} },
-			func(n *User, e *APIKey) { n.Edges.APIKeys = append(n.Edges.APIKeys, e) }); err != nil {
-			return nil, err
-		}
 	}
 	if query := _q.withRedeemCodes; query != nil {
 		if err := _q.loadRedeemCodes(ctx, query, nodes,
@@ -811,13 +730,6 @@ func (_q *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 			return nil, err
 		}
 	}
-	if query := _q.withUsageLogs; query != nil {
-		if err := _q.loadUsageLogs(ctx, query, nodes,
-			func(n *User) { n.Edges.UsageLogs = []*UsageLog{} },
-			func(n *User, e *UsageLog) { n.Edges.UsageLogs = append(n.Edges.UsageLogs, e) }); err != nil {
-			return nil, err
-		}
-	}
 	if query := _q.withAttributeValues; query != nil {
 		if err := _q.loadAttributeValues(ctx, query, nodes,
 			func(n *User) { n.Edges.AttributeValues = []*UserAttributeValue{} },
@@ -849,36 +761,6 @@ func (_q *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 	return nodes, nil
 }
 
-func (_q *UserQuery) loadAPIKeys(ctx context.Context, query *APIKeyQuery, nodes []*User, init func(*User), assign func(*User, *APIKey)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int64]*User)
-	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
-		if init != nil {
-			init(nodes[i])
-		}
-	}
-	if len(query.ctx.Fields) > 0 {
-		query.ctx.AppendFieldOnce(apikey.FieldUserID)
-	}
-	query.Where(predicate.APIKey(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(user.APIKeysColumn), fks...))
-	}))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		fk := n.UserID
-		node, ok := nodeids[fk]
-		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, fk, n.ID)
-		}
-		assign(node, n)
-	}
-	return nil
-}
 func (_q *UserQuery) loadRedeemCodes(ctx context.Context, query *RedeemCodeQuery, nodes []*User, init func(*User), assign func(*User, *RedeemCode)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[int64]*User)
@@ -1063,36 +945,6 @@ func (_q *UserQuery) loadAllowedGroups(ctx context.Context, query *GroupQuery, n
 		for kn := range nodes {
 			assign(kn, n)
 		}
-	}
-	return nil
-}
-func (_q *UserQuery) loadUsageLogs(ctx context.Context, query *UsageLogQuery, nodes []*User, init func(*User), assign func(*User, *UsageLog)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int64]*User)
-	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
-		if init != nil {
-			init(nodes[i])
-		}
-	}
-	if len(query.ctx.Fields) > 0 {
-		query.ctx.AppendFieldOnce(usagelog.FieldUserID)
-	}
-	query.Where(predicate.UsageLog(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(user.UsageLogsColumn), fks...))
-	}))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		fk := n.UserID
-		node, ok := nodeids[fk]
-		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, fk, n.ID)
-		}
-		assign(node, n)
 	}
 	return nil
 }

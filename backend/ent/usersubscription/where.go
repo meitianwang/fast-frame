@@ -939,29 +939,6 @@ func HasAssignedByUserWith(preds ...predicate.User) predicate.UserSubscription {
 	})
 }
 
-// HasUsageLogs applies the HasEdge predicate on the "usage_logs" edge.
-func HasUsageLogs() predicate.UserSubscription {
-	return predicate.UserSubscription(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, UsageLogsTable, UsageLogsColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasUsageLogsWith applies the HasEdge predicate on the "usage_logs" edge with a given conditions (other predicates).
-func HasUsageLogsWith(preds ...predicate.UsageLog) predicate.UserSubscription {
-	return predicate.UserSubscription(func(s *sql.Selector) {
-		step := newUsageLogsStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.UserSubscription) predicate.UserSubscription {
 	return predicate.UserSubscription(sql.AndPredicates(predicates...))

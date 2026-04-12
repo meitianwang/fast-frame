@@ -136,10 +136,8 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 import Icon from '@/components/icons/Icon.vue'
-import type { UserDashboardStats as UserStatsType } from '@/api/usage'
-
 defineProps<{
-  stats: UserStatsType
+  stats: any
   balance: number
   isSimple: boolean
 }>()

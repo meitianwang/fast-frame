@@ -12,13 +12,11 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/Wei-Shaw/sub2api/ent/announcementread"
-	"github.com/Wei-Shaw/sub2api/ent/apikey"
 	"github.com/Wei-Shaw/sub2api/ent/group"
 	"github.com/Wei-Shaw/sub2api/ent/paymentorder"
 	"github.com/Wei-Shaw/sub2api/ent/predicate"
 	"github.com/Wei-Shaw/sub2api/ent/promocodeusage"
 	"github.com/Wei-Shaw/sub2api/ent/redeemcode"
-	"github.com/Wei-Shaw/sub2api/ent/usagelog"
 	"github.com/Wei-Shaw/sub2api/ent/user"
 	"github.com/Wei-Shaw/sub2api/ent/userattributevalue"
 	"github.com/Wei-Shaw/sub2api/ent/usersubscription"
@@ -243,63 +241,6 @@ func (_u *UserUpdate) ClearTotpEnabledAt() *UserUpdate {
 	return _u
 }
 
-// SetSoraStorageQuotaBytes sets the "sora_storage_quota_bytes" field.
-func (_u *UserUpdate) SetSoraStorageQuotaBytes(v int64) *UserUpdate {
-	_u.mutation.ResetSoraStorageQuotaBytes()
-	_u.mutation.SetSoraStorageQuotaBytes(v)
-	return _u
-}
-
-// SetNillableSoraStorageQuotaBytes sets the "sora_storage_quota_bytes" field if the given value is not nil.
-func (_u *UserUpdate) SetNillableSoraStorageQuotaBytes(v *int64) *UserUpdate {
-	if v != nil {
-		_u.SetSoraStorageQuotaBytes(*v)
-	}
-	return _u
-}
-
-// AddSoraStorageQuotaBytes adds value to the "sora_storage_quota_bytes" field.
-func (_u *UserUpdate) AddSoraStorageQuotaBytes(v int64) *UserUpdate {
-	_u.mutation.AddSoraStorageQuotaBytes(v)
-	return _u
-}
-
-// SetSoraStorageUsedBytes sets the "sora_storage_used_bytes" field.
-func (_u *UserUpdate) SetSoraStorageUsedBytes(v int64) *UserUpdate {
-	_u.mutation.ResetSoraStorageUsedBytes()
-	_u.mutation.SetSoraStorageUsedBytes(v)
-	return _u
-}
-
-// SetNillableSoraStorageUsedBytes sets the "sora_storage_used_bytes" field if the given value is not nil.
-func (_u *UserUpdate) SetNillableSoraStorageUsedBytes(v *int64) *UserUpdate {
-	if v != nil {
-		_u.SetSoraStorageUsedBytes(*v)
-	}
-	return _u
-}
-
-// AddSoraStorageUsedBytes adds value to the "sora_storage_used_bytes" field.
-func (_u *UserUpdate) AddSoraStorageUsedBytes(v int64) *UserUpdate {
-	_u.mutation.AddSoraStorageUsedBytes(v)
-	return _u
-}
-
-// AddAPIKeyIDs adds the "api_keys" edge to the APIKey entity by IDs.
-func (_u *UserUpdate) AddAPIKeyIDs(ids ...int64) *UserUpdate {
-	_u.mutation.AddAPIKeyIDs(ids...)
-	return _u
-}
-
-// AddAPIKeys adds the "api_keys" edges to the APIKey entity.
-func (_u *UserUpdate) AddAPIKeys(v ...*APIKey) *UserUpdate {
-	ids := make([]int64, len(v))
-	for i := range v {
-		ids[i] = v[i].ID
-	}
-	return _u.AddAPIKeyIDs(ids...)
-}
-
 // AddRedeemCodeIDs adds the "redeem_codes" edge to the RedeemCode entity by IDs.
 func (_u *UserUpdate) AddRedeemCodeIDs(ids ...int64) *UserUpdate {
 	_u.mutation.AddRedeemCodeIDs(ids...)
@@ -375,21 +316,6 @@ func (_u *UserUpdate) AddAllowedGroups(v ...*Group) *UserUpdate {
 	return _u.AddAllowedGroupIDs(ids...)
 }
 
-// AddUsageLogIDs adds the "usage_logs" edge to the UsageLog entity by IDs.
-func (_u *UserUpdate) AddUsageLogIDs(ids ...int64) *UserUpdate {
-	_u.mutation.AddUsageLogIDs(ids...)
-	return _u
-}
-
-// AddUsageLogs adds the "usage_logs" edges to the UsageLog entity.
-func (_u *UserUpdate) AddUsageLogs(v ...*UsageLog) *UserUpdate {
-	ids := make([]int64, len(v))
-	for i := range v {
-		ids[i] = v[i].ID
-	}
-	return _u.AddUsageLogIDs(ids...)
-}
-
 // AddAttributeValueIDs adds the "attribute_values" edge to the UserAttributeValue entity by IDs.
 func (_u *UserUpdate) AddAttributeValueIDs(ids ...int64) *UserUpdate {
 	_u.mutation.AddAttributeValueIDs(ids...)
@@ -438,27 +364,6 @@ func (_u *UserUpdate) AddPaymentOrders(v ...*PaymentOrder) *UserUpdate {
 // Mutation returns the UserMutation object of the builder.
 func (_u *UserUpdate) Mutation() *UserMutation {
 	return _u.mutation
-}
-
-// ClearAPIKeys clears all "api_keys" edges to the APIKey entity.
-func (_u *UserUpdate) ClearAPIKeys() *UserUpdate {
-	_u.mutation.ClearAPIKeys()
-	return _u
-}
-
-// RemoveAPIKeyIDs removes the "api_keys" edge to APIKey entities by IDs.
-func (_u *UserUpdate) RemoveAPIKeyIDs(ids ...int64) *UserUpdate {
-	_u.mutation.RemoveAPIKeyIDs(ids...)
-	return _u
-}
-
-// RemoveAPIKeys removes "api_keys" edges to APIKey entities.
-func (_u *UserUpdate) RemoveAPIKeys(v ...*APIKey) *UserUpdate {
-	ids := make([]int64, len(v))
-	for i := range v {
-		ids[i] = v[i].ID
-	}
-	return _u.RemoveAPIKeyIDs(ids...)
 }
 
 // ClearRedeemCodes clears all "redeem_codes" edges to the RedeemCode entity.
@@ -564,27 +469,6 @@ func (_u *UserUpdate) RemoveAllowedGroups(v ...*Group) *UserUpdate {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveAllowedGroupIDs(ids...)
-}
-
-// ClearUsageLogs clears all "usage_logs" edges to the UsageLog entity.
-func (_u *UserUpdate) ClearUsageLogs() *UserUpdate {
-	_u.mutation.ClearUsageLogs()
-	return _u
-}
-
-// RemoveUsageLogIDs removes the "usage_logs" edge to UsageLog entities by IDs.
-func (_u *UserUpdate) RemoveUsageLogIDs(ids ...int64) *UserUpdate {
-	_u.mutation.RemoveUsageLogIDs(ids...)
-	return _u
-}
-
-// RemoveUsageLogs removes "usage_logs" edges to UsageLog entities.
-func (_u *UserUpdate) RemoveUsageLogs(v ...*UsageLog) *UserUpdate {
-	ids := make([]int64, len(v))
-	for i := range v {
-		ids[i] = v[i].ID
-	}
-	return _u.RemoveUsageLogIDs(ids...)
 }
 
 // ClearAttributeValues clears all "attribute_values" edges to the UserAttributeValue entity.
@@ -787,63 +671,6 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.TotpEnabledAtCleared() {
 		_spec.ClearField(user.FieldTotpEnabledAt, field.TypeTime)
-	}
-	if value, ok := _u.mutation.SoraStorageQuotaBytes(); ok {
-		_spec.SetField(user.FieldSoraStorageQuotaBytes, field.TypeInt64, value)
-	}
-	if value, ok := _u.mutation.AddedSoraStorageQuotaBytes(); ok {
-		_spec.AddField(user.FieldSoraStorageQuotaBytes, field.TypeInt64, value)
-	}
-	if value, ok := _u.mutation.SoraStorageUsedBytes(); ok {
-		_spec.SetField(user.FieldSoraStorageUsedBytes, field.TypeInt64, value)
-	}
-	if value, ok := _u.mutation.AddedSoraStorageUsedBytes(); ok {
-		_spec.AddField(user.FieldSoraStorageUsedBytes, field.TypeInt64, value)
-	}
-	if _u.mutation.APIKeysCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   user.APIKeysTable,
-			Columns: []string{user.APIKeysColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(apikey.FieldID, field.TypeInt64),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := _u.mutation.RemovedAPIKeysIDs(); len(nodes) > 0 && !_u.mutation.APIKeysCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   user.APIKeysTable,
-			Columns: []string{user.APIKeysColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(apikey.FieldID, field.TypeInt64),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := _u.mutation.APIKeysIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   user.APIKeysTable,
-			Columns: []string{user.APIKeysColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(apikey.FieldID, field.TypeInt64),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if _u.mutation.RedeemCodesCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -1080,51 +907,6 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		createE.defaults()
 		_, specE := createE.createSpec()
 		edge.Target.Fields = specE.Fields
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if _u.mutation.UsageLogsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   user.UsageLogsTable,
-			Columns: []string{user.UsageLogsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usagelog.FieldID, field.TypeInt64),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := _u.mutation.RemovedUsageLogsIDs(); len(nodes) > 0 && !_u.mutation.UsageLogsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   user.UsageLogsTable,
-			Columns: []string{user.UsageLogsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usagelog.FieldID, field.TypeInt64),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := _u.mutation.UsageLogsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   user.UsageLogsTable,
-			Columns: []string{user.UsageLogsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usagelog.FieldID, field.TypeInt64),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if _u.mutation.AttributeValuesCleared() {
@@ -1488,63 +1270,6 @@ func (_u *UserUpdateOne) ClearTotpEnabledAt() *UserUpdateOne {
 	return _u
 }
 
-// SetSoraStorageQuotaBytes sets the "sora_storage_quota_bytes" field.
-func (_u *UserUpdateOne) SetSoraStorageQuotaBytes(v int64) *UserUpdateOne {
-	_u.mutation.ResetSoraStorageQuotaBytes()
-	_u.mutation.SetSoraStorageQuotaBytes(v)
-	return _u
-}
-
-// SetNillableSoraStorageQuotaBytes sets the "sora_storage_quota_bytes" field if the given value is not nil.
-func (_u *UserUpdateOne) SetNillableSoraStorageQuotaBytes(v *int64) *UserUpdateOne {
-	if v != nil {
-		_u.SetSoraStorageQuotaBytes(*v)
-	}
-	return _u
-}
-
-// AddSoraStorageQuotaBytes adds value to the "sora_storage_quota_bytes" field.
-func (_u *UserUpdateOne) AddSoraStorageQuotaBytes(v int64) *UserUpdateOne {
-	_u.mutation.AddSoraStorageQuotaBytes(v)
-	return _u
-}
-
-// SetSoraStorageUsedBytes sets the "sora_storage_used_bytes" field.
-func (_u *UserUpdateOne) SetSoraStorageUsedBytes(v int64) *UserUpdateOne {
-	_u.mutation.ResetSoraStorageUsedBytes()
-	_u.mutation.SetSoraStorageUsedBytes(v)
-	return _u
-}
-
-// SetNillableSoraStorageUsedBytes sets the "sora_storage_used_bytes" field if the given value is not nil.
-func (_u *UserUpdateOne) SetNillableSoraStorageUsedBytes(v *int64) *UserUpdateOne {
-	if v != nil {
-		_u.SetSoraStorageUsedBytes(*v)
-	}
-	return _u
-}
-
-// AddSoraStorageUsedBytes adds value to the "sora_storage_used_bytes" field.
-func (_u *UserUpdateOne) AddSoraStorageUsedBytes(v int64) *UserUpdateOne {
-	_u.mutation.AddSoraStorageUsedBytes(v)
-	return _u
-}
-
-// AddAPIKeyIDs adds the "api_keys" edge to the APIKey entity by IDs.
-func (_u *UserUpdateOne) AddAPIKeyIDs(ids ...int64) *UserUpdateOne {
-	_u.mutation.AddAPIKeyIDs(ids...)
-	return _u
-}
-
-// AddAPIKeys adds the "api_keys" edges to the APIKey entity.
-func (_u *UserUpdateOne) AddAPIKeys(v ...*APIKey) *UserUpdateOne {
-	ids := make([]int64, len(v))
-	for i := range v {
-		ids[i] = v[i].ID
-	}
-	return _u.AddAPIKeyIDs(ids...)
-}
-
 // AddRedeemCodeIDs adds the "redeem_codes" edge to the RedeemCode entity by IDs.
 func (_u *UserUpdateOne) AddRedeemCodeIDs(ids ...int64) *UserUpdateOne {
 	_u.mutation.AddRedeemCodeIDs(ids...)
@@ -1620,21 +1345,6 @@ func (_u *UserUpdateOne) AddAllowedGroups(v ...*Group) *UserUpdateOne {
 	return _u.AddAllowedGroupIDs(ids...)
 }
 
-// AddUsageLogIDs adds the "usage_logs" edge to the UsageLog entity by IDs.
-func (_u *UserUpdateOne) AddUsageLogIDs(ids ...int64) *UserUpdateOne {
-	_u.mutation.AddUsageLogIDs(ids...)
-	return _u
-}
-
-// AddUsageLogs adds the "usage_logs" edges to the UsageLog entity.
-func (_u *UserUpdateOne) AddUsageLogs(v ...*UsageLog) *UserUpdateOne {
-	ids := make([]int64, len(v))
-	for i := range v {
-		ids[i] = v[i].ID
-	}
-	return _u.AddUsageLogIDs(ids...)
-}
-
 // AddAttributeValueIDs adds the "attribute_values" edge to the UserAttributeValue entity by IDs.
 func (_u *UserUpdateOne) AddAttributeValueIDs(ids ...int64) *UserUpdateOne {
 	_u.mutation.AddAttributeValueIDs(ids...)
@@ -1683,27 +1393,6 @@ func (_u *UserUpdateOne) AddPaymentOrders(v ...*PaymentOrder) *UserUpdateOne {
 // Mutation returns the UserMutation object of the builder.
 func (_u *UserUpdateOne) Mutation() *UserMutation {
 	return _u.mutation
-}
-
-// ClearAPIKeys clears all "api_keys" edges to the APIKey entity.
-func (_u *UserUpdateOne) ClearAPIKeys() *UserUpdateOne {
-	_u.mutation.ClearAPIKeys()
-	return _u
-}
-
-// RemoveAPIKeyIDs removes the "api_keys" edge to APIKey entities by IDs.
-func (_u *UserUpdateOne) RemoveAPIKeyIDs(ids ...int64) *UserUpdateOne {
-	_u.mutation.RemoveAPIKeyIDs(ids...)
-	return _u
-}
-
-// RemoveAPIKeys removes "api_keys" edges to APIKey entities.
-func (_u *UserUpdateOne) RemoveAPIKeys(v ...*APIKey) *UserUpdateOne {
-	ids := make([]int64, len(v))
-	for i := range v {
-		ids[i] = v[i].ID
-	}
-	return _u.RemoveAPIKeyIDs(ids...)
 }
 
 // ClearRedeemCodes clears all "redeem_codes" edges to the RedeemCode entity.
@@ -1809,27 +1498,6 @@ func (_u *UserUpdateOne) RemoveAllowedGroups(v ...*Group) *UserUpdateOne {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveAllowedGroupIDs(ids...)
-}
-
-// ClearUsageLogs clears all "usage_logs" edges to the UsageLog entity.
-func (_u *UserUpdateOne) ClearUsageLogs() *UserUpdateOne {
-	_u.mutation.ClearUsageLogs()
-	return _u
-}
-
-// RemoveUsageLogIDs removes the "usage_logs" edge to UsageLog entities by IDs.
-func (_u *UserUpdateOne) RemoveUsageLogIDs(ids ...int64) *UserUpdateOne {
-	_u.mutation.RemoveUsageLogIDs(ids...)
-	return _u
-}
-
-// RemoveUsageLogs removes "usage_logs" edges to UsageLog entities.
-func (_u *UserUpdateOne) RemoveUsageLogs(v ...*UsageLog) *UserUpdateOne {
-	ids := make([]int64, len(v))
-	for i := range v {
-		ids[i] = v[i].ID
-	}
-	return _u.RemoveUsageLogIDs(ids...)
 }
 
 // ClearAttributeValues clears all "attribute_values" edges to the UserAttributeValue entity.
@@ -2062,63 +1730,6 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 	}
 	if _u.mutation.TotpEnabledAtCleared() {
 		_spec.ClearField(user.FieldTotpEnabledAt, field.TypeTime)
-	}
-	if value, ok := _u.mutation.SoraStorageQuotaBytes(); ok {
-		_spec.SetField(user.FieldSoraStorageQuotaBytes, field.TypeInt64, value)
-	}
-	if value, ok := _u.mutation.AddedSoraStorageQuotaBytes(); ok {
-		_spec.AddField(user.FieldSoraStorageQuotaBytes, field.TypeInt64, value)
-	}
-	if value, ok := _u.mutation.SoraStorageUsedBytes(); ok {
-		_spec.SetField(user.FieldSoraStorageUsedBytes, field.TypeInt64, value)
-	}
-	if value, ok := _u.mutation.AddedSoraStorageUsedBytes(); ok {
-		_spec.AddField(user.FieldSoraStorageUsedBytes, field.TypeInt64, value)
-	}
-	if _u.mutation.APIKeysCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   user.APIKeysTable,
-			Columns: []string{user.APIKeysColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(apikey.FieldID, field.TypeInt64),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := _u.mutation.RemovedAPIKeysIDs(); len(nodes) > 0 && !_u.mutation.APIKeysCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   user.APIKeysTable,
-			Columns: []string{user.APIKeysColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(apikey.FieldID, field.TypeInt64),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := _u.mutation.APIKeysIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   user.APIKeysTable,
-			Columns: []string{user.APIKeysColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(apikey.FieldID, field.TypeInt64),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if _u.mutation.RedeemCodesCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -2355,51 +1966,6 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 		createE.defaults()
 		_, specE := createE.createSpec()
 		edge.Target.Fields = specE.Fields
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if _u.mutation.UsageLogsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   user.UsageLogsTable,
-			Columns: []string{user.UsageLogsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usagelog.FieldID, field.TypeInt64),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := _u.mutation.RemovedUsageLogsIDs(); len(nodes) > 0 && !_u.mutation.UsageLogsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   user.UsageLogsTable,
-			Columns: []string{user.UsageLogsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usagelog.FieldID, field.TypeInt64),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := _u.mutation.UsageLogsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   user.UsageLogsTable,
-			Columns: []string{user.UsageLogsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usagelog.FieldID, field.TypeInt64),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if _u.mutation.AttributeValuesCleared() {

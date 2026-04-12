@@ -391,8 +391,8 @@ const subscriptionGroups = ref<AdminGroup[]>([])
 
 async function loadSubscriptionGroups() {
   try {
-    const all = await adminAPI.groups.getAll()
-    subscriptionGroups.value = (all || []).filter((g) => g.subscription_type === 'subscription')
+    // Groups API removed; subscription groups not available
+    subscriptionGroups.value = []
   } catch (error: any) {
     console.error('Error loading groups:', error)
     // not fatal

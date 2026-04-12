@@ -125,16 +125,6 @@ func TotpEnabledAt(v time.Time) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldTotpEnabledAt, v))
 }
 
-// SoraStorageQuotaBytes applies equality check predicate on the "sora_storage_quota_bytes" field. It's identical to SoraStorageQuotaBytesEQ.
-func SoraStorageQuotaBytes(v int64) predicate.User {
-	return predicate.User(sql.FieldEQ(FieldSoraStorageQuotaBytes, v))
-}
-
-// SoraStorageUsedBytes applies equality check predicate on the "sora_storage_used_bytes" field. It's identical to SoraStorageUsedBytesEQ.
-func SoraStorageUsedBytes(v int64) predicate.User {
-	return predicate.User(sql.FieldEQ(FieldSoraStorageUsedBytes, v))
-}
-
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldCreatedAt, v))
@@ -870,109 +860,6 @@ func TotpEnabledAtNotNil() predicate.User {
 	return predicate.User(sql.FieldNotNull(FieldTotpEnabledAt))
 }
 
-// SoraStorageQuotaBytesEQ applies the EQ predicate on the "sora_storage_quota_bytes" field.
-func SoraStorageQuotaBytesEQ(v int64) predicate.User {
-	return predicate.User(sql.FieldEQ(FieldSoraStorageQuotaBytes, v))
-}
-
-// SoraStorageQuotaBytesNEQ applies the NEQ predicate on the "sora_storage_quota_bytes" field.
-func SoraStorageQuotaBytesNEQ(v int64) predicate.User {
-	return predicate.User(sql.FieldNEQ(FieldSoraStorageQuotaBytes, v))
-}
-
-// SoraStorageQuotaBytesIn applies the In predicate on the "sora_storage_quota_bytes" field.
-func SoraStorageQuotaBytesIn(vs ...int64) predicate.User {
-	return predicate.User(sql.FieldIn(FieldSoraStorageQuotaBytes, vs...))
-}
-
-// SoraStorageQuotaBytesNotIn applies the NotIn predicate on the "sora_storage_quota_bytes" field.
-func SoraStorageQuotaBytesNotIn(vs ...int64) predicate.User {
-	return predicate.User(sql.FieldNotIn(FieldSoraStorageQuotaBytes, vs...))
-}
-
-// SoraStorageQuotaBytesGT applies the GT predicate on the "sora_storage_quota_bytes" field.
-func SoraStorageQuotaBytesGT(v int64) predicate.User {
-	return predicate.User(sql.FieldGT(FieldSoraStorageQuotaBytes, v))
-}
-
-// SoraStorageQuotaBytesGTE applies the GTE predicate on the "sora_storage_quota_bytes" field.
-func SoraStorageQuotaBytesGTE(v int64) predicate.User {
-	return predicate.User(sql.FieldGTE(FieldSoraStorageQuotaBytes, v))
-}
-
-// SoraStorageQuotaBytesLT applies the LT predicate on the "sora_storage_quota_bytes" field.
-func SoraStorageQuotaBytesLT(v int64) predicate.User {
-	return predicate.User(sql.FieldLT(FieldSoraStorageQuotaBytes, v))
-}
-
-// SoraStorageQuotaBytesLTE applies the LTE predicate on the "sora_storage_quota_bytes" field.
-func SoraStorageQuotaBytesLTE(v int64) predicate.User {
-	return predicate.User(sql.FieldLTE(FieldSoraStorageQuotaBytes, v))
-}
-
-// SoraStorageUsedBytesEQ applies the EQ predicate on the "sora_storage_used_bytes" field.
-func SoraStorageUsedBytesEQ(v int64) predicate.User {
-	return predicate.User(sql.FieldEQ(FieldSoraStorageUsedBytes, v))
-}
-
-// SoraStorageUsedBytesNEQ applies the NEQ predicate on the "sora_storage_used_bytes" field.
-func SoraStorageUsedBytesNEQ(v int64) predicate.User {
-	return predicate.User(sql.FieldNEQ(FieldSoraStorageUsedBytes, v))
-}
-
-// SoraStorageUsedBytesIn applies the In predicate on the "sora_storage_used_bytes" field.
-func SoraStorageUsedBytesIn(vs ...int64) predicate.User {
-	return predicate.User(sql.FieldIn(FieldSoraStorageUsedBytes, vs...))
-}
-
-// SoraStorageUsedBytesNotIn applies the NotIn predicate on the "sora_storage_used_bytes" field.
-func SoraStorageUsedBytesNotIn(vs ...int64) predicate.User {
-	return predicate.User(sql.FieldNotIn(FieldSoraStorageUsedBytes, vs...))
-}
-
-// SoraStorageUsedBytesGT applies the GT predicate on the "sora_storage_used_bytes" field.
-func SoraStorageUsedBytesGT(v int64) predicate.User {
-	return predicate.User(sql.FieldGT(FieldSoraStorageUsedBytes, v))
-}
-
-// SoraStorageUsedBytesGTE applies the GTE predicate on the "sora_storage_used_bytes" field.
-func SoraStorageUsedBytesGTE(v int64) predicate.User {
-	return predicate.User(sql.FieldGTE(FieldSoraStorageUsedBytes, v))
-}
-
-// SoraStorageUsedBytesLT applies the LT predicate on the "sora_storage_used_bytes" field.
-func SoraStorageUsedBytesLT(v int64) predicate.User {
-	return predicate.User(sql.FieldLT(FieldSoraStorageUsedBytes, v))
-}
-
-// SoraStorageUsedBytesLTE applies the LTE predicate on the "sora_storage_used_bytes" field.
-func SoraStorageUsedBytesLTE(v int64) predicate.User {
-	return predicate.User(sql.FieldLTE(FieldSoraStorageUsedBytes, v))
-}
-
-// HasAPIKeys applies the HasEdge predicate on the "api_keys" edge.
-func HasAPIKeys() predicate.User {
-	return predicate.User(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, APIKeysTable, APIKeysColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasAPIKeysWith applies the HasEdge predicate on the "api_keys" edge with a given conditions (other predicates).
-func HasAPIKeysWith(preds ...predicate.APIKey) predicate.User {
-	return predicate.User(func(s *sql.Selector) {
-		step := newAPIKeysStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
 // HasRedeemCodes applies the HasEdge predicate on the "redeem_codes" edge.
 func HasRedeemCodes() predicate.User {
 	return predicate.User(func(s *sql.Selector) {
@@ -1080,29 +967,6 @@ func HasAllowedGroups() predicate.User {
 func HasAllowedGroupsWith(preds ...predicate.Group) predicate.User {
 	return predicate.User(func(s *sql.Selector) {
 		step := newAllowedGroupsStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
-// HasUsageLogs applies the HasEdge predicate on the "usage_logs" edge.
-func HasUsageLogs() predicate.User {
-	return predicate.User(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, UsageLogsTable, UsageLogsColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasUsageLogsWith applies the HasEdge predicate on the "usage_logs" edge with a given conditions (other predicates).
-func HasUsageLogsWith(preds ...predicate.UsageLog) predicate.User {
-	return predicate.User(func(s *sql.Selector) {
-		step := newUsageLogsStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

@@ -6,23 +6,11 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
-// APIKey is the predicate function for apikey builders.
-type APIKey func(*sql.Selector)
-
-// Account is the predicate function for account builders.
-type Account func(*sql.Selector)
-
-// AccountGroup is the predicate function for accountgroup builders.
-type AccountGroup func(*sql.Selector)
-
 // Announcement is the predicate function for announcement builders.
 type Announcement func(*sql.Selector)
 
 // AnnouncementRead is the predicate function for announcementread builders.
 type AnnouncementRead func(*sql.Selector)
-
-// ErrorPassthroughRule is the predicate function for errorpassthroughrule builders.
-type ErrorPassthroughRule func(*sql.Selector)
 
 // Group is the predicate function for group builders.
 type Group func(*sql.Selector)
@@ -48,9 +36,6 @@ type PromoCode func(*sql.Selector)
 // PromoCodeUsage is the predicate function for promocodeusage builders.
 type PromoCodeUsage func(*sql.Selector)
 
-// Proxy is the predicate function for proxy builders.
-type Proxy func(*sql.Selector)
-
 // RedeemCode is the predicate function for redeemcode builders.
 type RedeemCode func(*sql.Selector)
 
@@ -62,15 +47,6 @@ type Setting func(*sql.Selector)
 
 // SubscriptionPlan is the predicate function for subscriptionplan builders.
 type SubscriptionPlan func(*sql.Selector)
-
-// TLSFingerprintProfile is the predicate function for tlsfingerprintprofile builders.
-type TLSFingerprintProfile func(*sql.Selector)
-
-// UsageCleanupTask is the predicate function for usagecleanuptask builders.
-type UsageCleanupTask func(*sql.Selector)
-
-// UsageLog is the predicate function for usagelog builders.
-type UsageLog func(*sql.Selector)
 
 // User is the predicate function for user builders.
 type User func(*sql.Selector)

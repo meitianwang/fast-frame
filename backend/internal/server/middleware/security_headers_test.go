@@ -140,7 +140,7 @@ func TestSecurityHeaders(t *testing.T) {
 
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
-		c.Request = httptest.NewRequest(http.MethodPost, "/v1/messages", nil)
+		c.Request = httptest.NewRequest(http.MethodPost, "/api/v1/messages", nil)
 
 		middleware(c)
 

@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"context"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -118,14 +117,6 @@ func TestLogger_AccessLogIncludesCoreFields(t *testing.T) {
 
 	r := gin.New()
 	r.Use(Logger())
-	r.Use(func(c *gin.Context) {
-		ctx := c.Request.Context()
-		ctx = context.WithValue(ctx, ctxkey.AccountID, int64(101))
-		ctx = context.WithValue(ctx, ctxkey.Platform, "openai")
-		ctx = context.WithValue(ctx, ctxkey.Model, "gpt-5")
-		c.Request = c.Request.WithContext(ctx)
-		c.Next()
-	})
 	r.GET("/api/test", func(c *gin.Context) {
 		c.Status(http.StatusCreated)
 	})
@@ -158,21 +149,6 @@ func TestLogger_AccessLogIncludesCoreFields(t *testing.T) {
 			}
 		default:
 			t.Fatalf("status_code type mismatch: %T", v)
-		}
-		switch v := event.Fields["account_id"].(type) {
-		case int64:
-			if v != 101 {
-				t.Fatalf("account_id field mismatch: %v", v)
-			}
-		case int:
-			if v != 101 {
-				t.Fatalf("account_id field mismatch: %v", v)
-			}
-		default:
-			t.Fatalf("account_id type mismatch: %T", v)
-		}
-		if event.Fields["platform"] != "openai" || event.Fields["model"] != "gpt-5" {
-			t.Fatalf("platform/model mismatch: %+v", event.Fields)
 		}
 	}
 	if !found {

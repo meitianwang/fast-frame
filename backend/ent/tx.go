@@ -14,18 +14,10 @@ import (
 // Tx is a transactional client that is created by calling Client.Tx().
 type Tx struct {
 	config
-	// APIKey is the client for interacting with the APIKey builders.
-	APIKey *APIKeyClient
-	// Account is the client for interacting with the Account builders.
-	Account *AccountClient
-	// AccountGroup is the client for interacting with the AccountGroup builders.
-	AccountGroup *AccountGroupClient
 	// Announcement is the client for interacting with the Announcement builders.
 	Announcement *AnnouncementClient
 	// AnnouncementRead is the client for interacting with the AnnouncementRead builders.
 	AnnouncementRead *AnnouncementReadClient
-	// ErrorPassthroughRule is the client for interacting with the ErrorPassthroughRule builders.
-	ErrorPassthroughRule *ErrorPassthroughRuleClient
 	// Group is the client for interacting with the Group builders.
 	Group *GroupClient
 	// IdempotencyRecord is the client for interacting with the IdempotencyRecord builders.
@@ -42,8 +34,6 @@ type Tx struct {
 	PromoCode *PromoCodeClient
 	// PromoCodeUsage is the client for interacting with the PromoCodeUsage builders.
 	PromoCodeUsage *PromoCodeUsageClient
-	// Proxy is the client for interacting with the Proxy builders.
-	Proxy *ProxyClient
 	// RedeemCode is the client for interacting with the RedeemCode builders.
 	RedeemCode *RedeemCodeClient
 	// SecuritySecret is the client for interacting with the SecuritySecret builders.
@@ -52,12 +42,6 @@ type Tx struct {
 	Setting *SettingClient
 	// SubscriptionPlan is the client for interacting with the SubscriptionPlan builders.
 	SubscriptionPlan *SubscriptionPlanClient
-	// TLSFingerprintProfile is the client for interacting with the TLSFingerprintProfile builders.
-	TLSFingerprintProfile *TLSFingerprintProfileClient
-	// UsageCleanupTask is the client for interacting with the UsageCleanupTask builders.
-	UsageCleanupTask *UsageCleanupTaskClient
-	// UsageLog is the client for interacting with the UsageLog builders.
-	UsageLog *UsageLogClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
 	// UserAllowedGroup is the client for interacting with the UserAllowedGroup builders.
@@ -199,12 +183,8 @@ func (tx *Tx) Client() *Client {
 }
 
 func (tx *Tx) init() {
-	tx.APIKey = NewAPIKeyClient(tx.config)
-	tx.Account = NewAccountClient(tx.config)
-	tx.AccountGroup = NewAccountGroupClient(tx.config)
 	tx.Announcement = NewAnnouncementClient(tx.config)
 	tx.AnnouncementRead = NewAnnouncementReadClient(tx.config)
-	tx.ErrorPassthroughRule = NewErrorPassthroughRuleClient(tx.config)
 	tx.Group = NewGroupClient(tx.config)
 	tx.IdempotencyRecord = NewIdempotencyRecordClient(tx.config)
 	tx.PaymentAuditLog = NewPaymentAuditLogClient(tx.config)
@@ -213,14 +193,10 @@ func (tx *Tx) init() {
 	tx.PaymentProviderInstance = NewPaymentProviderInstanceClient(tx.config)
 	tx.PromoCode = NewPromoCodeClient(tx.config)
 	tx.PromoCodeUsage = NewPromoCodeUsageClient(tx.config)
-	tx.Proxy = NewProxyClient(tx.config)
 	tx.RedeemCode = NewRedeemCodeClient(tx.config)
 	tx.SecuritySecret = NewSecuritySecretClient(tx.config)
 	tx.Setting = NewSettingClient(tx.config)
 	tx.SubscriptionPlan = NewSubscriptionPlanClient(tx.config)
-	tx.TLSFingerprintProfile = NewTLSFingerprintProfileClient(tx.config)
-	tx.UsageCleanupTask = NewUsageCleanupTaskClient(tx.config)
-	tx.UsageLog = NewUsageLogClient(tx.config)
 	tx.User = NewUserClient(tx.config)
 	tx.UserAllowedGroup = NewUserAllowedGroupClient(tx.config)
 	tx.UserAttributeDefinition = NewUserAttributeDefinitionClient(tx.config)
@@ -235,7 +211,7 @@ func (tx *Tx) init() {
 // of them in order to commit or rollback the transaction.
 //
 // If a closed transaction is embedded in one of the generated entities, and the entity
-// applies a query, for example: APIKey.QueryXXX(), the query will be executed
+// applies a query, for example: Announcement.QueryXXX(), the query will be executed
 // through the driver which created this transaction.
 //
 // Note that txDriver is not goroutine safe.

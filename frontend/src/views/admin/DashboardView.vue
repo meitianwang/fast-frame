@@ -237,23 +237,8 @@
             </div>
           </div>
 
-          <!-- Charts Grid -->
+          <!-- Charts Grid (placeholder for future business charts) -->
           <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            <ModelDistributionChart
-              :model-stats="modelStats"
-              :enable-ranking-view="true"
-              :ranking-items="rankingItems"
-              :ranking-total-actual-cost="rankingTotalActualCost"
-              :ranking-total-requests="rankingTotalRequests"
-              :ranking-total-tokens="rankingTotalTokens"
-              :loading="chartsLoading"
-              :ranking-loading="rankingLoading"
-              :ranking-error="rankingError"
-              :start-date="startDate"
-              :end-date="endDate"
-              @ranking-click="goToUserUsage"
-            />
-            <TokenUsageTrend :trend-data="trendData" :loading="chartsLoading" />
           </div>
 
           <!-- User Usage Trend (Full Width) -->
@@ -283,7 +268,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
 import { useAppStore } from '@/stores/app'
 
 const { t } = useI18n()
@@ -300,8 +284,6 @@ import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 import Icon from '@/components/icons/Icon.vue'
 import DateRangePicker from '@/components/common/DateRangePicker.vue'
 import Select from '@/components/common/Select.vue'
-import ModelDistributionChart from '@/components/charts/ModelDistributionChart.vue'
-import TokenUsageTrend from '@/components/charts/TokenUsageTrend.vue'
 
 import {
   Chart as ChartJS,
@@ -327,7 +309,6 @@ ChartJS.register(
 )
 
 const appStore = useAppStore()
-const router = useRouter()
 const stats = ref<DashboardStats | null>(null)
 const loading = ref(false)
 const chartsLoading = ref(false)
@@ -543,16 +524,6 @@ const formatDuration = (ms: number): string => {
   return `${Math.round(ms)}ms`
 }
 
-const goToUserUsage = (item: UserSpendingRankingItem) => {
-  void router.push({
-    path: '/admin/usage',
-    query: {
-      user_id: String(item.user_id),
-      start_date: startDate.value,
-      end_date: endDate.value
-    }
-  })
-}
 
 // Date range change handler
 const onDateRangeChange = (range: {

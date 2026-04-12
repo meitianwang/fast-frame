@@ -102,16 +102,6 @@ const routes: RouteRecordRaw[] = [
       title: 'Reset Password'
     }
   },
-  {
-    path: '/key-usage',
-    name: 'KeyUsage',
-    component: () => import('@/views/KeyUsageView.vue'),
-    meta: {
-      requiresAuth: false,
-      title: 'Key Usage',
-    }
-  },
-
   // ==================== User Routes ====================
   {
     path: '/',
@@ -127,30 +117,6 @@ const routes: RouteRecordRaw[] = [
       title: 'Dashboard',
       titleKey: 'dashboard.title',
       descriptionKey: 'dashboard.welcomeMessage'
-    }
-  },
-  {
-    path: '/keys',
-    name: 'Keys',
-    component: () => import('@/views/user/KeysView.vue'),
-    meta: {
-      requiresAuth: true,
-      requiresAdmin: false,
-      title: 'API Keys',
-      titleKey: 'keys.title',
-      descriptionKey: 'keys.description'
-    }
-  },
-  {
-    path: '/usage',
-    name: 'Usage',
-    component: () => import('@/views/user/UsageView.vue'),
-    meta: {
-      requiresAuth: true,
-      requiresAdmin: false,
-      title: 'Usage Records',
-      titleKey: 'usage.title',
-      descriptionKey: 'usage.description'
     }
   },
   {
@@ -234,18 +200,6 @@ const routes: RouteRecordRaw[] = [
     }
   },
   {
-    path: '/sora',
-    name: 'Sora',
-    component: () => import('@/views/user/SoraView.vue'),
-    meta: {
-      requiresAuth: true,
-      requiresAdmin: false,
-      title: 'Sora',
-      titleKey: 'sora.title',
-      descriptionKey: 'sora.description'
-    }
-  },
-  {
     path: '/custom/:id',
     name: 'CustomPage',
     component: () => import('@/views/user/CustomPageView.vue'),
@@ -275,18 +229,6 @@ const routes: RouteRecordRaw[] = [
     }
   },
   {
-    path: '/admin/ops',
-    name: 'AdminOps',
-    component: () => import('@/views/admin/ops/OpsDashboard.vue'),
-    meta: {
-      requiresAuth: true,
-      requiresAdmin: true,
-      title: 'Ops Monitoring',
-      titleKey: 'admin.ops.title',
-      descriptionKey: 'admin.ops.description'
-    }
-  },
-  {
     path: '/admin/users',
     name: 'AdminUsers',
     component: () => import('@/views/admin/UsersView.vue'),
@@ -296,18 +238,6 @@ const routes: RouteRecordRaw[] = [
       title: 'User Management',
       titleKey: 'admin.users.title',
       descriptionKey: 'admin.users.description'
-    }
-  },
-  {
-    path: '/admin/groups',
-    name: 'AdminGroups',
-    component: () => import('@/views/admin/GroupsView.vue'),
-    meta: {
-      requiresAuth: true,
-      requiresAdmin: true,
-      title: 'Group Management',
-      titleKey: 'admin.groups.title',
-      descriptionKey: 'admin.groups.description'
     }
   },
   {
@@ -323,18 +253,6 @@ const routes: RouteRecordRaw[] = [
     }
   },
   {
-    path: '/admin/accounts',
-    name: 'AdminAccounts',
-    component: () => import('@/views/admin/AccountsView.vue'),
-    meta: {
-      requiresAuth: true,
-      requiresAdmin: true,
-      title: 'Account Management',
-      titleKey: 'admin.accounts.title',
-      descriptionKey: 'admin.accounts.description'
-    }
-  },
-  {
     path: '/admin/announcements',
     name: 'AdminAnnouncements',
     component: () => import('@/views/admin/AnnouncementsView.vue'),
@@ -344,18 +262,6 @@ const routes: RouteRecordRaw[] = [
       title: 'Announcements',
       titleKey: 'admin.announcements.title',
       descriptionKey: 'admin.announcements.description'
-    }
-  },
-  {
-    path: '/admin/proxies',
-    name: 'AdminProxies',
-    component: () => import('@/views/admin/ProxiesView.vue'),
-    meta: {
-      requiresAuth: true,
-      requiresAdmin: true,
-      title: 'Proxy Management',
-      titleKey: 'admin.proxies.title',
-      descriptionKey: 'admin.proxies.description'
     }
   },
   {
@@ -462,19 +368,6 @@ const routes: RouteRecordRaw[] = [
       descriptionKey: 'admin.settings.description'
     }
   },
-  {
-    path: '/admin/usage',
-    name: 'AdminUsage',
-    component: () => import('@/views/admin/UsageView.vue'),
-    meta: {
-      requiresAuth: true,
-      requiresAdmin: true,
-      title: 'Usage Records',
-      titleKey: 'admin.usage.title',
-      descriptionKey: 'admin.usage.description'
-    }
-  },
-
   // ==================== 404 Not Found ====================
   {
     path: '/:pathMatch(.*)*',
@@ -594,7 +487,6 @@ router.beforeEach((to, _from, next) => {
   // 简易模式下限制访问某些页面
   if (authStore.isSimpleMode) {
     const restrictedPaths = [
-      '/admin/groups',
       '/admin/subscriptions',
       '/admin/redeem',
       '/subscriptions',

@@ -44,8 +44,3 @@ DROP INDEX IF EXISTS usersubscription_user_id_group_id;
 CREATE UNIQUE INDEX IF NOT EXISTS user_subscriptions_user_group_unique_active
     ON user_subscriptions(user_id, group_id)
     WHERE deleted_at IS NULL;
-
--- ============================================================================
--- 注意: api_keys 表的 key 字段保留普通唯一约束
--- API Key 即使软删除后也不应该重复使用（安全考虑）
--- ============================================================================

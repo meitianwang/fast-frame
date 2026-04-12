@@ -3,7 +3,6 @@
 package ent
 
 import (
-	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -34,8 +33,6 @@ type Group struct {
 	IsExclusive bool `json:"is_exclusive,omitempty"`
 	// Status holds the value of the "status" field.
 	Status string `json:"status,omitempty"`
-	// Platform holds the value of the "platform" field.
-	Platform string `json:"platform,omitempty"`
 	// SubscriptionType holds the value of the "subscription_type" field.
 	SubscriptionType string `json:"subscription_type,omitempty"`
 	// DailyLimitUsd holds the value of the "daily_limit_usd" field.
@@ -46,48 +43,8 @@ type Group struct {
 	MonthlyLimitUsd *float64 `json:"monthly_limit_usd,omitempty"`
 	// DefaultValidityDays holds the value of the "default_validity_days" field.
 	DefaultValidityDays int `json:"default_validity_days,omitempty"`
-	// ImagePrice1k holds the value of the "image_price_1k" field.
-	ImagePrice1k *float64 `json:"image_price_1k,omitempty"`
-	// ImagePrice2k holds the value of the "image_price_2k" field.
-	ImagePrice2k *float64 `json:"image_price_2k,omitempty"`
-	// ImagePrice4k holds the value of the "image_price_4k" field.
-	ImagePrice4k *float64 `json:"image_price_4k,omitempty"`
-	// SoraImagePrice360 holds the value of the "sora_image_price_360" field.
-	SoraImagePrice360 *float64 `json:"sora_image_price_360,omitempty"`
-	// SoraImagePrice540 holds the value of the "sora_image_price_540" field.
-	SoraImagePrice540 *float64 `json:"sora_image_price_540,omitempty"`
-	// SoraVideoPricePerRequest holds the value of the "sora_video_price_per_request" field.
-	SoraVideoPricePerRequest *float64 `json:"sora_video_price_per_request,omitempty"`
-	// SoraVideoPricePerRequestHd holds the value of the "sora_video_price_per_request_hd" field.
-	SoraVideoPricePerRequestHd *float64 `json:"sora_video_price_per_request_hd,omitempty"`
-	// SoraStorageQuotaBytes holds the value of the "sora_storage_quota_bytes" field.
-	SoraStorageQuotaBytes int64 `json:"sora_storage_quota_bytes,omitempty"`
-	// 是否仅允许 Claude Code 客户端
-	ClaudeCodeOnly bool `json:"claude_code_only,omitempty"`
-	// 非 Claude Code 请求降级使用的分组 ID
-	FallbackGroupID *int64 `json:"fallback_group_id,omitempty"`
-	// 无效请求兜底使用的分组 ID
-	FallbackGroupIDOnInvalidRequest *int64 `json:"fallback_group_id_on_invalid_request,omitempty"`
-	// 按模型定价配置
-	ModelPricing map[string]map[string]float64 `json:"model_pricing,omitempty"`
-	// 模型路由配置：模型模式 -> 优先账号ID列表
-	ModelRouting map[string][]int64 `json:"model_routing,omitempty"`
-	// 是否启用模型路由配置
-	ModelRoutingEnabled bool `json:"model_routing_enabled,omitempty"`
-	// 是否注入 MCP XML 调用协议提示词（仅 antigravity 平台）
-	McpXMLInject bool `json:"mcp_xml_inject,omitempty"`
-	// 支持的模型系列：claude, gemini_text, gemini_image
-	SupportedModelScopes []string `json:"supported_model_scopes,omitempty"`
 	// 分组显示排序，数值越小越靠前
 	SortOrder int `json:"sort_order,omitempty"`
-	// 是否允许 /v1/messages 调度到此 OpenAI 分组
-	AllowMessagesDispatch bool `json:"allow_messages_dispatch,omitempty"`
-	// 仅允许非 apikey 类型账号关联到此分组
-	RequireOauthOnly bool `json:"require_oauth_only,omitempty"`
-	// 调度时仅允许 privacy 已成功设置的账号
-	RequirePrivacySet bool `json:"require_privacy_set,omitempty"`
-	// 默认映射模型 ID，当账号级映射找不到时使用此值
-	DefaultMappedModel string `json:"default_mapped_model,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the GroupQuery when eager-loading is set.
 	Edges        GroupEdges `json:"edges"`
@@ -96,44 +53,27 @@ type Group struct {
 
 // GroupEdges holds the relations/edges for other nodes in the graph.
 type GroupEdges struct {
-	// APIKeys holds the value of the api_keys edge.
-	APIKeys []*APIKey `json:"api_keys,omitempty"`
 	// RedeemCodes holds the value of the redeem_codes edge.
 	RedeemCodes []*RedeemCode `json:"redeem_codes,omitempty"`
 	// Subscriptions holds the value of the subscriptions edge.
 	Subscriptions []*UserSubscription `json:"subscriptions,omitempty"`
-	// UsageLogs holds the value of the usage_logs edge.
-	UsageLogs []*UsageLog `json:"usage_logs,omitempty"`
-	// Accounts holds the value of the accounts edge.
-	Accounts []*Account `json:"accounts,omitempty"`
 	// AllowedUsers holds the value of the allowed_users edge.
 	AllowedUsers []*User `json:"allowed_users,omitempty"`
 	// SubscriptionPlans holds the value of the subscription_plans edge.
 	SubscriptionPlans []*SubscriptionPlan `json:"subscription_plans,omitempty"`
 	// PaymentChannels holds the value of the payment_channels edge.
 	PaymentChannels []*PaymentChannel `json:"payment_channels,omitempty"`
-	// AccountGroups holds the value of the account_groups edge.
-	AccountGroups []*AccountGroup `json:"account_groups,omitempty"`
 	// UserAllowedGroups holds the value of the user_allowed_groups edge.
 	UserAllowedGroups []*UserAllowedGroup `json:"user_allowed_groups,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [10]bool
-}
-
-// APIKeysOrErr returns the APIKeys value or an error if the edge
-// was not loaded in eager-loading.
-func (e GroupEdges) APIKeysOrErr() ([]*APIKey, error) {
-	if e.loadedTypes[0] {
-		return e.APIKeys, nil
-	}
-	return nil, &NotLoadedError{edge: "api_keys"}
+	loadedTypes [6]bool
 }
 
 // RedeemCodesOrErr returns the RedeemCodes value or an error if the edge
 // was not loaded in eager-loading.
 func (e GroupEdges) RedeemCodesOrErr() ([]*RedeemCode, error) {
-	if e.loadedTypes[1] {
+	if e.loadedTypes[0] {
 		return e.RedeemCodes, nil
 	}
 	return nil, &NotLoadedError{edge: "redeem_codes"}
@@ -142,34 +82,16 @@ func (e GroupEdges) RedeemCodesOrErr() ([]*RedeemCode, error) {
 // SubscriptionsOrErr returns the Subscriptions value or an error if the edge
 // was not loaded in eager-loading.
 func (e GroupEdges) SubscriptionsOrErr() ([]*UserSubscription, error) {
-	if e.loadedTypes[2] {
+	if e.loadedTypes[1] {
 		return e.Subscriptions, nil
 	}
 	return nil, &NotLoadedError{edge: "subscriptions"}
 }
 
-// UsageLogsOrErr returns the UsageLogs value or an error if the edge
-// was not loaded in eager-loading.
-func (e GroupEdges) UsageLogsOrErr() ([]*UsageLog, error) {
-	if e.loadedTypes[3] {
-		return e.UsageLogs, nil
-	}
-	return nil, &NotLoadedError{edge: "usage_logs"}
-}
-
-// AccountsOrErr returns the Accounts value or an error if the edge
-// was not loaded in eager-loading.
-func (e GroupEdges) AccountsOrErr() ([]*Account, error) {
-	if e.loadedTypes[4] {
-		return e.Accounts, nil
-	}
-	return nil, &NotLoadedError{edge: "accounts"}
-}
-
 // AllowedUsersOrErr returns the AllowedUsers value or an error if the edge
 // was not loaded in eager-loading.
 func (e GroupEdges) AllowedUsersOrErr() ([]*User, error) {
-	if e.loadedTypes[5] {
+	if e.loadedTypes[2] {
 		return e.AllowedUsers, nil
 	}
 	return nil, &NotLoadedError{edge: "allowed_users"}
@@ -178,7 +100,7 @@ func (e GroupEdges) AllowedUsersOrErr() ([]*User, error) {
 // SubscriptionPlansOrErr returns the SubscriptionPlans value or an error if the edge
 // was not loaded in eager-loading.
 func (e GroupEdges) SubscriptionPlansOrErr() ([]*SubscriptionPlan, error) {
-	if e.loadedTypes[6] {
+	if e.loadedTypes[3] {
 		return e.SubscriptionPlans, nil
 	}
 	return nil, &NotLoadedError{edge: "subscription_plans"}
@@ -187,25 +109,16 @@ func (e GroupEdges) SubscriptionPlansOrErr() ([]*SubscriptionPlan, error) {
 // PaymentChannelsOrErr returns the PaymentChannels value or an error if the edge
 // was not loaded in eager-loading.
 func (e GroupEdges) PaymentChannelsOrErr() ([]*PaymentChannel, error) {
-	if e.loadedTypes[7] {
+	if e.loadedTypes[4] {
 		return e.PaymentChannels, nil
 	}
 	return nil, &NotLoadedError{edge: "payment_channels"}
 }
 
-// AccountGroupsOrErr returns the AccountGroups value or an error if the edge
-// was not loaded in eager-loading.
-func (e GroupEdges) AccountGroupsOrErr() ([]*AccountGroup, error) {
-	if e.loadedTypes[8] {
-		return e.AccountGroups, nil
-	}
-	return nil, &NotLoadedError{edge: "account_groups"}
-}
-
 // UserAllowedGroupsOrErr returns the UserAllowedGroups value or an error if the edge
 // was not loaded in eager-loading.
 func (e GroupEdges) UserAllowedGroupsOrErr() ([]*UserAllowedGroup, error) {
-	if e.loadedTypes[9] {
+	if e.loadedTypes[5] {
 		return e.UserAllowedGroups, nil
 	}
 	return nil, &NotLoadedError{edge: "user_allowed_groups"}
@@ -216,15 +129,13 @@ func (*Group) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case group.FieldModelPricing, group.FieldModelRouting, group.FieldSupportedModelScopes:
-			values[i] = new([]byte)
-		case group.FieldIsExclusive, group.FieldClaudeCodeOnly, group.FieldModelRoutingEnabled, group.FieldMcpXMLInject, group.FieldAllowMessagesDispatch, group.FieldRequireOauthOnly, group.FieldRequirePrivacySet:
+		case group.FieldIsExclusive:
 			values[i] = new(sql.NullBool)
-		case group.FieldRateMultiplier, group.FieldDailyLimitUsd, group.FieldWeeklyLimitUsd, group.FieldMonthlyLimitUsd, group.FieldImagePrice1k, group.FieldImagePrice2k, group.FieldImagePrice4k, group.FieldSoraImagePrice360, group.FieldSoraImagePrice540, group.FieldSoraVideoPricePerRequest, group.FieldSoraVideoPricePerRequestHd:
+		case group.FieldRateMultiplier, group.FieldDailyLimitUsd, group.FieldWeeklyLimitUsd, group.FieldMonthlyLimitUsd:
 			values[i] = new(sql.NullFloat64)
-		case group.FieldID, group.FieldDefaultValidityDays, group.FieldSoraStorageQuotaBytes, group.FieldFallbackGroupID, group.FieldFallbackGroupIDOnInvalidRequest, group.FieldSortOrder:
+		case group.FieldID, group.FieldDefaultValidityDays, group.FieldSortOrder:
 			values[i] = new(sql.NullInt64)
-		case group.FieldName, group.FieldDescription, group.FieldStatus, group.FieldPlatform, group.FieldSubscriptionType, group.FieldDefaultMappedModel:
+		case group.FieldName, group.FieldDescription, group.FieldStatus, group.FieldSubscriptionType:
 			values[i] = new(sql.NullString)
 		case group.FieldCreatedAt, group.FieldUpdatedAt, group.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
@@ -299,12 +210,6 @@ func (_m *Group) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.Status = value.String
 			}
-		case group.FieldPlatform:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field platform", values[i])
-			} else if value.Valid {
-				_m.Platform = value.String
-			}
 		case group.FieldSubscriptionType:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field subscription_type", values[i])
@@ -338,146 +243,11 @@ func (_m *Group) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.DefaultValidityDays = int(value.Int64)
 			}
-		case group.FieldImagePrice1k:
-			if value, ok := values[i].(*sql.NullFloat64); !ok {
-				return fmt.Errorf("unexpected type %T for field image_price_1k", values[i])
-			} else if value.Valid {
-				_m.ImagePrice1k = new(float64)
-				*_m.ImagePrice1k = value.Float64
-			}
-		case group.FieldImagePrice2k:
-			if value, ok := values[i].(*sql.NullFloat64); !ok {
-				return fmt.Errorf("unexpected type %T for field image_price_2k", values[i])
-			} else if value.Valid {
-				_m.ImagePrice2k = new(float64)
-				*_m.ImagePrice2k = value.Float64
-			}
-		case group.FieldImagePrice4k:
-			if value, ok := values[i].(*sql.NullFloat64); !ok {
-				return fmt.Errorf("unexpected type %T for field image_price_4k", values[i])
-			} else if value.Valid {
-				_m.ImagePrice4k = new(float64)
-				*_m.ImagePrice4k = value.Float64
-			}
-		case group.FieldSoraImagePrice360:
-			if value, ok := values[i].(*sql.NullFloat64); !ok {
-				return fmt.Errorf("unexpected type %T for field sora_image_price_360", values[i])
-			} else if value.Valid {
-				_m.SoraImagePrice360 = new(float64)
-				*_m.SoraImagePrice360 = value.Float64
-			}
-		case group.FieldSoraImagePrice540:
-			if value, ok := values[i].(*sql.NullFloat64); !ok {
-				return fmt.Errorf("unexpected type %T for field sora_image_price_540", values[i])
-			} else if value.Valid {
-				_m.SoraImagePrice540 = new(float64)
-				*_m.SoraImagePrice540 = value.Float64
-			}
-		case group.FieldSoraVideoPricePerRequest:
-			if value, ok := values[i].(*sql.NullFloat64); !ok {
-				return fmt.Errorf("unexpected type %T for field sora_video_price_per_request", values[i])
-			} else if value.Valid {
-				_m.SoraVideoPricePerRequest = new(float64)
-				*_m.SoraVideoPricePerRequest = value.Float64
-			}
-		case group.FieldSoraVideoPricePerRequestHd:
-			if value, ok := values[i].(*sql.NullFloat64); !ok {
-				return fmt.Errorf("unexpected type %T for field sora_video_price_per_request_hd", values[i])
-			} else if value.Valid {
-				_m.SoraVideoPricePerRequestHd = new(float64)
-				*_m.SoraVideoPricePerRequestHd = value.Float64
-			}
-		case group.FieldSoraStorageQuotaBytes:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field sora_storage_quota_bytes", values[i])
-			} else if value.Valid {
-				_m.SoraStorageQuotaBytes = value.Int64
-			}
-		case group.FieldClaudeCodeOnly:
-			if value, ok := values[i].(*sql.NullBool); !ok {
-				return fmt.Errorf("unexpected type %T for field claude_code_only", values[i])
-			} else if value.Valid {
-				_m.ClaudeCodeOnly = value.Bool
-			}
-		case group.FieldFallbackGroupID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field fallback_group_id", values[i])
-			} else if value.Valid {
-				_m.FallbackGroupID = new(int64)
-				*_m.FallbackGroupID = value.Int64
-			}
-		case group.FieldFallbackGroupIDOnInvalidRequest:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field fallback_group_id_on_invalid_request", values[i])
-			} else if value.Valid {
-				_m.FallbackGroupIDOnInvalidRequest = new(int64)
-				*_m.FallbackGroupIDOnInvalidRequest = value.Int64
-			}
-		case group.FieldModelPricing:
-			if value, ok := values[i].(*[]byte); !ok {
-				return fmt.Errorf("unexpected type %T for field model_pricing", values[i])
-			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &_m.ModelPricing); err != nil {
-					return fmt.Errorf("unmarshal field model_pricing: %w", err)
-				}
-			}
-		case group.FieldModelRouting:
-			if value, ok := values[i].(*[]byte); !ok {
-				return fmt.Errorf("unexpected type %T for field model_routing", values[i])
-			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &_m.ModelRouting); err != nil {
-					return fmt.Errorf("unmarshal field model_routing: %w", err)
-				}
-			}
-		case group.FieldModelRoutingEnabled:
-			if value, ok := values[i].(*sql.NullBool); !ok {
-				return fmt.Errorf("unexpected type %T for field model_routing_enabled", values[i])
-			} else if value.Valid {
-				_m.ModelRoutingEnabled = value.Bool
-			}
-		case group.FieldMcpXMLInject:
-			if value, ok := values[i].(*sql.NullBool); !ok {
-				return fmt.Errorf("unexpected type %T for field mcp_xml_inject", values[i])
-			} else if value.Valid {
-				_m.McpXMLInject = value.Bool
-			}
-		case group.FieldSupportedModelScopes:
-			if value, ok := values[i].(*[]byte); !ok {
-				return fmt.Errorf("unexpected type %T for field supported_model_scopes", values[i])
-			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &_m.SupportedModelScopes); err != nil {
-					return fmt.Errorf("unmarshal field supported_model_scopes: %w", err)
-				}
-			}
 		case group.FieldSortOrder:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field sort_order", values[i])
 			} else if value.Valid {
 				_m.SortOrder = int(value.Int64)
-			}
-		case group.FieldAllowMessagesDispatch:
-			if value, ok := values[i].(*sql.NullBool); !ok {
-				return fmt.Errorf("unexpected type %T for field allow_messages_dispatch", values[i])
-			} else if value.Valid {
-				_m.AllowMessagesDispatch = value.Bool
-			}
-		case group.FieldRequireOauthOnly:
-			if value, ok := values[i].(*sql.NullBool); !ok {
-				return fmt.Errorf("unexpected type %T for field require_oauth_only", values[i])
-			} else if value.Valid {
-				_m.RequireOauthOnly = value.Bool
-			}
-		case group.FieldRequirePrivacySet:
-			if value, ok := values[i].(*sql.NullBool); !ok {
-				return fmt.Errorf("unexpected type %T for field require_privacy_set", values[i])
-			} else if value.Valid {
-				_m.RequirePrivacySet = value.Bool
-			}
-		case group.FieldDefaultMappedModel:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field default_mapped_model", values[i])
-			} else if value.Valid {
-				_m.DefaultMappedModel = value.String
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -492,11 +262,6 @@ func (_m *Group) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
 }
 
-// QueryAPIKeys queries the "api_keys" edge of the Group entity.
-func (_m *Group) QueryAPIKeys() *APIKeyQuery {
-	return NewGroupClient(_m.config).QueryAPIKeys(_m)
-}
-
 // QueryRedeemCodes queries the "redeem_codes" edge of the Group entity.
 func (_m *Group) QueryRedeemCodes() *RedeemCodeQuery {
 	return NewGroupClient(_m.config).QueryRedeemCodes(_m)
@@ -505,16 +270,6 @@ func (_m *Group) QueryRedeemCodes() *RedeemCodeQuery {
 // QuerySubscriptions queries the "subscriptions" edge of the Group entity.
 func (_m *Group) QuerySubscriptions() *UserSubscriptionQuery {
 	return NewGroupClient(_m.config).QuerySubscriptions(_m)
-}
-
-// QueryUsageLogs queries the "usage_logs" edge of the Group entity.
-func (_m *Group) QueryUsageLogs() *UsageLogQuery {
-	return NewGroupClient(_m.config).QueryUsageLogs(_m)
-}
-
-// QueryAccounts queries the "accounts" edge of the Group entity.
-func (_m *Group) QueryAccounts() *AccountQuery {
-	return NewGroupClient(_m.config).QueryAccounts(_m)
 }
 
 // QueryAllowedUsers queries the "allowed_users" edge of the Group entity.
@@ -530,11 +285,6 @@ func (_m *Group) QuerySubscriptionPlans() *SubscriptionPlanQuery {
 // QueryPaymentChannels queries the "payment_channels" edge of the Group entity.
 func (_m *Group) QueryPaymentChannels() *PaymentChannelQuery {
 	return NewGroupClient(_m.config).QueryPaymentChannels(_m)
-}
-
-// QueryAccountGroups queries the "account_groups" edge of the Group entity.
-func (_m *Group) QueryAccountGroups() *AccountGroupQuery {
-	return NewGroupClient(_m.config).QueryAccountGroups(_m)
 }
 
 // QueryUserAllowedGroups queries the "user_allowed_groups" edge of the Group entity.
@@ -593,9 +343,6 @@ func (_m *Group) String() string {
 	builder.WriteString("status=")
 	builder.WriteString(_m.Status)
 	builder.WriteString(", ")
-	builder.WriteString("platform=")
-	builder.WriteString(_m.Platform)
-	builder.WriteString(", ")
 	builder.WriteString("subscription_type=")
 	builder.WriteString(_m.SubscriptionType)
 	builder.WriteString(", ")
@@ -617,86 +364,8 @@ func (_m *Group) String() string {
 	builder.WriteString("default_validity_days=")
 	builder.WriteString(fmt.Sprintf("%v", _m.DefaultValidityDays))
 	builder.WriteString(", ")
-	if v := _m.ImagePrice1k; v != nil {
-		builder.WriteString("image_price_1k=")
-		builder.WriteString(fmt.Sprintf("%v", *v))
-	}
-	builder.WriteString(", ")
-	if v := _m.ImagePrice2k; v != nil {
-		builder.WriteString("image_price_2k=")
-		builder.WriteString(fmt.Sprintf("%v", *v))
-	}
-	builder.WriteString(", ")
-	if v := _m.ImagePrice4k; v != nil {
-		builder.WriteString("image_price_4k=")
-		builder.WriteString(fmt.Sprintf("%v", *v))
-	}
-	builder.WriteString(", ")
-	if v := _m.SoraImagePrice360; v != nil {
-		builder.WriteString("sora_image_price_360=")
-		builder.WriteString(fmt.Sprintf("%v", *v))
-	}
-	builder.WriteString(", ")
-	if v := _m.SoraImagePrice540; v != nil {
-		builder.WriteString("sora_image_price_540=")
-		builder.WriteString(fmt.Sprintf("%v", *v))
-	}
-	builder.WriteString(", ")
-	if v := _m.SoraVideoPricePerRequest; v != nil {
-		builder.WriteString("sora_video_price_per_request=")
-		builder.WriteString(fmt.Sprintf("%v", *v))
-	}
-	builder.WriteString(", ")
-	if v := _m.SoraVideoPricePerRequestHd; v != nil {
-		builder.WriteString("sora_video_price_per_request_hd=")
-		builder.WriteString(fmt.Sprintf("%v", *v))
-	}
-	builder.WriteString(", ")
-	builder.WriteString("sora_storage_quota_bytes=")
-	builder.WriteString(fmt.Sprintf("%v", _m.SoraStorageQuotaBytes))
-	builder.WriteString(", ")
-	builder.WriteString("claude_code_only=")
-	builder.WriteString(fmt.Sprintf("%v", _m.ClaudeCodeOnly))
-	builder.WriteString(", ")
-	if v := _m.FallbackGroupID; v != nil {
-		builder.WriteString("fallback_group_id=")
-		builder.WriteString(fmt.Sprintf("%v", *v))
-	}
-	builder.WriteString(", ")
-	if v := _m.FallbackGroupIDOnInvalidRequest; v != nil {
-		builder.WriteString("fallback_group_id_on_invalid_request=")
-		builder.WriteString(fmt.Sprintf("%v", *v))
-	}
-	builder.WriteString(", ")
-	builder.WriteString("model_pricing=")
-	builder.WriteString(fmt.Sprintf("%v", _m.ModelPricing))
-	builder.WriteString(", ")
-	builder.WriteString("model_routing=")
-	builder.WriteString(fmt.Sprintf("%v", _m.ModelRouting))
-	builder.WriteString(", ")
-	builder.WriteString("model_routing_enabled=")
-	builder.WriteString(fmt.Sprintf("%v", _m.ModelRoutingEnabled))
-	builder.WriteString(", ")
-	builder.WriteString("mcp_xml_inject=")
-	builder.WriteString(fmt.Sprintf("%v", _m.McpXMLInject))
-	builder.WriteString(", ")
-	builder.WriteString("supported_model_scopes=")
-	builder.WriteString(fmt.Sprintf("%v", _m.SupportedModelScopes))
-	builder.WriteString(", ")
 	builder.WriteString("sort_order=")
 	builder.WriteString(fmt.Sprintf("%v", _m.SortOrder))
-	builder.WriteString(", ")
-	builder.WriteString("allow_messages_dispatch=")
-	builder.WriteString(fmt.Sprintf("%v", _m.AllowMessagesDispatch))
-	builder.WriteString(", ")
-	builder.WriteString("require_oauth_only=")
-	builder.WriteString(fmt.Sprintf("%v", _m.RequireOauthOnly))
-	builder.WriteString(", ")
-	builder.WriteString("require_privacy_set=")
-	builder.WriteString(fmt.Sprintf("%v", _m.RequirePrivacySet))
-	builder.WriteString(", ")
-	builder.WriteString("default_mapped_model=")
-	builder.WriteString(_m.DefaultMappedModel)
 	builder.WriteByte(')')
 	return builder.String()
 }

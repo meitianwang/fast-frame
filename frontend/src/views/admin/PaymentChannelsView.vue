@@ -180,7 +180,8 @@ import TablePageLayout from '@/components/layout/TablePageLayout.vue'
 import BaseDialog from '@/components/common/BaseDialog.vue'
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
 import { adminPayAPI } from '@/api/admin/pay'
-import { getAll as listGroups } from '@/api/admin/groups'
+// Groups API removed (AI-specific); sync feature disabled
+const listGroups = async () => [] as any[]
 import { useAppStore } from '@/stores'
 import type { PaymentChannel } from '@/types'
 

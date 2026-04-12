@@ -91,11 +91,7 @@ func isAPIRoutePath(c *gin.Context) bool {
 		return false
 	}
 	path := c.Request.URL.Path
-	return strings.HasPrefix(path, "/v1/") ||
-		strings.HasPrefix(path, "/v1beta/") ||
-		strings.HasPrefix(path, "/antigravity/") ||
-		strings.HasPrefix(path, "/sora/") ||
-		strings.HasPrefix(path, "/responses")
+	return strings.HasPrefix(path, "/api/")
 }
 
 // enhanceCSPPolicy ensures the CSP policy includes nonce support and Cloudflare Insights domain.

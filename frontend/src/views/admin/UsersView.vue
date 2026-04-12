@@ -780,7 +780,7 @@ const allGroups = ref<AdminGroup[]>([])
 const loadAllGroups = async () => {
   if (allGroups.value.length > 0) return
   try {
-    allGroups.value = await adminAPI.groups.getAll()
+    allGroups.value = []
   } catch (e) {
     console.error('Failed to load groups:', e)
   }

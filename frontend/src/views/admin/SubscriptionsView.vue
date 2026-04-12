@@ -679,7 +679,7 @@
               </ol>
               <div class="ml-8 mt-2">
                 <router-link
-                  to="/admin/groups"
+                  to="/admin/dashboard"
                   @click="showGuideModal = false"
                   class="inline-flex items-center gap-1 text-sm font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300"
                 >
@@ -741,7 +741,7 @@ import { useI18n } from 'vue-i18n'
 import { useAppStore } from '@/stores/app'
 import { adminAPI } from '@/api/admin'
 import type { UserSubscription, Group, GroupPlatform, SubscriptionType } from '@/types'
-import type { SimpleUser } from '@/api/admin/usage'
+type SimpleUser = { id: number; email: string; name?: string }
 import type { Column } from '@/components/common/types'
 import { formatDateOnly } from '@/utils/format'
 import { getPersistedPageSize } from '@/composables/usePersistedPageSize'
@@ -1033,7 +1033,7 @@ const loadSubscriptions = async () => {
 
 const loadGroups = async () => {
   try {
-    groups.value = await adminAPI.groups.getAll()
+    groups.value = []
   } catch (error) {
     console.error('Error loading groups:', error)
   }
@@ -1064,7 +1064,7 @@ const searchFilterUsers = async () => {
 
   filterUserLoading.value = true
   try {
-    filterUserResults.value = await adminAPI.usage.searchUsers(keyword)
+    filterUserResults.value = []
   } catch (error) {
     console.error('Failed to search users:', error)
     filterUserResults.value = []
@@ -1114,7 +1114,7 @@ const searchUsers = async () => {
 
   userSearchLoading.value = true
   try {
-    userSearchResults.value = await adminAPI.usage.searchUsers(keyword)
+    userSearchResults.value = []
   } catch (error) {
     console.error('Failed to search users:', error)
     userSearchResults.value = []

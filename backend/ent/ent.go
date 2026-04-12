@@ -12,12 +12,8 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"github.com/Wei-Shaw/sub2api/ent/account"
-	"github.com/Wei-Shaw/sub2api/ent/accountgroup"
 	"github.com/Wei-Shaw/sub2api/ent/announcement"
 	"github.com/Wei-Shaw/sub2api/ent/announcementread"
-	"github.com/Wei-Shaw/sub2api/ent/apikey"
-	"github.com/Wei-Shaw/sub2api/ent/errorpassthroughrule"
 	"github.com/Wei-Shaw/sub2api/ent/group"
 	"github.com/Wei-Shaw/sub2api/ent/idempotencyrecord"
 	"github.com/Wei-Shaw/sub2api/ent/paymentauditlog"
@@ -26,14 +22,10 @@ import (
 	"github.com/Wei-Shaw/sub2api/ent/paymentproviderinstance"
 	"github.com/Wei-Shaw/sub2api/ent/promocode"
 	"github.com/Wei-Shaw/sub2api/ent/promocodeusage"
-	"github.com/Wei-Shaw/sub2api/ent/proxy"
 	"github.com/Wei-Shaw/sub2api/ent/redeemcode"
 	"github.com/Wei-Shaw/sub2api/ent/securitysecret"
 	"github.com/Wei-Shaw/sub2api/ent/setting"
 	"github.com/Wei-Shaw/sub2api/ent/subscriptionplan"
-	"github.com/Wei-Shaw/sub2api/ent/tlsfingerprintprofile"
-	"github.com/Wei-Shaw/sub2api/ent/usagecleanuptask"
-	"github.com/Wei-Shaw/sub2api/ent/usagelog"
 	"github.com/Wei-Shaw/sub2api/ent/user"
 	"github.com/Wei-Shaw/sub2api/ent/userallowedgroup"
 	"github.com/Wei-Shaw/sub2api/ent/userattributedefinition"
@@ -99,12 +91,8 @@ var (
 func checkColumn(t, c string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			apikey.Table:                  apikey.ValidColumn,
-			account.Table:                 account.ValidColumn,
-			accountgroup.Table:            accountgroup.ValidColumn,
 			announcement.Table:            announcement.ValidColumn,
 			announcementread.Table:        announcementread.ValidColumn,
-			errorpassthroughrule.Table:    errorpassthroughrule.ValidColumn,
 			group.Table:                   group.ValidColumn,
 			idempotencyrecord.Table:       idempotencyrecord.ValidColumn,
 			paymentauditlog.Table:         paymentauditlog.ValidColumn,
@@ -113,14 +101,10 @@ func checkColumn(t, c string) error {
 			paymentproviderinstance.Table: paymentproviderinstance.ValidColumn,
 			promocode.Table:               promocode.ValidColumn,
 			promocodeusage.Table:          promocodeusage.ValidColumn,
-			proxy.Table:                   proxy.ValidColumn,
 			redeemcode.Table:              redeemcode.ValidColumn,
 			securitysecret.Table:          securitysecret.ValidColumn,
 			setting.Table:                 setting.ValidColumn,
 			subscriptionplan.Table:        subscriptionplan.ValidColumn,
-			tlsfingerprintprofile.Table:   tlsfingerprintprofile.ValidColumn,
-			usagecleanuptask.Table:        usagecleanuptask.ValidColumn,
-			usagelog.Table:                usagelog.ValidColumn,
 			user.Table:                    user.ValidColumn,
 			userallowedgroup.Table:        userallowedgroup.ValidColumn,
 			userattributedefinition.Table: userattributedefinition.ValidColumn,

@@ -168,507 +168,6 @@
         </div>
         </div><!-- /Tab: Security — Admin API Key -->
 
-        <!-- Tab: Gateway -->
-        <div v-show="activeTab === 'gateway'" class="space-y-6">
-
-        <!-- Overload Cooldown (529) Settings -->
-        <div class="card">
-          <div class="border-b border-gray-100 px-6 py-4 dark:border-dark-700">
-            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-              {{ t('admin.settings.overloadCooldown.title') }}
-            </h2>
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              {{ t('admin.settings.overloadCooldown.description') }}
-            </p>
-          </div>
-          <div class="space-y-5 p-6">
-            <div v-if="overloadCooldownLoading" class="flex items-center gap-2 text-gray-500">
-              <div class="h-4 w-4 animate-spin rounded-full border-b-2 border-primary-600"></div>
-              {{ t('common.loading') }}
-            </div>
-
-            <template v-else>
-              <div class="flex items-center justify-between">
-                <div>
-                  <label class="font-medium text-gray-900 dark:text-white">{{
-                    t('admin.settings.overloadCooldown.enabled')
-                  }}</label>
-                  <p class="text-sm text-gray-500 dark:text-gray-400">
-                    {{ t('admin.settings.overloadCooldown.enabledHint') }}
-                  </p>
-                </div>
-                <Toggle v-model="overloadCooldownForm.enabled" />
-              </div>
-
-              <div
-                v-if="overloadCooldownForm.enabled"
-                class="space-y-4 border-t border-gray-100 pt-4 dark:border-dark-700"
-              >
-                <div>
-                  <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {{ t('admin.settings.overloadCooldown.cooldownMinutes') }}
-                  </label>
-                  <input
-                    v-model.number="overloadCooldownForm.cooldown_minutes"
-                    type="number"
-                    min="1"
-                    max="120"
-                    class="input w-32"
-                  />
-                  <p class="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
-                    {{ t('admin.settings.overloadCooldown.cooldownMinutesHint') }}
-                  </p>
-                </div>
-              </div>
-
-              <div class="flex justify-end border-t border-gray-100 pt-4 dark:border-dark-700">
-                <button
-                  type="button"
-                  @click="saveOverloadCooldownSettings"
-                  :disabled="overloadCooldownSaving"
-                  class="btn btn-primary btn-sm"
-                >
-                  <svg
-                    v-if="overloadCooldownSaving"
-                    class="mr-1 h-4 w-4 animate-spin"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      class="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      stroke-width="4"
-                    ></circle>
-                    <path
-                      class="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  {{ overloadCooldownSaving ? t('common.saving') : t('common.save') }}
-                </button>
-              </div>
-            </template>
-          </div>
-        </div>
-
-        <!-- Stream Timeout Settings -->
-        <div class="card">
-          <div class="border-b border-gray-100 px-6 py-4 dark:border-dark-700">
-            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-              {{ t('admin.settings.streamTimeout.title') }}
-            </h2>
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              {{ t('admin.settings.streamTimeout.description') }}
-            </p>
-          </div>
-          <div class="space-y-5 p-6">
-            <!-- Loading State -->
-            <div v-if="streamTimeoutLoading" class="flex items-center gap-2 text-gray-500">
-              <div class="h-4 w-4 animate-spin rounded-full border-b-2 border-primary-600"></div>
-              {{ t('common.loading') }}
-            </div>
-
-            <template v-else>
-              <!-- Enable Stream Timeout -->
-              <div class="flex items-center justify-between">
-                <div>
-                  <label class="font-medium text-gray-900 dark:text-white">{{
-                    t('admin.settings.streamTimeout.enabled')
-                  }}</label>
-                  <p class="text-sm text-gray-500 dark:text-gray-400">
-                    {{ t('admin.settings.streamTimeout.enabledHint') }}
-                  </p>
-                </div>
-                <Toggle v-model="streamTimeoutForm.enabled" />
-              </div>
-
-              <!-- Settings - Only show when enabled -->
-              <div
-                v-if="streamTimeoutForm.enabled"
-                class="space-y-4 border-t border-gray-100 pt-4 dark:border-dark-700"
-              >
-                <!-- Action -->
-                <div>
-                  <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {{ t('admin.settings.streamTimeout.action') }}
-                  </label>
-                  <select v-model="streamTimeoutForm.action" class="input w-64">
-                    <option value="temp_unsched">{{ t('admin.settings.streamTimeout.actionTempUnsched') }}</option>
-                    <option value="error">{{ t('admin.settings.streamTimeout.actionError') }}</option>
-                    <option value="none">{{ t('admin.settings.streamTimeout.actionNone') }}</option>
-                  </select>
-                  <p class="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
-                    {{ t('admin.settings.streamTimeout.actionHint') }}
-                  </p>
-                </div>
-
-                <!-- Temp Unsched Minutes (only show when action is temp_unsched) -->
-                <div v-if="streamTimeoutForm.action === 'temp_unsched'">
-                  <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {{ t('admin.settings.streamTimeout.tempUnschedMinutes') }}
-                  </label>
-                  <input
-                    v-model.number="streamTimeoutForm.temp_unsched_minutes"
-                    type="number"
-                    min="1"
-                    max="60"
-                    class="input w-32"
-                  />
-                  <p class="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
-                    {{ t('admin.settings.streamTimeout.tempUnschedMinutesHint') }}
-                  </p>
-                </div>
-
-                <!-- Threshold Count -->
-                <div>
-                  <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {{ t('admin.settings.streamTimeout.thresholdCount') }}
-                  </label>
-                  <input
-                    v-model.number="streamTimeoutForm.threshold_count"
-                    type="number"
-                    min="1"
-                    max="10"
-                    class="input w-32"
-                  />
-                  <p class="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
-                    {{ t('admin.settings.streamTimeout.thresholdCountHint') }}
-                  </p>
-                </div>
-
-                <!-- Threshold Window Minutes -->
-                <div>
-                  <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {{ t('admin.settings.streamTimeout.thresholdWindowMinutes') }}
-                  </label>
-                  <input
-                    v-model.number="streamTimeoutForm.threshold_window_minutes"
-                    type="number"
-                    min="1"
-                    max="60"
-                    class="input w-32"
-                  />
-                  <p class="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
-                    {{ t('admin.settings.streamTimeout.thresholdWindowMinutesHint') }}
-                  </p>
-                </div>
-              </div>
-
-              <!-- Save Button -->
-              <div class="flex justify-end border-t border-gray-100 pt-4 dark:border-dark-700">
-                <button
-                  type="button"
-                  @click="saveStreamTimeoutSettings"
-                  :disabled="streamTimeoutSaving"
-                  class="btn btn-primary btn-sm"
-                >
-                  <svg
-                    v-if="streamTimeoutSaving"
-                    class="mr-1 h-4 w-4 animate-spin"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      class="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      stroke-width="4"
-                    ></circle>
-                    <path
-                      class="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  {{ streamTimeoutSaving ? t('common.saving') : t('common.save') }}
-                </button>
-              </div>
-            </template>
-          </div>
-        </div>
-
-        <!-- Request Rectifier Settings -->
-        <div class="card">
-          <div class="border-b border-gray-100 px-6 py-4 dark:border-dark-700">
-            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-              {{ t('admin.settings.rectifier.title') }}
-            </h2>
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              {{ t('admin.settings.rectifier.description') }}
-            </p>
-          </div>
-          <div class="space-y-5 p-6">
-            <!-- Loading State -->
-            <div v-if="rectifierLoading" class="flex items-center gap-2 text-gray-500">
-              <div class="h-4 w-4 animate-spin rounded-full border-b-2 border-primary-600"></div>
-              {{ t('common.loading') }}
-            </div>
-
-            <template v-else>
-              <!-- Master Toggle -->
-              <div class="flex items-center justify-between">
-                <div>
-                  <label class="font-medium text-gray-900 dark:text-white">{{
-                    t('admin.settings.rectifier.enabled')
-                  }}</label>
-                  <p class="text-sm text-gray-500 dark:text-gray-400">
-                    {{ t('admin.settings.rectifier.enabledHint') }}
-                  </p>
-                </div>
-                <Toggle v-model="rectifierForm.enabled" />
-              </div>
-
-              <!-- Sub-toggles (only show when master is enabled) -->
-              <div
-                v-if="rectifierForm.enabled"
-                class="space-y-4 border-t border-gray-100 pt-4 dark:border-dark-700"
-              >
-                <!-- Thinking Signature Rectifier -->
-                <div class="flex items-center justify-between">
-                  <div>
-                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">{{
-                      t('admin.settings.rectifier.thinkingSignature')
-                    }}</label>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">
-                      {{ t('admin.settings.rectifier.thinkingSignatureHint') }}
-                    </p>
-                  </div>
-                  <Toggle v-model="rectifierForm.thinking_signature_enabled" />
-                </div>
-
-                <!-- Thinking Budget Rectifier -->
-                <div class="flex items-center justify-between">
-                  <div>
-                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">{{
-                      t('admin.settings.rectifier.thinkingBudget')
-                    }}</label>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">
-                      {{ t('admin.settings.rectifier.thinkingBudgetHint') }}
-                    </p>
-                  </div>
-                  <Toggle v-model="rectifierForm.thinking_budget_enabled" />
-                </div>
-
-                <!-- API Key Signature Rectifier -->
-                <div class="flex items-center justify-between">
-                  <div>
-                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">{{
-                      t('admin.settings.rectifier.apikeySignature')
-                    }}</label>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">
-                      {{ t('admin.settings.rectifier.apikeySignatureHint') }}
-                    </p>
-                  </div>
-                  <Toggle v-model="rectifierForm.apikey_signature_enabled" />
-                </div>
-
-                <!-- Custom Patterns (only when apikey_signature_enabled) -->
-                <div
-                  v-if="rectifierForm.apikey_signature_enabled"
-                  class="ml-4 space-y-3 border-l-2 border-gray-200 pl-4 dark:border-dark-600"
-                >
-                  <div>
-                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">{{
-                      t('admin.settings.rectifier.apikeyPatterns')
-                    }}</label>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">
-                      {{ t('admin.settings.rectifier.apikeyPatternsHint') }}
-                    </p>
-                  </div>
-                  <div
-                    v-for="(_, index) in rectifierForm.apikey_signature_patterns"
-                    :key="index"
-                    class="flex items-center gap-2"
-                  >
-                    <input
-                      v-model="rectifierForm.apikey_signature_patterns[index]"
-                      type="text"
-                      class="input input-sm flex-1"
-                      :placeholder="t('admin.settings.rectifier.apikeyPatternPlaceholder')"
-                    />
-                    <button
-                      type="button"
-                      @click="rectifierForm.apikey_signature_patterns.splice(index, 1)"
-                      class="btn btn-ghost btn-xs text-red-500 hover:text-red-700"
-                    >
-                      <svg
-                        class="h-4 w-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M6 18L18 6M6 6l12 12"
-                        />
-                      </svg>
-                    </button>
-                  </div>
-                  <button
-                    type="button"
-                    @click="rectifierForm.apikey_signature_patterns.push('')"
-                    class="btn btn-ghost btn-xs text-primary-600 dark:text-primary-400"
-                  >
-                    + {{ t('admin.settings.rectifier.addPattern') }}
-                  </button>
-                </div>
-              </div>
-
-              <!-- Save Button -->
-              <div class="flex justify-end border-t border-gray-100 pt-4 dark:border-dark-700">
-                <button
-                  type="button"
-                  @click="saveRectifierSettings"
-                  :disabled="rectifierSaving"
-                  class="btn btn-primary btn-sm"
-                >
-                  <svg
-                    v-if="rectifierSaving"
-                    class="mr-1 h-4 w-4 animate-spin"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      class="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      stroke-width="4"
-                    ></circle>
-                    <path
-                      class="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  {{ rectifierSaving ? t('common.saving') : t('common.save') }}
-                </button>
-              </div>
-            </template>
-          </div>
-        </div>
-        <!-- Beta Policy Settings -->
-        <div class="card">
-          <div class="border-b border-gray-100 px-6 py-4 dark:border-dark-700">
-            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-              {{ t('admin.settings.betaPolicy.title') }}
-            </h2>
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              {{ t('admin.settings.betaPolicy.description') }}
-            </p>
-          </div>
-          <div class="space-y-5 p-6">
-            <!-- Loading State -->
-            <div v-if="betaPolicyLoading" class="flex items-center gap-2 text-gray-500">
-              <div class="h-4 w-4 animate-spin rounded-full border-b-2 border-primary-600"></div>
-              {{ t('common.loading') }}
-            </div>
-
-            <template v-else>
-              <!-- Rule Cards -->
-              <div
-                v-for="rule in betaPolicyForm.rules"
-                :key="rule.beta_token"
-                class="rounded-lg border border-gray-200 p-4 dark:border-dark-600"
-              >
-                <div class="mb-3 flex items-center gap-2">
-                  <span class="text-sm font-medium text-gray-900 dark:text-white">
-                    {{ getBetaDisplayName(rule.beta_token) }}
-                  </span>
-                  <span class="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-500 dark:bg-dark-700 dark:text-gray-400">
-                    {{ rule.beta_token }}
-                  </span>
-                </div>
-
-                <div class="grid grid-cols-2 gap-4">
-                  <!-- Action -->
-                  <div>
-                    <label class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">
-                      {{ t('admin.settings.betaPolicy.action') }}
-                    </label>
-                    <Select
-                      :modelValue="rule.action"
-                      @update:modelValue="rule.action = $event as any"
-                      :options="betaPolicyActionOptions"
-                    />
-                  </div>
-
-                  <!-- Scope -->
-                  <div>
-                    <label class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">
-                      {{ t('admin.settings.betaPolicy.scope') }}
-                    </label>
-                    <Select
-                      :modelValue="rule.scope"
-                      @update:modelValue="rule.scope = $event as any"
-                      :options="betaPolicyScopeOptions"
-                    />
-                  </div>
-                </div>
-
-                <!-- Error Message (only when action=block) -->
-                <div v-if="rule.action === 'block'" class="mt-3">
-                  <label class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">
-                    {{ t('admin.settings.betaPolicy.errorMessage') }}
-                  </label>
-                  <input
-                    v-model="rule.error_message"
-                    type="text"
-                    class="input"
-                    :placeholder="t('admin.settings.betaPolicy.errorMessagePlaceholder')"
-                  />
-                  <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">
-                    {{ t('admin.settings.betaPolicy.errorMessageHint') }}
-                  </p>
-                </div>
-              </div>
-
-              <!-- Save Button -->
-              <div class="flex justify-end border-t border-gray-100 pt-4 dark:border-dark-700">
-                <button
-                  type="button"
-                  @click="saveBetaPolicySettings"
-                  :disabled="betaPolicySaving"
-                  class="btn btn-primary btn-sm"
-                >
-                  <svg
-                    v-if="betaPolicySaving"
-                    class="mr-1 h-4 w-4 animate-spin"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      class="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      stroke-width="4"
-                    ></circle>
-                    <path
-                      class="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  {{ betaPolicySaving ? t('common.saving') : t('common.save') }}
-                </button>
-              </div>
-            </template>
-          </div>
-        </div>
-
-        </div><!-- /Tab: Gateway -->
-
         <!-- Tab: Security — Registration, Turnstile, LinuxDo -->
         <div v-show="activeTab === 'security'" class="space-y-6">
         <!-- Registration Settings -->
@@ -1071,212 +570,11 @@
               </div>
             </div>
 
-            <div class="border-t border-gray-100 pt-4 dark:border-dark-700">
-              <div class="mb-3 flex items-center justify-between">
-                <div>
-                  <label class="font-medium text-gray-900 dark:text-white">
-                    {{ t('admin.settings.defaults.defaultSubscriptions') }}
-                  </label>
-                  <p class="text-sm text-gray-500 dark:text-gray-400">
-                    {{ t('admin.settings.defaults.defaultSubscriptionsHint') }}
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  class="btn btn-secondary btn-sm"
-                  @click="addDefaultSubscription"
-                  :disabled="subscriptionGroups.length === 0"
-                >
-                  {{ t('admin.settings.defaults.addDefaultSubscription') }}
-                </button>
-              </div>
-
-              <div
-                v-if="form.default_subscriptions.length === 0"
-                class="rounded border border-dashed border-gray-300 px-4 py-3 text-sm text-gray-500 dark:border-dark-600 dark:text-gray-400"
-              >
-                {{ t('admin.settings.defaults.defaultSubscriptionsEmpty') }}
-              </div>
-
-              <div v-else class="space-y-3">
-                <div
-                  v-for="(item, index) in form.default_subscriptions"
-                  :key="`default-sub-${index}`"
-                  class="grid grid-cols-1 gap-3 rounded border border-gray-200 p-3 md:grid-cols-[1fr_160px_auto] dark:border-dark-600"
-                >
-                  <div>
-                    <label class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">
-                      {{ t('admin.settings.defaults.subscriptionGroup') }}
-                    </label>
-                    <Select
-                      v-model="item.group_id"
-                      class="default-sub-group-select"
-                      :options="defaultSubscriptionGroupOptions"
-                      :placeholder="t('admin.settings.defaults.subscriptionGroup')"
-                    >
-                      <template #selected="{ option }">
-                        <GroupBadge
-                          v-if="option"
-                          :name="(option as unknown as DefaultSubscriptionGroupOption).label"
-                          :platform="(option as unknown as DefaultSubscriptionGroupOption).platform"
-                          :subscription-type="(option as unknown as DefaultSubscriptionGroupOption).subscriptionType"
-                          :rate-multiplier="(option as unknown as DefaultSubscriptionGroupOption).rate"
-                        />
-                        <span v-else class="text-gray-400">
-                          {{ t('admin.settings.defaults.subscriptionGroup') }}
-                        </span>
-                      </template>
-                      <template #option="{ option, selected }">
-                        <GroupOptionItem
-                          :name="(option as unknown as DefaultSubscriptionGroupOption).label"
-                          :platform="(option as unknown as DefaultSubscriptionGroupOption).platform"
-                          :subscription-type="(option as unknown as DefaultSubscriptionGroupOption).subscriptionType"
-                          :rate-multiplier="(option as unknown as DefaultSubscriptionGroupOption).rate"
-                          :description="(option as unknown as DefaultSubscriptionGroupOption).description"
-                          :selected="selected"
-                        />
-                      </template>
-                    </Select>
-                  </div>
-                  <div>
-                    <label class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">
-                      {{ t('admin.settings.defaults.subscriptionValidityDays') }}
-                    </label>
-                    <input
-                      v-model.number="item.validity_days"
-                      type="number"
-                      min="1"
-                      max="36500"
-                      class="input h-[42px]"
-                    />
-                  </div>
-                  <div class="flex items-end">
-                    <button
-                      type="button"
-                      class="btn btn-secondary default-sub-delete-btn w-full text-red-600 hover:text-red-700 dark:text-red-400"
-                      @click="removeDefaultSubscription(index)"
-                    >
-                      {{ t('common.delete') }}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
         </div><!-- /Tab: Users -->
 
-        <!-- Tab: Gateway — Claude Code, Scheduling -->
-        <div v-show="activeTab === 'gateway'" class="space-y-6">
-        <!-- Claude Code Settings -->
-        <div class="card">
-          <div class="border-b border-gray-100 px-6 py-4 dark:border-dark-700">
-            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-              {{ t('admin.settings.claudeCode.title') }}
-            </h2>
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              {{ t('admin.settings.claudeCode.description') }}
-            </p>
-          </div>
-          <div class="p-6">
-            <div>
-              <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                {{ t('admin.settings.claudeCode.minVersion') }}
-              </label>
-              <input
-                v-model="form.min_claude_code_version"
-                type="text"
-                class="input max-w-xs font-mono text-sm"
-                :placeholder="t('admin.settings.claudeCode.minVersionPlaceholder')"
-              />
-              <p class="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
-                {{ t('admin.settings.claudeCode.minVersionHint') }}
-              </p>
-            </div>
-            <div class="mt-4">
-              <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                {{ t('admin.settings.claudeCode.maxVersion') }}
-              </label>
-              <input
-                v-model="form.max_claude_code_version"
-                type="text"
-                class="input max-w-xs font-mono text-sm"
-                :placeholder="t('admin.settings.claudeCode.maxVersionPlaceholder')"
-              />
-              <p class="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
-                {{ t('admin.settings.claudeCode.maxVersionHint') }}
-              </p>
-            </div>
-          </div>
-        </div>
 
-        <!-- Gateway Scheduling Settings -->
-        <div class="card">
-          <div class="border-b border-gray-100 px-6 py-4 dark:border-dark-700">
-            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-              {{ t('admin.settings.scheduling.title') }}
-            </h2>
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              {{ t('admin.settings.scheduling.description') }}
-            </p>
-          </div>
-          <div class="p-6">
-            <div class="flex items-center justify-between">
-              <div>
-                <label class="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  {{ t('admin.settings.scheduling.allowUngroupedKey') }}
-                </label>
-                <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
-                  {{ t('admin.settings.scheduling.allowUngroupedKeyHint') }}
-                </p>
-              </div>
-              <label class="toggle">
-                <input v-model="form.allow_ungrouped_key_scheduling" type="checkbox" />
-                <span class="toggle-slider"></span>
-              </label>
-            </div>
-          </div>
-        </div>
-
-        <!-- Gateway Forwarding Behavior -->
-        <div class="card">
-          <div class="border-b border-gray-100 px-6 py-4 dark:border-dark-700">
-            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-              {{ t('admin.settings.gatewayForwarding.title') }}
-            </h2>
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              {{ t('admin.settings.gatewayForwarding.description') }}
-            </p>
-          </div>
-          <div class="space-y-5 p-6">
-            <!-- Fingerprint Unification -->
-            <div class="flex items-center justify-between">
-              <div>
-                <label class="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  {{ t('admin.settings.gatewayForwarding.fingerprintUnification') }}
-                </label>
-                <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
-                  {{ t('admin.settings.gatewayForwarding.fingerprintUnificationHint') }}
-                </p>
-              </div>
-              <Toggle v-model="form.enable_fingerprint_unification" />
-            </div>
-
-            <!-- Metadata Passthrough -->
-            <div class="flex items-center justify-between">
-              <div>
-                <label class="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  {{ t('admin.settings.gatewayForwarding.metadataPassthrough') }}
-                </label>
-                <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
-                  {{ t('admin.settings.gatewayForwarding.metadataPassthroughHint') }}
-                </p>
-              </div>
-              <Toggle v-model="form.enable_metadata_passthrough" />
-            </div>
-          </div>
-        </div>
-        </div><!-- /Tab: Gateway — Claude Code, Scheduling -->
 
         <!-- Tab: General -->
         <div v-show="activeTab === 'general'" class="space-y-6">
@@ -1508,31 +806,6 @@
                 </p>
               </div>
               <Toggle v-model="form.hide_ccs_import_button" />
-            </div>
-          </div>
-        </div>
-
-        <!-- Sora Client Toggle -->
-        <div class="card">
-          <div class="border-b border-gray-100 px-6 py-4 dark:border-dark-700">
-            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-              {{ t('admin.settings.soraClient.title') }}
-            </h2>
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              {{ t('admin.settings.soraClient.description') }}
-            </p>
-          </div>
-          <div class="space-y-6 p-6">
-            <div class="flex items-center justify-between">
-              <div>
-                <label class="font-medium text-gray-900 dark:text-white">{{
-                  t('admin.settings.soraClient.enabled')
-                }}</label>
-                <p class="text-sm text-gray-500 dark:text-gray-400">
-                  {{ t('admin.settings.soraClient.enabledHint') }}
-                </p>
-              </div>
-              <Toggle v-model="form.sora_client_enabled" />
             </div>
           </div>
         </div>
@@ -1891,13 +1164,8 @@
           <BackupSettings />
         </div>
 
-        <!-- Tab: Data Management -->
-        <div v-show="activeTab === 'data'">
-          <DataManagementSettings />
-        </div>
-
         <!-- Save Button -->
-        <div v-show="activeTab !== 'backup' && activeTab !== 'data'" class="flex justify-end">
+        <div v-show="activeTab !== 'backup'" class="flex justify-end">
           <button type="submit" :disabled="saving || loadFailed" class="btn btn-primary">
             <svg v-if="saving" class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
               <circle
@@ -1931,16 +1199,12 @@ import type {
   UpdateSettingsRequest,
   DefaultSubscriptionSetting
 } from '@/api/admin/settings'
-import type { AdminGroup } from '@/types'
 import AppLayout from '@/components/layout/AppLayout.vue'
 import Icon from '@/components/icons/Icon.vue'
-import Select from '@/components/common/Select.vue'
-import GroupBadge from '@/components/common/GroupBadge.vue'
-import GroupOptionItem from '@/components/common/GroupOptionItem.vue'
 import Toggle from '@/components/common/Toggle.vue'
 import ImageUpload from '@/components/common/ImageUpload.vue'
 import BackupSettings from '@/views/admin/BackupView.vue'
-import DataManagementSettings from '@/views/admin/DataManagementView.vue'
+
 import { useClipboard } from '@/composables/useClipboard'
 import { useAppStore } from '@/stores'
 import { useAdminSettingsStore } from '@/stores/adminSettings'
@@ -1955,16 +1219,14 @@ const { t } = useI18n()
 const appStore = useAppStore()
 const adminSettingsStore = useAdminSettingsStore()
 
-type SettingsTab = 'general' | 'security' | 'users' | 'gateway' | 'email' | 'backup' | 'data'
+type SettingsTab = 'general' | 'security' | 'users' | 'email' | 'backup'
 const activeTab = ref<SettingsTab>('general')
 const settingsTabs = [
   { key: 'general'  as SettingsTab, icon: 'home'   as const },
   { key: 'security' as SettingsTab, icon: 'shield' as const },
   { key: 'users'    as SettingsTab, icon: 'user'   as const },
-  { key: 'gateway'  as SettingsTab, icon: 'server' as const },
   { key: 'email'    as SettingsTab, icon: 'mail'   as const },
   { key: 'backup'   as SettingsTab, icon: 'database' as const },
-  { key: 'data'     as SettingsTab, icon: 'cube'     as const },
 ]
 const { copyToClipboard } = useClipboard()
 
@@ -1984,59 +1246,8 @@ const adminApiKeyExists = ref(false)
 const adminApiKeyMasked = ref('')
 const adminApiKeyOperating = ref(false)
 const newAdminApiKey = ref('')
-const subscriptionGroups = ref<AdminGroup[]>([])
 
-// Overload Cooldown (529) 状态
-const overloadCooldownLoading = ref(true)
-const overloadCooldownSaving = ref(false)
-const overloadCooldownForm = reactive({
-  enabled: true,
-  cooldown_minutes: 10
-})
 
-// Stream Timeout 状态
-const streamTimeoutLoading = ref(true)
-const streamTimeoutSaving = ref(false)
-const streamTimeoutForm = reactive({
-  enabled: true,
-  action: 'temp_unsched' as 'temp_unsched' | 'error' | 'none',
-  temp_unsched_minutes: 5,
-  threshold_count: 3,
-  threshold_window_minutes: 10
-})
-
-// Rectifier 状态
-const rectifierLoading = ref(true)
-const rectifierSaving = ref(false)
-const rectifierForm = reactive({
-  enabled: true,
-  thinking_signature_enabled: true,
-  thinking_budget_enabled: true,
-  apikey_signature_enabled: false,
-  apikey_signature_patterns: [] as string[]
-})
-
-// Beta Policy 状态
-const betaPolicyLoading = ref(true)
-const betaPolicySaving = ref(false)
-const betaPolicyForm = reactive({
-  rules: [] as Array<{
-    beta_token: string
-    action: 'pass' | 'filter' | 'block'
-    scope: 'all' | 'oauth' | 'apikey' | 'bedrock'
-    error_message?: string
-  }>
-})
-
-interface DefaultSubscriptionGroupOption {
-  value: number
-  label: string
-  description: string | null
-  platform: AdminGroup['platform']
-  subscriptionType: AdminGroup['subscription_type']
-  rate: number
-  [key: string]: unknown
-}
 
 type SettingsForm = SystemSettings & {
   smtp_password: string
@@ -2065,7 +1276,6 @@ const form = reactive<SettingsForm>({
   home_content: '',
   backend_mode_enabled: false,
   hide_ccs_import_button: false,
-  sora_client_enabled: false,
   custom_menu_items: [] as Array<{id: string; label: string; icon_svg: string; url: string; visibility: 'user' | 'admin'; sort_order: number}>,
   custom_endpoints: [] as Array<{name: string; endpoint: string; description: string}>,
   frontend_url: '',
@@ -2088,40 +1298,10 @@ const form = reactive<SettingsForm>({
   linuxdo_connect_client_secret: '',
   linuxdo_connect_client_secret_configured: false,
   linuxdo_connect_redirect_url: '',
-  // Model fallback
-  enable_model_fallback: false,
-  fallback_model_anthropic: 'claude-3-5-sonnet-20241022',
-  fallback_model_openai: 'gpt-4o',
-  fallback_model_gemini: 'gemini-2.5-pro',
-  fallback_model_antigravity: 'gemini-2.5-pro',
-  // Identity patch (Claude -> Gemini)
-  enable_identity_patch: true,
-  identity_patch_prompt: '',
-  // Ops monitoring (vNext)
-  ops_monitoring_enabled: true,
-  ops_realtime_monitoring_enabled: true,
-  ops_query_mode_default: 'auto',
-  ops_metrics_interval_seconds: 60,
-  // Claude Code version check
-  min_claude_code_version: '',
-  max_claude_code_version: '',
-  // 分组隔离
-  allow_ungrouped_key_scheduling: false,
-  // Gateway forwarding behavior
-  enable_fingerprint_unification: true,
-  enable_metadata_passthrough: false
+
 })
 
-const defaultSubscriptionGroupOptions = computed<DefaultSubscriptionGroupOption[]>(() =>
-  subscriptionGroups.value.map((group) => ({
-    value: group.id,
-    label: group.name,
-    description: group.description,
-    platform: group.platform,
-    subscriptionType: group.subscription_type,
-    rate: group.rate_multiplier
-  }))
-)
+
 
 const registrationEmailSuffixWhitelistSeparatorKeys = new Set([' ', ',', '，', 'Enter', 'Tab'])
 
@@ -2282,32 +1462,8 @@ async function loadSettings() {
   }
 }
 
-async function loadSubscriptionGroups() {
-  try {
-    const groups = await adminAPI.groups.getAll()
-    subscriptionGroups.value = groups.filter(
-      (group) => group.subscription_type === 'subscription' && group.status === 'active'
-    )
-  } catch (error) {
-    console.error('Failed to load subscription groups:', error)
-    subscriptionGroups.value = []
-  }
-}
 
-function addDefaultSubscription() {
-  if (subscriptionGroups.value.length === 0) return
-  const existing = new Set(form.default_subscriptions.map((item) => item.group_id))
-  const candidate = subscriptionGroups.value.find((group) => !existing.has(group.id))
-  if (!candidate) return
-  form.default_subscriptions.push({
-    group_id: candidate.id,
-    validity_days: 30
-  })
-}
 
-function removeDefaultSubscription(index: number) {
-  form.default_subscriptions.splice(index, 1)
-}
 
 async function saveSettings() {
   saving.value = true
@@ -2371,9 +1527,7 @@ async function saveSettings() {
       home_content: form.home_content,
       backend_mode_enabled: form.backend_mode_enabled,
       hide_ccs_import_button: form.hide_ccs_import_button,
-      sora_client_enabled: form.sora_client_enabled,
       custom_menu_items: form.custom_menu_items,
-      custom_endpoints: form.custom_endpoints,
       frontend_url: form.frontend_url,
       smtp_host: form.smtp_host,
       smtp_port: form.smtp_port,
@@ -2389,18 +1543,7 @@ async function saveSettings() {
       linuxdo_connect_client_id: form.linuxdo_connect_client_id,
       linuxdo_connect_client_secret: form.linuxdo_connect_client_secret || undefined,
       linuxdo_connect_redirect_url: form.linuxdo_connect_redirect_url,
-      enable_model_fallback: form.enable_model_fallback,
-      fallback_model_anthropic: form.fallback_model_anthropic,
-      fallback_model_openai: form.fallback_model_openai,
-      fallback_model_gemini: form.fallback_model_gemini,
-      fallback_model_antigravity: form.fallback_model_antigravity,
-      enable_identity_patch: form.enable_identity_patch,
-      identity_patch_prompt: form.identity_patch_prompt,
-      min_claude_code_version: form.min_claude_code_version,
-      max_claude_code_version: form.max_claude_code_version,
-      allow_ungrouped_key_scheduling: form.allow_ungrouped_key_scheduling,
-      enable_fingerprint_unification: form.enable_fingerprint_unification,
-      enable_metadata_passthrough: form.enable_metadata_passthrough
+
     }
     const updated = await adminAPI.settings.updateSettings(payload)
     Object.assign(form, updated)
@@ -2538,174 +1681,9 @@ function copyNewKey() {
     })
 }
 
-// Overload Cooldown 方法
-async function loadOverloadCooldownSettings() {
-  overloadCooldownLoading.value = true
-  try {
-    const settings = await adminAPI.settings.getOverloadCooldownSettings()
-    Object.assign(overloadCooldownForm, settings)
-  } catch (error: any) {
-    console.error('Failed to load overload cooldown settings:', error)
-  } finally {
-    overloadCooldownLoading.value = false
-  }
-}
-
-async function saveOverloadCooldownSettings() {
-  overloadCooldownSaving.value = true
-  try {
-    const updated = await adminAPI.settings.updateOverloadCooldownSettings({
-      enabled: overloadCooldownForm.enabled,
-      cooldown_minutes: overloadCooldownForm.cooldown_minutes
-    })
-    Object.assign(overloadCooldownForm, updated)
-    appStore.showSuccess(t('admin.settings.overloadCooldown.saved'))
-  } catch (error: any) {
-    appStore.showError(
-      t('admin.settings.overloadCooldown.saveFailed') + ': ' + (error.message || t('common.unknownError'))
-    )
-  } finally {
-    overloadCooldownSaving.value = false
-  }
-}
-
-// Stream Timeout 方法
-async function loadStreamTimeoutSettings() {
-  streamTimeoutLoading.value = true
-  try {
-    const settings = await adminAPI.settings.getStreamTimeoutSettings()
-    Object.assign(streamTimeoutForm, settings)
-  } catch (error: any) {
-    console.error('Failed to load stream timeout settings:', error)
-  } finally {
-    streamTimeoutLoading.value = false
-  }
-}
-
-async function saveStreamTimeoutSettings() {
-  streamTimeoutSaving.value = true
-  try {
-    const updated = await adminAPI.settings.updateStreamTimeoutSettings({
-      enabled: streamTimeoutForm.enabled,
-      action: streamTimeoutForm.action,
-      temp_unsched_minutes: streamTimeoutForm.temp_unsched_minutes,
-      threshold_count: streamTimeoutForm.threshold_count,
-      threshold_window_minutes: streamTimeoutForm.threshold_window_minutes
-    })
-    Object.assign(streamTimeoutForm, updated)
-    appStore.showSuccess(t('admin.settings.streamTimeout.saved'))
-  } catch (error: any) {
-    appStore.showError(
-      t('admin.settings.streamTimeout.saveFailed') + ': ' + (error.message || t('common.unknownError'))
-    )
-  } finally {
-    streamTimeoutSaving.value = false
-  }
-}
-
-// Rectifier 方法
-async function loadRectifierSettings() {
-  rectifierLoading.value = true
-  try {
-    const settings = await adminAPI.settings.getRectifierSettings()
-    Object.assign(rectifierForm, settings)
-    // 确保 patterns 是数组（旧数据可能为 null）
-    if (!Array.isArray(rectifierForm.apikey_signature_patterns)) {
-      rectifierForm.apikey_signature_patterns = []
-    }
-  } catch (error: any) {
-    console.error('Failed to load rectifier settings:', error)
-  } finally {
-    rectifierLoading.value = false
-  }
-}
-
-async function saveRectifierSettings() {
-  rectifierSaving.value = true
-  try {
-    const updated = await adminAPI.settings.updateRectifierSettings({
-      enabled: rectifierForm.enabled,
-      thinking_signature_enabled: rectifierForm.thinking_signature_enabled,
-      thinking_budget_enabled: rectifierForm.thinking_budget_enabled,
-      apikey_signature_enabled: rectifierForm.apikey_signature_enabled,
-      apikey_signature_patterns: rectifierForm.apikey_signature_patterns.filter(
-        (p) => p.trim() !== ''
-      )
-    })
-    Object.assign(rectifierForm, updated)
-    if (!Array.isArray(rectifierForm.apikey_signature_patterns)) {
-      rectifierForm.apikey_signature_patterns = []
-    }
-    appStore.showSuccess(t('admin.settings.rectifier.saved'))
-  } catch (error: any) {
-    appStore.showError(
-      t('admin.settings.rectifier.saveFailed') + ': ' + (error.message || t('common.unknownError'))
-    )
-  } finally {
-    rectifierSaving.value = false
-  }
-}
-
-const betaPolicyActionOptions = computed(() => [
-  { value: 'pass', label: t('admin.settings.betaPolicy.actionPass') },
-  { value: 'filter', label: t('admin.settings.betaPolicy.actionFilter') },
-  { value: 'block', label: t('admin.settings.betaPolicy.actionBlock') }
-])
-
-const betaPolicyScopeOptions = computed(() => [
-  { value: 'all', label: t('admin.settings.betaPolicy.scopeAll') },
-  { value: 'oauth', label: t('admin.settings.betaPolicy.scopeOAuth') },
-  { value: 'apikey', label: t('admin.settings.betaPolicy.scopeAPIKey') },
-  { value: 'bedrock', label: t('admin.settings.betaPolicy.scopeBedrock') }
-])
-
-// Beta Policy 方法
-const betaDisplayNames: Record<string, string> = {
-  'fast-mode-2026-02-01': 'Fast Mode',
-  'context-1m-2025-08-07': 'Context 1M'
-}
-
-function getBetaDisplayName(token: string): string {
-  return betaDisplayNames[token] || token
-}
-
-async function loadBetaPolicySettings() {
-  betaPolicyLoading.value = true
-  try {
-    const settings = await adminAPI.settings.getBetaPolicySettings()
-    betaPolicyForm.rules = settings.rules
-  } catch (error: any) {
-    console.error('Failed to load beta policy settings:', error)
-  } finally {
-    betaPolicyLoading.value = false
-  }
-}
-
-async function saveBetaPolicySettings() {
-  betaPolicySaving.value = true
-  try {
-    const updated = await adminAPI.settings.updateBetaPolicySettings({
-      rules: betaPolicyForm.rules
-    })
-    betaPolicyForm.rules = updated.rules
-    appStore.showSuccess(t('admin.settings.betaPolicy.saved'))
-  } catch (error: any) {
-    appStore.showError(
-      t('admin.settings.betaPolicy.saveFailed') + ': ' + (error.message || t('common.unknownError'))
-    )
-  } finally {
-    betaPolicySaving.value = false
-  }
-}
-
 onMounted(() => {
   loadSettings()
-  loadSubscriptionGroups()
   loadAdminApiKey()
-  loadOverloadCooldownSettings()
-  loadStreamTimeoutSettings()
-  loadRectifierSettings()
-  loadBetaPolicySettings()
 })
 </script>
 

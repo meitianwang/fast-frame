@@ -38,36 +38,6 @@ func RegisterUserRoutes(
 			}
 		}
 
-		// API Key管理
-		keys := authenticated.Group("/keys")
-		{
-			keys.GET("", h.APIKey.List)
-			keys.GET("/:id", h.APIKey.GetByID)
-			keys.POST("", h.APIKey.Create)
-			keys.PUT("/:id", h.APIKey.Update)
-			keys.DELETE("/:id", h.APIKey.Delete)
-		}
-
-		// 用户可用分组（非管理员接口）
-		groups := authenticated.Group("/groups")
-		{
-			groups.GET("/available", h.APIKey.GetAvailableGroups)
-			groups.GET("/rates", h.APIKey.GetUserGroupRates)
-		}
-
-		// 使用记录
-		usage := authenticated.Group("/usage")
-		{
-			usage.GET("", h.Usage.List)
-			usage.GET("/:id", h.Usage.GetByID)
-			usage.GET("/stats", h.Usage.Stats)
-			// User dashboard endpoints
-			usage.GET("/dashboard/stats", h.Usage.DashboardStats)
-			usage.GET("/dashboard/trend", h.Usage.DashboardTrend)
-			usage.GET("/dashboard/models", h.Usage.DashboardModels)
-			usage.POST("/dashboard/api-keys-usage", h.Usage.DashboardAPIKeysUsage)
-		}
-
 		// 公告（用户可见）
 		announcements := authenticated.Group("/announcements")
 		{

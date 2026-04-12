@@ -8,28 +8,14 @@ import (
 type AdminHandlers struct {
 	Dashboard             *admin.DashboardHandler
 	User                  *admin.UserHandler
-	Group                 *admin.GroupHandler
-	Account               *admin.AccountHandler
 	Announcement          *admin.AnnouncementHandler
-	DataManagement        *admin.DataManagementHandler
 	Backup                *admin.BackupHandler
-	OAuth                 *admin.OAuthHandler
-	OpenAIOAuth           *admin.OpenAIOAuthHandler
-	GeminiOAuth           *admin.GeminiOAuthHandler
-	AntigravityOAuth      *admin.AntigravityOAuthHandler
-	Proxy                 *admin.ProxyHandler
 	Redeem                *admin.RedeemHandler
 	Promo                 *admin.PromoHandler
 	Setting               *admin.SettingHandler
-	Ops                   *admin.OpsHandler
 	System                *admin.SystemHandler
 	Subscription          *admin.SubscriptionHandler
-	Usage                 *admin.UsageHandler
 	UserAttribute         *admin.UserAttributeHandler
-	ErrorPassthrough      *admin.ErrorPassthroughHandler
-	TLSFingerprintProfile *admin.TLSFingerprintProfileHandler
-	APIKey                *admin.AdminAPIKeyHandler
-	ScheduledTest         *admin.ScheduledTestHandler
 	PaymentOrder            *admin.PaymentOrderHandler
 	PaymentRefund           *admin.PaymentRefundHandler
 	PaymentConfig           *admin.PaymentConfigHandler
@@ -41,18 +27,12 @@ type AdminHandlers struct {
 
 // Handlers contains all HTTP handlers
 type Handlers struct {
-	Auth          *AuthHandler
-	User          *UserHandler
-	APIKey        *APIKeyHandler
-	Usage         *UsageHandler
-	Redeem        *RedeemHandler
-	Subscription  *SubscriptionHandler
-	Announcement  *AnnouncementHandler
-	Admin         *AdminHandlers
-	Gateway       *GatewayHandler
-	OpenAIGateway *OpenAIGatewayHandler
-	SoraGateway   *SoraGatewayHandler
-	SoraClient    *SoraClientHandler
+	Auth           *AuthHandler
+	User           *UserHandler
+	Redeem         *RedeemHandler
+	Subscription   *SubscriptionHandler
+	Announcement   *AnnouncementHandler
+	Admin          *AdminHandlers
 	Setting        *SettingHandler
 	Totp           *TotpHandler
 	Payment        *PaymentHandler

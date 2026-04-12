@@ -8,13 +8,35 @@ import (
 	"strings"
 
 	dbent "github.com/Wei-Shaw/sub2api/ent"
-	"github.com/Wei-Shaw/sub2api/ent/apikey"
 	"github.com/Wei-Shaw/sub2api/ent/group"
-	"github.com/Wei-Shaw/sub2api/internal/pkg/logger"
 	"github.com/Wei-Shaw/sub2api/internal/pkg/pagination"
 	"github.com/Wei-Shaw/sub2api/internal/service"
 	"github.com/lib/pq"
 )
+
+func groupEntityToService(m *dbent.Group) *service.Group {
+	desc := ""
+	if m.Description != nil {
+		desc = *m.Description
+	}
+	return &service.Group{
+		ID:                  m.ID,
+		Name:                m.Name,
+		Description:         desc,
+		RateMultiplier:      m.RateMultiplier,
+		IsExclusive:         m.IsExclusive,
+		Status:              m.Status,
+		Hydrated:            true,
+		SubscriptionType:    m.SubscriptionType,
+		DailyLimitUSD:       m.DailyLimitUsd,
+		WeeklyLimitUSD:      m.WeeklyLimitUsd,
+		MonthlyLimitUSD:     m.MonthlyLimitUsd,
+		DefaultValidityDays: m.DefaultValidityDays,
+		SortOrder:           m.SortOrder,
+		CreatedAt:           m.CreatedAt,
+		UpdatedAt:           m.UpdatedAt,
+	}
+}
 
 type sqlExecutor interface {
 	ExecContext(ctx context.Context, query string, args ...any) (sql.Result, error)
@@ -38,7 +60,6 @@ func (r *groupRepository) Create(ctx context.Context, groupIn *service.Group) er
 	builder := r.client.Group.Create().
 		SetName(groupIn.Name).
 		SetDescription(groupIn.Description).
-		SetPlatform(groupIn.Platform).
 		SetRateMultiplier(groupIn.RateMultiplier).
 		SetIsExclusive(groupIn.IsExclusive).
 		SetStatus(groupIn.Status).
@@ -46,54 +67,19 @@ func (r *groupRepository) Create(ctx context.Context, groupIn *service.Group) er
 		SetNillableDailyLimitUsd(groupIn.DailyLimitUSD).
 		SetNillableWeeklyLimitUsd(groupIn.WeeklyLimitUSD).
 		SetNillableMonthlyLimitUsd(groupIn.MonthlyLimitUSD).
-		SetNillableImagePrice1k(groupIn.ImagePrice1K).
-		SetNillableImagePrice2k(groupIn.ImagePrice2K).
-		SetNillableImagePrice4k(groupIn.ImagePrice4K).
-		SetNillableSoraImagePrice360(groupIn.SoraImagePrice360).
-		SetNillableSoraImagePrice540(groupIn.SoraImagePrice540).
-		SetNillableSoraVideoPricePerRequest(groupIn.SoraVideoPricePerRequest).
-		SetNillableSoraVideoPricePerRequestHd(groupIn.SoraVideoPricePerRequestHD).
-		SetDefaultValidityDays(groupIn.DefaultValidityDays).
-		SetClaudeCodeOnly(groupIn.ClaudeCodeOnly).
-		SetNillableFallbackGroupID(groupIn.FallbackGroupID).
-		SetNillableFallbackGroupIDOnInvalidRequest(groupIn.FallbackGroupIDOnInvalidRequest).
-		SetModelRoutingEnabled(groupIn.ModelRoutingEnabled).
-		SetMcpXMLInject(groupIn.MCPXMLInject).
-		SetSoraStorageQuotaBytes(groupIn.SoraStorageQuotaBytes).
-		SetAllowMessagesDispatch(groupIn.AllowMessagesDispatch).
-		SetRequireOauthOnly(groupIn.RequireOAuthOnly).
-		SetRequirePrivacySet(groupIn.RequirePrivacySet).
-		SetDefaultMappedModel(groupIn.DefaultMappedModel)
-
-	// 设置模型路由配置
-	if groupIn.ModelRouting != nil {
-		builder = builder.SetModelRouting(groupIn.ModelRouting)
-	}
-
-	// 设置支持的模型系列（始终设置，空数组表示不限制）
-	builder = builder.SetSupportedModelScopes(groupIn.SupportedModelScopes)
+		SetDefaultValidityDays(groupIn.DefaultValidityDays)
 
 	created, err := builder.Save(ctx)
 	if err == nil {
 		groupIn.ID = created.ID
 		groupIn.CreatedAt = created.CreatedAt
 		groupIn.UpdatedAt = created.UpdatedAt
-		if err := enqueueSchedulerOutbox(ctx, r.sql, service.SchedulerOutboxEventGroupChanged, nil, &groupIn.ID, nil); err != nil {
-			logger.LegacyPrintf("repository.group", "[SchedulerOutbox] enqueue group create failed: group=%d err=%v", groupIn.ID, err)
-		}
 	}
 	return translatePersistenceError(err, nil, service.ErrGroupExists)
 }
 
 func (r *groupRepository) GetByID(ctx context.Context, id int64) (*service.Group, error) {
-	out, err := r.GetByIDLite(ctx, id)
-	if err != nil {
-		return nil, err
-	}
-	total, active, _ := r.GetAccountCount(ctx, out.ID)
-	out.AccountCount = total
-	out.ActiveAccountCount = active
-	return out, nil
+	return r.GetByIDLite(ctx, id)
 }
 
 func (r *groupRepository) GetByIDLite(ctx context.Context, id int64) (*service.Group, error) {
@@ -111,7 +97,6 @@ func (r *groupRepository) Update(ctx context.Context, groupIn *service.Group) er
 	builder := r.client.Group.UpdateOneID(groupIn.ID).
 		SetName(groupIn.Name).
 		SetDescription(groupIn.Description).
-		SetPlatform(groupIn.Platform).
 		SetRateMultiplier(groupIn.RateMultiplier).
 		SetIsExclusive(groupIn.IsExclusive).
 		SetStatus(groupIn.Status).
@@ -119,22 +104,7 @@ func (r *groupRepository) Update(ctx context.Context, groupIn *service.Group) er
 		SetNillableDailyLimitUsd(groupIn.DailyLimitUSD).
 		SetNillableWeeklyLimitUsd(groupIn.WeeklyLimitUSD).
 		SetNillableMonthlyLimitUsd(groupIn.MonthlyLimitUSD).
-		SetNillableImagePrice1k(groupIn.ImagePrice1K).
-		SetNillableImagePrice2k(groupIn.ImagePrice2K).
-		SetNillableImagePrice4k(groupIn.ImagePrice4K).
-		SetNillableSoraImagePrice360(groupIn.SoraImagePrice360).
-		SetNillableSoraImagePrice540(groupIn.SoraImagePrice540).
-		SetNillableSoraVideoPricePerRequest(groupIn.SoraVideoPricePerRequest).
-		SetNillableSoraVideoPricePerRequestHd(groupIn.SoraVideoPricePerRequestHD).
-		SetDefaultValidityDays(groupIn.DefaultValidityDays).
-		SetClaudeCodeOnly(groupIn.ClaudeCodeOnly).
-		SetModelRoutingEnabled(groupIn.ModelRoutingEnabled).
-		SetMcpXMLInject(groupIn.MCPXMLInject).
-		SetSoraStorageQuotaBytes(groupIn.SoraStorageQuotaBytes).
-		SetAllowMessagesDispatch(groupIn.AllowMessagesDispatch).
-		SetRequireOauthOnly(groupIn.RequireOAuthOnly).
-		SetRequirePrivacySet(groupIn.RequirePrivacySet).
-		SetDefaultMappedModel(groupIn.DefaultMappedModel)
+		SetDefaultValidityDays(groupIn.DefaultValidityDays)
 
 	// 显式处理可空字段：nil 需要 clear，非 nil 需要 set。
 	if groupIn.DailyLimitUSD != nil {
@@ -152,53 +122,12 @@ func (r *groupRepository) Update(ctx context.Context, groupIn *service.Group) er
 	} else {
 		builder = builder.ClearMonthlyLimitUsd()
 	}
-	if groupIn.ImagePrice1K != nil {
-		builder = builder.SetImagePrice1k(*groupIn.ImagePrice1K)
-	} else {
-		builder = builder.ClearImagePrice1k()
-	}
-	if groupIn.ImagePrice2K != nil {
-		builder = builder.SetImagePrice2k(*groupIn.ImagePrice2K)
-	} else {
-		builder = builder.ClearImagePrice2k()
-	}
-	if groupIn.ImagePrice4K != nil {
-		builder = builder.SetImagePrice4k(*groupIn.ImagePrice4K)
-	} else {
-		builder = builder.ClearImagePrice4k()
-	}
-
-	// 处理 FallbackGroupID：nil 时清除，否则设置
-	if groupIn.FallbackGroupID != nil {
-		builder = builder.SetFallbackGroupID(*groupIn.FallbackGroupID)
-	} else {
-		builder = builder.ClearFallbackGroupID()
-	}
-	// 处理 FallbackGroupIDOnInvalidRequest：nil 时清除，否则设置
-	if groupIn.FallbackGroupIDOnInvalidRequest != nil {
-		builder = builder.SetFallbackGroupIDOnInvalidRequest(*groupIn.FallbackGroupIDOnInvalidRequest)
-	} else {
-		builder = builder.ClearFallbackGroupIDOnInvalidRequest()
-	}
-
-	// 处理 ModelRouting：nil 时清除，否则设置
-	if groupIn.ModelRouting != nil {
-		builder = builder.SetModelRouting(groupIn.ModelRouting)
-	} else {
-		builder = builder.ClearModelRouting()
-	}
-
-	// 处理 SupportedModelScopes（始终设置，空数组表示不限制）
-	builder = builder.SetSupportedModelScopes(groupIn.SupportedModelScopes)
 
 	updated, err := builder.Save(ctx)
 	if err != nil {
 		return translatePersistenceError(err, service.ErrGroupNotFound, service.ErrGroupExists)
 	}
 	groupIn.UpdatedAt = updated.UpdatedAt
-	if err := enqueueSchedulerOutbox(ctx, r.sql, service.SchedulerOutboxEventGroupChanged, nil, &groupIn.ID, nil); err != nil {
-		logger.LegacyPrintf("repository.group", "[SchedulerOutbox] enqueue group update failed: group=%d err=%v", groupIn.ID, err)
-	}
 	return nil
 }
 
@@ -207,22 +136,16 @@ func (r *groupRepository) Delete(ctx context.Context, id int64) error {
 	if err != nil {
 		return translatePersistenceError(err, service.ErrGroupNotFound, nil)
 	}
-	if err := enqueueSchedulerOutbox(ctx, r.sql, service.SchedulerOutboxEventGroupChanged, nil, &id, nil); err != nil {
-		logger.LegacyPrintf("repository.group", "[SchedulerOutbox] enqueue group delete failed: group=%d err=%v", id, err)
-	}
 	return nil
 }
 
 func (r *groupRepository) List(ctx context.Context, params pagination.PaginationParams) ([]service.Group, *pagination.PaginationResult, error) {
-	return r.ListWithFilters(ctx, params, "", "", "", nil)
+	return r.ListWithFilters(ctx, params, "", "", nil)
 }
 
-func (r *groupRepository) ListWithFilters(ctx context.Context, params pagination.PaginationParams, platform, status, search string, isExclusive *bool) ([]service.Group, *pagination.PaginationResult, error) {
+func (r *groupRepository) ListWithFilters(ctx context.Context, params pagination.PaginationParams, status, search string, isExclusive *bool) ([]service.Group, *pagination.PaginationResult, error) {
 	q := r.client.Group.Query()
 
-	if platform != "" {
-		q = q.Where(group.PlatformEQ(platform))
-	}
 	if status != "" {
 		q = q.Where(group.StatusEQ(status))
 	}
@@ -250,22 +173,10 @@ func (r *groupRepository) ListWithFilters(ctx context.Context, params pagination
 		return nil, nil, err
 	}
 
-	groupIDs := make([]int64, 0, len(groups))
 	outGroups := make([]service.Group, 0, len(groups))
 	for i := range groups {
 		g := groupEntityToService(groups[i])
 		outGroups = append(outGroups, *g)
-		groupIDs = append(groupIDs, g.ID)
-	}
-
-	counts, err := r.loadAccountCounts(ctx, groupIDs)
-	if err == nil {
-		for i := range outGroups {
-			c := counts[outGroups[i].ID]
-			outGroups[i].AccountCount = c.Total
-			outGroups[i].ActiveAccountCount = c.Active
-			outGroups[i].RateLimitedAccountCount = c.RateLimited
-		}
 	}
 
 	return outGroups, paginationResultFromTotal(int64(total), params), nil
@@ -280,56 +191,15 @@ func (r *groupRepository) ListActive(ctx context.Context) ([]service.Group, erro
 		return nil, err
 	}
 
-	groupIDs := make([]int64, 0, len(groups))
 	outGroups := make([]service.Group, 0, len(groups))
 	for i := range groups {
 		g := groupEntityToService(groups[i])
 		outGroups = append(outGroups, *g)
-		groupIDs = append(groupIDs, g.ID)
-	}
-
-	counts, err := r.loadAccountCounts(ctx, groupIDs)
-	if err == nil {
-		for i := range outGroups {
-			c := counts[outGroups[i].ID]
-			outGroups[i].AccountCount = c.Total
-			outGroups[i].ActiveAccountCount = c.Active
-			outGroups[i].RateLimitedAccountCount = c.RateLimited
-		}
 	}
 
 	return outGroups, nil
 }
 
-func (r *groupRepository) ListActiveByPlatform(ctx context.Context, platform string) ([]service.Group, error) {
-	groups, err := r.client.Group.Query().
-		Where(group.StatusEQ(service.StatusActive), group.PlatformEQ(platform)).
-		Order(dbent.Asc(group.FieldSortOrder), dbent.Asc(group.FieldID)).
-		All(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	groupIDs := make([]int64, 0, len(groups))
-	outGroups := make([]service.Group, 0, len(groups))
-	for i := range groups {
-		g := groupEntityToService(groups[i])
-		outGroups = append(outGroups, *g)
-		groupIDs = append(groupIDs, g.ID)
-	}
-
-	counts, err := r.loadAccountCounts(ctx, groupIDs)
-	if err == nil {
-		for i := range outGroups {
-			c := counts[outGroups[i].ID]
-			outGroups[i].AccountCount = c.Total
-			outGroups[i].ActiveAccountCount = c.Active
-			outGroups[i].RateLimitedAccountCount = c.RateLimited
-		}
-	}
-
-	return outGroups, nil
-}
 
 func (r *groupRepository) ExistsByName(ctx context.Context, name string) (bool, error) {
 	return r.client.Group.Query().Where(group.NameEQ(name)).Exist(ctx)
@@ -381,34 +251,6 @@ func (r *groupRepository) ExistsByIDs(ctx context.Context, ids []int64) (map[int
 		return nil, err
 	}
 	return result, nil
-}
-
-func (r *groupRepository) GetAccountCount(ctx context.Context, groupID int64) (total int64, active int64, err error) {
-	var rateLimited int64
-	err = scanSingleRow(ctx, r.sql,
-		`SELECT COUNT(*),
-			COUNT(*) FILTER (WHERE a.status = 'active' AND a.schedulable = true),
-			COUNT(*) FILTER (WHERE a.status = 'active' AND (
-				a.rate_limit_reset_at > NOW() OR
-				a.overload_until > NOW() OR
-				a.temp_unschedulable_until > NOW()
-			))
-		FROM account_groups ag JOIN accounts a ON a.id = ag.account_id
-		WHERE ag.group_id = $1`,
-		[]any{groupID}, &total, &active, &rateLimited)
-	return
-}
-
-func (r *groupRepository) DeleteAccountGroupsByGroupID(ctx context.Context, groupID int64) (int64, error) {
-	res, err := r.sql.ExecContext(ctx, "DELETE FROM account_groups WHERE group_id = $1", groupID)
-	if err != nil {
-		return 0, err
-	}
-	affected, _ := res.RowsAffected()
-	if err := enqueueSchedulerOutbox(ctx, r.sql, service.SchedulerOutboxEventGroupChanged, nil, &groupID, nil); err != nil {
-		logger.LegacyPrintf("repository.group", "[SchedulerOutbox] enqueue group account clear failed: group=%d err=%v", groupID, err)
-	}
-	return affected, nil
 }
 
 func (r *groupRepository) DeleteCascade(ctx context.Context, id int64) ([]int64, error) {
@@ -484,28 +326,12 @@ func (r *groupRepository) DeleteCascade(ctx context.Context, id int64) ([]int64,
 		}
 	}
 
-	// 2. Clear group_id for api keys bound to this group.
-	// 仅更新未软删除的记录，避免修改已删除数据，保证审计与历史回溯一致性。
-	// 与 APIKeyRepository 的软删除语义保持一致，减少跨模块行为差异。
-	if _, err := txClient.APIKey.Update().
-		Where(apikey.GroupIDEQ(id), apikey.DeletedAtIsNil()).
-		ClearGroupID().
-		Save(ctx); err != nil {
-		return nil, err
-	}
-
-	// 3. Remove the group id from user_allowed_groups join table.
-	// Legacy users.allowed_groups 列已弃用，不再同步。
+	// 2. Remove the group id from user_allowed_groups join table.
 	if _, err := exec.ExecContext(ctx, "DELETE FROM user_allowed_groups WHERE group_id = $1", id); err != nil {
 		return nil, err
 	}
 
-	// 4. Delete account_groups join rows.
-	if _, err := exec.ExecContext(ctx, "DELETE FROM account_groups WHERE group_id = $1", id); err != nil {
-		return nil, err
-	}
-
-	// 5. Soft-delete group itself.
+	// 3. Soft-delete group itself.
 	if _, err := txClient.Group.Delete().Where(group.IDEQ(id)).Exec(ctx); err != nil {
 		return nil, err
 	}
@@ -515,122 +341,8 @@ func (r *groupRepository) DeleteCascade(ctx context.Context, id int64) ([]int64,
 			return nil, err
 		}
 	}
-	if err := enqueueSchedulerOutbox(ctx, r.sql, service.SchedulerOutboxEventGroupChanged, nil, &id, nil); err != nil {
-		logger.LegacyPrintf("repository.group", "[SchedulerOutbox] enqueue group cascade delete failed: group=%d err=%v", id, err)
-	}
 
 	return affectedUserIDs, nil
-}
-
-type groupAccountCounts struct {
-	Total       int64
-	Active      int64
-	RateLimited int64
-}
-
-func (r *groupRepository) loadAccountCounts(ctx context.Context, groupIDs []int64) (counts map[int64]groupAccountCounts, err error) {
-	counts = make(map[int64]groupAccountCounts, len(groupIDs))
-	if len(groupIDs) == 0 {
-		return counts, nil
-	}
-
-	rows, err := r.sql.QueryContext(
-		ctx,
-		`SELECT ag.group_id,
-			COUNT(*) AS total,
-			COUNT(*) FILTER (WHERE a.status = 'active' AND a.schedulable = true) AS active,
-			COUNT(*) FILTER (WHERE a.status = 'active' AND (
-				a.rate_limit_reset_at > NOW() OR
-				a.overload_until > NOW() OR
-				a.temp_unschedulable_until > NOW()
-			)) AS rate_limited
-		FROM account_groups ag
-		JOIN accounts a ON a.id = ag.account_id
-		WHERE ag.group_id = ANY($1)
-		GROUP BY ag.group_id`,
-		pq.Array(groupIDs),
-	)
-	if err != nil {
-		return nil, err
-	}
-	defer func() {
-		if closeErr := rows.Close(); closeErr != nil && err == nil {
-			err = closeErr
-			counts = nil
-		}
-	}()
-
-	for rows.Next() {
-		var groupID int64
-		var c groupAccountCounts
-		if err = rows.Scan(&groupID, &c.Total, &c.Active, &c.RateLimited); err != nil {
-			return nil, err
-		}
-		counts[groupID] = c
-	}
-	if err = rows.Err(); err != nil {
-		return nil, err
-	}
-
-	return counts, nil
-}
-
-// GetAccountIDsByGroupIDs 获取多个分组的所有账号 ID（去重）
-func (r *groupRepository) GetAccountIDsByGroupIDs(ctx context.Context, groupIDs []int64) ([]int64, error) {
-	if len(groupIDs) == 0 {
-		return nil, nil
-	}
-
-	rows, err := r.sql.QueryContext(
-		ctx,
-		"SELECT DISTINCT account_id FROM account_groups WHERE group_id = ANY($1) ORDER BY account_id",
-		pq.Array(groupIDs),
-	)
-	if err != nil {
-		return nil, err
-	}
-	defer func() { _ = rows.Close() }()
-
-	var accountIDs []int64
-	for rows.Next() {
-		var accountID int64
-		if err := rows.Scan(&accountID); err != nil {
-			return nil, err
-		}
-		accountIDs = append(accountIDs, accountID)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-
-	return accountIDs, nil
-}
-
-// BindAccountsToGroup 将多个账号绑定到指定分组（批量插入，忽略已存在的绑定）
-func (r *groupRepository) BindAccountsToGroup(ctx context.Context, groupID int64, accountIDs []int64) error {
-	if len(accountIDs) == 0 {
-		return nil
-	}
-
-	// 使用 INSERT ... ON CONFLICT DO NOTHING 忽略已存在的绑定
-	_, err := r.sql.ExecContext(
-		ctx,
-		`INSERT INTO account_groups (account_id, group_id, priority, created_at)
-		 SELECT unnest($1::bigint[]), $2, 50, NOW()
-		 ON CONFLICT (account_id, group_id) DO NOTHING`,
-		pq.Array(accountIDs),
-		groupID,
-	)
-	if err != nil {
-		return err
-	}
-
-	// 发送调度器事件
-	if err := enqueueSchedulerOutbox(ctx, r.sql, service.SchedulerOutboxEventGroupChanged, nil, &groupID, nil); err != nil {
-		logger.LegacyPrintf("repository.group", "[SchedulerOutbox] enqueue bind accounts to group failed: group=%d err=%v", groupID, err)
-	}
-
-	return nil
 }
 
 // UpdateSortOrders 批量更新分组排序
@@ -701,10 +413,5 @@ func (r *groupRepository) UpdateSortOrders(ctx context.Context, updates []servic
 		return service.ErrGroupNotFound
 	}
 
-	for _, id := range groupIDs {
-		if err := enqueueSchedulerOutbox(ctx, r.sql, service.SchedulerOutboxEventGroupChanged, nil, &id, nil); err != nil {
-			logger.LegacyPrintf("repository.group", "[SchedulerOutbox] enqueue group sort update failed: group=%d err=%v", id, err)
-		}
-	}
 	return nil
 }

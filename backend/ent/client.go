@@ -15,12 +15,8 @@ import (
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"github.com/Wei-Shaw/sub2api/ent/account"
-	"github.com/Wei-Shaw/sub2api/ent/accountgroup"
 	"github.com/Wei-Shaw/sub2api/ent/announcement"
 	"github.com/Wei-Shaw/sub2api/ent/announcementread"
-	"github.com/Wei-Shaw/sub2api/ent/apikey"
-	"github.com/Wei-Shaw/sub2api/ent/errorpassthroughrule"
 	"github.com/Wei-Shaw/sub2api/ent/group"
 	"github.com/Wei-Shaw/sub2api/ent/idempotencyrecord"
 	"github.com/Wei-Shaw/sub2api/ent/paymentauditlog"
@@ -29,14 +25,10 @@ import (
 	"github.com/Wei-Shaw/sub2api/ent/paymentproviderinstance"
 	"github.com/Wei-Shaw/sub2api/ent/promocode"
 	"github.com/Wei-Shaw/sub2api/ent/promocodeusage"
-	"github.com/Wei-Shaw/sub2api/ent/proxy"
 	"github.com/Wei-Shaw/sub2api/ent/redeemcode"
 	"github.com/Wei-Shaw/sub2api/ent/securitysecret"
 	"github.com/Wei-Shaw/sub2api/ent/setting"
 	"github.com/Wei-Shaw/sub2api/ent/subscriptionplan"
-	"github.com/Wei-Shaw/sub2api/ent/tlsfingerprintprofile"
-	"github.com/Wei-Shaw/sub2api/ent/usagecleanuptask"
-	"github.com/Wei-Shaw/sub2api/ent/usagelog"
 	"github.com/Wei-Shaw/sub2api/ent/user"
 	"github.com/Wei-Shaw/sub2api/ent/userallowedgroup"
 	"github.com/Wei-Shaw/sub2api/ent/userattributedefinition"
@@ -51,18 +43,10 @@ type Client struct {
 	config
 	// Schema is the client for creating, migrating and dropping schema.
 	Schema *migrate.Schema
-	// APIKey is the client for interacting with the APIKey builders.
-	APIKey *APIKeyClient
-	// Account is the client for interacting with the Account builders.
-	Account *AccountClient
-	// AccountGroup is the client for interacting with the AccountGroup builders.
-	AccountGroup *AccountGroupClient
 	// Announcement is the client for interacting with the Announcement builders.
 	Announcement *AnnouncementClient
 	// AnnouncementRead is the client for interacting with the AnnouncementRead builders.
 	AnnouncementRead *AnnouncementReadClient
-	// ErrorPassthroughRule is the client for interacting with the ErrorPassthroughRule builders.
-	ErrorPassthroughRule *ErrorPassthroughRuleClient
 	// Group is the client for interacting with the Group builders.
 	Group *GroupClient
 	// IdempotencyRecord is the client for interacting with the IdempotencyRecord builders.
@@ -79,8 +63,6 @@ type Client struct {
 	PromoCode *PromoCodeClient
 	// PromoCodeUsage is the client for interacting with the PromoCodeUsage builders.
 	PromoCodeUsage *PromoCodeUsageClient
-	// Proxy is the client for interacting with the Proxy builders.
-	Proxy *ProxyClient
 	// RedeemCode is the client for interacting with the RedeemCode builders.
 	RedeemCode *RedeemCodeClient
 	// SecuritySecret is the client for interacting with the SecuritySecret builders.
@@ -89,12 +71,6 @@ type Client struct {
 	Setting *SettingClient
 	// SubscriptionPlan is the client for interacting with the SubscriptionPlan builders.
 	SubscriptionPlan *SubscriptionPlanClient
-	// TLSFingerprintProfile is the client for interacting with the TLSFingerprintProfile builders.
-	TLSFingerprintProfile *TLSFingerprintProfileClient
-	// UsageCleanupTask is the client for interacting with the UsageCleanupTask builders.
-	UsageCleanupTask *UsageCleanupTaskClient
-	// UsageLog is the client for interacting with the UsageLog builders.
-	UsageLog *UsageLogClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
 	// UserAllowedGroup is the client for interacting with the UserAllowedGroup builders.
@@ -116,12 +92,8 @@ func NewClient(opts ...Option) *Client {
 
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
-	c.APIKey = NewAPIKeyClient(c.config)
-	c.Account = NewAccountClient(c.config)
-	c.AccountGroup = NewAccountGroupClient(c.config)
 	c.Announcement = NewAnnouncementClient(c.config)
 	c.AnnouncementRead = NewAnnouncementReadClient(c.config)
-	c.ErrorPassthroughRule = NewErrorPassthroughRuleClient(c.config)
 	c.Group = NewGroupClient(c.config)
 	c.IdempotencyRecord = NewIdempotencyRecordClient(c.config)
 	c.PaymentAuditLog = NewPaymentAuditLogClient(c.config)
@@ -130,14 +102,10 @@ func (c *Client) init() {
 	c.PaymentProviderInstance = NewPaymentProviderInstanceClient(c.config)
 	c.PromoCode = NewPromoCodeClient(c.config)
 	c.PromoCodeUsage = NewPromoCodeUsageClient(c.config)
-	c.Proxy = NewProxyClient(c.config)
 	c.RedeemCode = NewRedeemCodeClient(c.config)
 	c.SecuritySecret = NewSecuritySecretClient(c.config)
 	c.Setting = NewSettingClient(c.config)
 	c.SubscriptionPlan = NewSubscriptionPlanClient(c.config)
-	c.TLSFingerprintProfile = NewTLSFingerprintProfileClient(c.config)
-	c.UsageCleanupTask = NewUsageCleanupTaskClient(c.config)
-	c.UsageLog = NewUsageLogClient(c.config)
 	c.User = NewUserClient(c.config)
 	c.UserAllowedGroup = NewUserAllowedGroupClient(c.config)
 	c.UserAttributeDefinition = NewUserAttributeDefinitionClient(c.config)
@@ -235,12 +203,8 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	return &Tx{
 		ctx:                     ctx,
 		config:                  cfg,
-		APIKey:                  NewAPIKeyClient(cfg),
-		Account:                 NewAccountClient(cfg),
-		AccountGroup:            NewAccountGroupClient(cfg),
 		Announcement:            NewAnnouncementClient(cfg),
 		AnnouncementRead:        NewAnnouncementReadClient(cfg),
-		ErrorPassthroughRule:    NewErrorPassthroughRuleClient(cfg),
 		Group:                   NewGroupClient(cfg),
 		IdempotencyRecord:       NewIdempotencyRecordClient(cfg),
 		PaymentAuditLog:         NewPaymentAuditLogClient(cfg),
@@ -249,14 +213,10 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		PaymentProviderInstance: NewPaymentProviderInstanceClient(cfg),
 		PromoCode:               NewPromoCodeClient(cfg),
 		PromoCodeUsage:          NewPromoCodeUsageClient(cfg),
-		Proxy:                   NewProxyClient(cfg),
 		RedeemCode:              NewRedeemCodeClient(cfg),
 		SecuritySecret:          NewSecuritySecretClient(cfg),
 		Setting:                 NewSettingClient(cfg),
 		SubscriptionPlan:        NewSubscriptionPlanClient(cfg),
-		TLSFingerprintProfile:   NewTLSFingerprintProfileClient(cfg),
-		UsageCleanupTask:        NewUsageCleanupTaskClient(cfg),
-		UsageLog:                NewUsageLogClient(cfg),
 		User:                    NewUserClient(cfg),
 		UserAllowedGroup:        NewUserAllowedGroupClient(cfg),
 		UserAttributeDefinition: NewUserAttributeDefinitionClient(cfg),
@@ -281,12 +241,8 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	return &Tx{
 		ctx:                     ctx,
 		config:                  cfg,
-		APIKey:                  NewAPIKeyClient(cfg),
-		Account:                 NewAccountClient(cfg),
-		AccountGroup:            NewAccountGroupClient(cfg),
 		Announcement:            NewAnnouncementClient(cfg),
 		AnnouncementRead:        NewAnnouncementReadClient(cfg),
-		ErrorPassthroughRule:    NewErrorPassthroughRuleClient(cfg),
 		Group:                   NewGroupClient(cfg),
 		IdempotencyRecord:       NewIdempotencyRecordClient(cfg),
 		PaymentAuditLog:         NewPaymentAuditLogClient(cfg),
@@ -295,14 +251,10 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		PaymentProviderInstance: NewPaymentProviderInstanceClient(cfg),
 		PromoCode:               NewPromoCodeClient(cfg),
 		PromoCodeUsage:          NewPromoCodeUsageClient(cfg),
-		Proxy:                   NewProxyClient(cfg),
 		RedeemCode:              NewRedeemCodeClient(cfg),
 		SecuritySecret:          NewSecuritySecretClient(cfg),
 		Setting:                 NewSettingClient(cfg),
 		SubscriptionPlan:        NewSubscriptionPlanClient(cfg),
-		TLSFingerprintProfile:   NewTLSFingerprintProfileClient(cfg),
-		UsageCleanupTask:        NewUsageCleanupTaskClient(cfg),
-		UsageLog:                NewUsageLogClient(cfg),
 		User:                    NewUserClient(cfg),
 		UserAllowedGroup:        NewUserAllowedGroupClient(cfg),
 		UserAttributeDefinition: NewUserAttributeDefinitionClient(cfg),
@@ -314,7 +266,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 // Debug returns a new debug-client. It's used to get verbose logging on specific operations.
 //
 //	client.Debug().
-//		APIKey.
+//		Announcement.
 //		Query().
 //		Count(ctx)
 func (c *Client) Debug() *Client {
@@ -337,13 +289,11 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
-		c.APIKey, c.Account, c.AccountGroup, c.Announcement, c.AnnouncementRead,
-		c.ErrorPassthroughRule, c.Group, c.IdempotencyRecord, c.PaymentAuditLog,
-		c.PaymentChannel, c.PaymentOrder, c.PaymentProviderInstance, c.PromoCode,
-		c.PromoCodeUsage, c.Proxy, c.RedeemCode, c.SecuritySecret, c.Setting,
-		c.SubscriptionPlan, c.TLSFingerprintProfile, c.UsageCleanupTask, c.UsageLog,
-		c.User, c.UserAllowedGroup, c.UserAttributeDefinition, c.UserAttributeValue,
-		c.UserSubscription,
+		c.Announcement, c.AnnouncementRead, c.Group, c.IdempotencyRecord,
+		c.PaymentAuditLog, c.PaymentChannel, c.PaymentOrder, c.PaymentProviderInstance,
+		c.PromoCode, c.PromoCodeUsage, c.RedeemCode, c.SecuritySecret, c.Setting,
+		c.SubscriptionPlan, c.User, c.UserAllowedGroup, c.UserAttributeDefinition,
+		c.UserAttributeValue, c.UserSubscription,
 	} {
 		n.Use(hooks...)
 	}
@@ -353,13 +303,11 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
-		c.APIKey, c.Account, c.AccountGroup, c.Announcement, c.AnnouncementRead,
-		c.ErrorPassthroughRule, c.Group, c.IdempotencyRecord, c.PaymentAuditLog,
-		c.PaymentChannel, c.PaymentOrder, c.PaymentProviderInstance, c.PromoCode,
-		c.PromoCodeUsage, c.Proxy, c.RedeemCode, c.SecuritySecret, c.Setting,
-		c.SubscriptionPlan, c.TLSFingerprintProfile, c.UsageCleanupTask, c.UsageLog,
-		c.User, c.UserAllowedGroup, c.UserAttributeDefinition, c.UserAttributeValue,
-		c.UserSubscription,
+		c.Announcement, c.AnnouncementRead, c.Group, c.IdempotencyRecord,
+		c.PaymentAuditLog, c.PaymentChannel, c.PaymentOrder, c.PaymentProviderInstance,
+		c.PromoCode, c.PromoCodeUsage, c.RedeemCode, c.SecuritySecret, c.Setting,
+		c.SubscriptionPlan, c.User, c.UserAllowedGroup, c.UserAttributeDefinition,
+		c.UserAttributeValue, c.UserSubscription,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -368,18 +316,10 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 // Mutate implements the ent.Mutator interface.
 func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
-	case *APIKeyMutation:
-		return c.APIKey.mutate(ctx, m)
-	case *AccountMutation:
-		return c.Account.mutate(ctx, m)
-	case *AccountGroupMutation:
-		return c.AccountGroup.mutate(ctx, m)
 	case *AnnouncementMutation:
 		return c.Announcement.mutate(ctx, m)
 	case *AnnouncementReadMutation:
 		return c.AnnouncementRead.mutate(ctx, m)
-	case *ErrorPassthroughRuleMutation:
-		return c.ErrorPassthroughRule.mutate(ctx, m)
 	case *GroupMutation:
 		return c.Group.mutate(ctx, m)
 	case *IdempotencyRecordMutation:
@@ -396,8 +336,6 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.PromoCode.mutate(ctx, m)
 	case *PromoCodeUsageMutation:
 		return c.PromoCodeUsage.mutate(ctx, m)
-	case *ProxyMutation:
-		return c.Proxy.mutate(ctx, m)
 	case *RedeemCodeMutation:
 		return c.RedeemCode.mutate(ctx, m)
 	case *SecuritySecretMutation:
@@ -406,12 +344,6 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Setting.mutate(ctx, m)
 	case *SubscriptionPlanMutation:
 		return c.SubscriptionPlan.mutate(ctx, m)
-	case *TLSFingerprintProfileMutation:
-		return c.TLSFingerprintProfile.mutate(ctx, m)
-	case *UsageCleanupTaskMutation:
-		return c.UsageCleanupTask.mutate(ctx, m)
-	case *UsageLogMutation:
-		return c.UsageLog.mutate(ctx, m)
 	case *UserMutation:
 		return c.User.mutate(ctx, m)
 	case *UserAllowedGroupMutation:
@@ -424,504 +356,6 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.UserSubscription.mutate(ctx, m)
 	default:
 		return nil, fmt.Errorf("ent: unknown mutation type %T", m)
-	}
-}
-
-// APIKeyClient is a client for the APIKey schema.
-type APIKeyClient struct {
-	config
-}
-
-// NewAPIKeyClient returns a client for the APIKey from the given config.
-func NewAPIKeyClient(c config) *APIKeyClient {
-	return &APIKeyClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `apikey.Hooks(f(g(h())))`.
-func (c *APIKeyClient) Use(hooks ...Hook) {
-	c.hooks.APIKey = append(c.hooks.APIKey, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `apikey.Intercept(f(g(h())))`.
-func (c *APIKeyClient) Intercept(interceptors ...Interceptor) {
-	c.inters.APIKey = append(c.inters.APIKey, interceptors...)
-}
-
-// Create returns a builder for creating a APIKey entity.
-func (c *APIKeyClient) Create() *APIKeyCreate {
-	mutation := newAPIKeyMutation(c.config, OpCreate)
-	return &APIKeyCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of APIKey entities.
-func (c *APIKeyClient) CreateBulk(builders ...*APIKeyCreate) *APIKeyCreateBulk {
-	return &APIKeyCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *APIKeyClient) MapCreateBulk(slice any, setFunc func(*APIKeyCreate, int)) *APIKeyCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &APIKeyCreateBulk{err: fmt.Errorf("calling to APIKeyClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*APIKeyCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &APIKeyCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for APIKey.
-func (c *APIKeyClient) Update() *APIKeyUpdate {
-	mutation := newAPIKeyMutation(c.config, OpUpdate)
-	return &APIKeyUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *APIKeyClient) UpdateOne(_m *APIKey) *APIKeyUpdateOne {
-	mutation := newAPIKeyMutation(c.config, OpUpdateOne, withAPIKey(_m))
-	return &APIKeyUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *APIKeyClient) UpdateOneID(id int64) *APIKeyUpdateOne {
-	mutation := newAPIKeyMutation(c.config, OpUpdateOne, withAPIKeyID(id))
-	return &APIKeyUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for APIKey.
-func (c *APIKeyClient) Delete() *APIKeyDelete {
-	mutation := newAPIKeyMutation(c.config, OpDelete)
-	return &APIKeyDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *APIKeyClient) DeleteOne(_m *APIKey) *APIKeyDeleteOne {
-	return c.DeleteOneID(_m.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *APIKeyClient) DeleteOneID(id int64) *APIKeyDeleteOne {
-	builder := c.Delete().Where(apikey.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &APIKeyDeleteOne{builder}
-}
-
-// Query returns a query builder for APIKey.
-func (c *APIKeyClient) Query() *APIKeyQuery {
-	return &APIKeyQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeAPIKey},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a APIKey entity by its id.
-func (c *APIKeyClient) Get(ctx context.Context, id int64) (*APIKey, error) {
-	return c.Query().Where(apikey.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *APIKeyClient) GetX(ctx context.Context, id int64) *APIKey {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QueryUser queries the user edge of a APIKey.
-func (c *APIKeyClient) QueryUser(_m *APIKey) *UserQuery {
-	query := (&UserClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := _m.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(apikey.Table, apikey.FieldID, id),
-			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, apikey.UserTable, apikey.UserColumn),
-		)
-		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryGroup queries the group edge of a APIKey.
-func (c *APIKeyClient) QueryGroup(_m *APIKey) *GroupQuery {
-	query := (&GroupClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := _m.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(apikey.Table, apikey.FieldID, id),
-			sqlgraph.To(group.Table, group.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, apikey.GroupTable, apikey.GroupColumn),
-		)
-		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryUsageLogs queries the usage_logs edge of a APIKey.
-func (c *APIKeyClient) QueryUsageLogs(_m *APIKey) *UsageLogQuery {
-	query := (&UsageLogClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := _m.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(apikey.Table, apikey.FieldID, id),
-			sqlgraph.To(usagelog.Table, usagelog.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, apikey.UsageLogsTable, apikey.UsageLogsColumn),
-		)
-		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *APIKeyClient) Hooks() []Hook {
-	hooks := c.hooks.APIKey
-	return append(hooks[:len(hooks):len(hooks)], apikey.Hooks[:]...)
-}
-
-// Interceptors returns the client interceptors.
-func (c *APIKeyClient) Interceptors() []Interceptor {
-	inters := c.inters.APIKey
-	return append(inters[:len(inters):len(inters)], apikey.Interceptors[:]...)
-}
-
-func (c *APIKeyClient) mutate(ctx context.Context, m *APIKeyMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&APIKeyCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&APIKeyUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&APIKeyUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&APIKeyDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown APIKey mutation op: %q", m.Op())
-	}
-}
-
-// AccountClient is a client for the Account schema.
-type AccountClient struct {
-	config
-}
-
-// NewAccountClient returns a client for the Account from the given config.
-func NewAccountClient(c config) *AccountClient {
-	return &AccountClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `account.Hooks(f(g(h())))`.
-func (c *AccountClient) Use(hooks ...Hook) {
-	c.hooks.Account = append(c.hooks.Account, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `account.Intercept(f(g(h())))`.
-func (c *AccountClient) Intercept(interceptors ...Interceptor) {
-	c.inters.Account = append(c.inters.Account, interceptors...)
-}
-
-// Create returns a builder for creating a Account entity.
-func (c *AccountClient) Create() *AccountCreate {
-	mutation := newAccountMutation(c.config, OpCreate)
-	return &AccountCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of Account entities.
-func (c *AccountClient) CreateBulk(builders ...*AccountCreate) *AccountCreateBulk {
-	return &AccountCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *AccountClient) MapCreateBulk(slice any, setFunc func(*AccountCreate, int)) *AccountCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &AccountCreateBulk{err: fmt.Errorf("calling to AccountClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*AccountCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &AccountCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for Account.
-func (c *AccountClient) Update() *AccountUpdate {
-	mutation := newAccountMutation(c.config, OpUpdate)
-	return &AccountUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *AccountClient) UpdateOne(_m *Account) *AccountUpdateOne {
-	mutation := newAccountMutation(c.config, OpUpdateOne, withAccount(_m))
-	return &AccountUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *AccountClient) UpdateOneID(id int64) *AccountUpdateOne {
-	mutation := newAccountMutation(c.config, OpUpdateOne, withAccountID(id))
-	return &AccountUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for Account.
-func (c *AccountClient) Delete() *AccountDelete {
-	mutation := newAccountMutation(c.config, OpDelete)
-	return &AccountDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *AccountClient) DeleteOne(_m *Account) *AccountDeleteOne {
-	return c.DeleteOneID(_m.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *AccountClient) DeleteOneID(id int64) *AccountDeleteOne {
-	builder := c.Delete().Where(account.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &AccountDeleteOne{builder}
-}
-
-// Query returns a query builder for Account.
-func (c *AccountClient) Query() *AccountQuery {
-	return &AccountQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeAccount},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a Account entity by its id.
-func (c *AccountClient) Get(ctx context.Context, id int64) (*Account, error) {
-	return c.Query().Where(account.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *AccountClient) GetX(ctx context.Context, id int64) *Account {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QueryGroups queries the groups edge of a Account.
-func (c *AccountClient) QueryGroups(_m *Account) *GroupQuery {
-	query := (&GroupClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := _m.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(account.Table, account.FieldID, id),
-			sqlgraph.To(group.Table, group.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, account.GroupsTable, account.GroupsPrimaryKey...),
-		)
-		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryProxy queries the proxy edge of a Account.
-func (c *AccountClient) QueryProxy(_m *Account) *ProxyQuery {
-	query := (&ProxyClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := _m.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(account.Table, account.FieldID, id),
-			sqlgraph.To(proxy.Table, proxy.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, account.ProxyTable, account.ProxyColumn),
-		)
-		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryUsageLogs queries the usage_logs edge of a Account.
-func (c *AccountClient) QueryUsageLogs(_m *Account) *UsageLogQuery {
-	query := (&UsageLogClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := _m.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(account.Table, account.FieldID, id),
-			sqlgraph.To(usagelog.Table, usagelog.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, account.UsageLogsTable, account.UsageLogsColumn),
-		)
-		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryAccountGroups queries the account_groups edge of a Account.
-func (c *AccountClient) QueryAccountGroups(_m *Account) *AccountGroupQuery {
-	query := (&AccountGroupClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := _m.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(account.Table, account.FieldID, id),
-			sqlgraph.To(accountgroup.Table, accountgroup.AccountColumn),
-			sqlgraph.Edge(sqlgraph.O2M, true, account.AccountGroupsTable, account.AccountGroupsColumn),
-		)
-		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *AccountClient) Hooks() []Hook {
-	hooks := c.hooks.Account
-	return append(hooks[:len(hooks):len(hooks)], account.Hooks[:]...)
-}
-
-// Interceptors returns the client interceptors.
-func (c *AccountClient) Interceptors() []Interceptor {
-	inters := c.inters.Account
-	return append(inters[:len(inters):len(inters)], account.Interceptors[:]...)
-}
-
-func (c *AccountClient) mutate(ctx context.Context, m *AccountMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&AccountCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&AccountUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&AccountUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&AccountDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown Account mutation op: %q", m.Op())
-	}
-}
-
-// AccountGroupClient is a client for the AccountGroup schema.
-type AccountGroupClient struct {
-	config
-}
-
-// NewAccountGroupClient returns a client for the AccountGroup from the given config.
-func NewAccountGroupClient(c config) *AccountGroupClient {
-	return &AccountGroupClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `accountgroup.Hooks(f(g(h())))`.
-func (c *AccountGroupClient) Use(hooks ...Hook) {
-	c.hooks.AccountGroup = append(c.hooks.AccountGroup, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `accountgroup.Intercept(f(g(h())))`.
-func (c *AccountGroupClient) Intercept(interceptors ...Interceptor) {
-	c.inters.AccountGroup = append(c.inters.AccountGroup, interceptors...)
-}
-
-// Create returns a builder for creating a AccountGroup entity.
-func (c *AccountGroupClient) Create() *AccountGroupCreate {
-	mutation := newAccountGroupMutation(c.config, OpCreate)
-	return &AccountGroupCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of AccountGroup entities.
-func (c *AccountGroupClient) CreateBulk(builders ...*AccountGroupCreate) *AccountGroupCreateBulk {
-	return &AccountGroupCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *AccountGroupClient) MapCreateBulk(slice any, setFunc func(*AccountGroupCreate, int)) *AccountGroupCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &AccountGroupCreateBulk{err: fmt.Errorf("calling to AccountGroupClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*AccountGroupCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &AccountGroupCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for AccountGroup.
-func (c *AccountGroupClient) Update() *AccountGroupUpdate {
-	mutation := newAccountGroupMutation(c.config, OpUpdate)
-	return &AccountGroupUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *AccountGroupClient) UpdateOne(_m *AccountGroup) *AccountGroupUpdateOne {
-	mutation := newAccountGroupMutation(c.config, OpUpdateOne)
-	mutation.account = &_m.AccountID
-	mutation.group = &_m.GroupID
-	return &AccountGroupUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for AccountGroup.
-func (c *AccountGroupClient) Delete() *AccountGroupDelete {
-	mutation := newAccountGroupMutation(c.config, OpDelete)
-	return &AccountGroupDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Query returns a query builder for AccountGroup.
-func (c *AccountGroupClient) Query() *AccountGroupQuery {
-	return &AccountGroupQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeAccountGroup},
-		inters: c.Interceptors(),
-	}
-}
-
-// QueryAccount queries the account edge of a AccountGroup.
-func (c *AccountGroupClient) QueryAccount(_m *AccountGroup) *AccountQuery {
-	return c.Query().
-		Where(accountgroup.AccountID(_m.AccountID), accountgroup.GroupID(_m.GroupID)).
-		QueryAccount()
-}
-
-// QueryGroup queries the group edge of a AccountGroup.
-func (c *AccountGroupClient) QueryGroup(_m *AccountGroup) *GroupQuery {
-	return c.Query().
-		Where(accountgroup.AccountID(_m.AccountID), accountgroup.GroupID(_m.GroupID)).
-		QueryGroup()
-}
-
-// Hooks returns the client hooks.
-func (c *AccountGroupClient) Hooks() []Hook {
-	return c.hooks.AccountGroup
-}
-
-// Interceptors returns the client interceptors.
-func (c *AccountGroupClient) Interceptors() []Interceptor {
-	return c.inters.AccountGroup
-}
-
-func (c *AccountGroupClient) mutate(ctx context.Context, m *AccountGroupMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&AccountGroupCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&AccountGroupUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&AccountGroupUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&AccountGroupDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown AccountGroup mutation op: %q", m.Op())
 	}
 }
 
@@ -1239,139 +673,6 @@ func (c *AnnouncementReadClient) mutate(ctx context.Context, m *AnnouncementRead
 	}
 }
 
-// ErrorPassthroughRuleClient is a client for the ErrorPassthroughRule schema.
-type ErrorPassthroughRuleClient struct {
-	config
-}
-
-// NewErrorPassthroughRuleClient returns a client for the ErrorPassthroughRule from the given config.
-func NewErrorPassthroughRuleClient(c config) *ErrorPassthroughRuleClient {
-	return &ErrorPassthroughRuleClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `errorpassthroughrule.Hooks(f(g(h())))`.
-func (c *ErrorPassthroughRuleClient) Use(hooks ...Hook) {
-	c.hooks.ErrorPassthroughRule = append(c.hooks.ErrorPassthroughRule, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `errorpassthroughrule.Intercept(f(g(h())))`.
-func (c *ErrorPassthroughRuleClient) Intercept(interceptors ...Interceptor) {
-	c.inters.ErrorPassthroughRule = append(c.inters.ErrorPassthroughRule, interceptors...)
-}
-
-// Create returns a builder for creating a ErrorPassthroughRule entity.
-func (c *ErrorPassthroughRuleClient) Create() *ErrorPassthroughRuleCreate {
-	mutation := newErrorPassthroughRuleMutation(c.config, OpCreate)
-	return &ErrorPassthroughRuleCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of ErrorPassthroughRule entities.
-func (c *ErrorPassthroughRuleClient) CreateBulk(builders ...*ErrorPassthroughRuleCreate) *ErrorPassthroughRuleCreateBulk {
-	return &ErrorPassthroughRuleCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *ErrorPassthroughRuleClient) MapCreateBulk(slice any, setFunc func(*ErrorPassthroughRuleCreate, int)) *ErrorPassthroughRuleCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &ErrorPassthroughRuleCreateBulk{err: fmt.Errorf("calling to ErrorPassthroughRuleClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*ErrorPassthroughRuleCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &ErrorPassthroughRuleCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for ErrorPassthroughRule.
-func (c *ErrorPassthroughRuleClient) Update() *ErrorPassthroughRuleUpdate {
-	mutation := newErrorPassthroughRuleMutation(c.config, OpUpdate)
-	return &ErrorPassthroughRuleUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *ErrorPassthroughRuleClient) UpdateOne(_m *ErrorPassthroughRule) *ErrorPassthroughRuleUpdateOne {
-	mutation := newErrorPassthroughRuleMutation(c.config, OpUpdateOne, withErrorPassthroughRule(_m))
-	return &ErrorPassthroughRuleUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *ErrorPassthroughRuleClient) UpdateOneID(id int64) *ErrorPassthroughRuleUpdateOne {
-	mutation := newErrorPassthroughRuleMutation(c.config, OpUpdateOne, withErrorPassthroughRuleID(id))
-	return &ErrorPassthroughRuleUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for ErrorPassthroughRule.
-func (c *ErrorPassthroughRuleClient) Delete() *ErrorPassthroughRuleDelete {
-	mutation := newErrorPassthroughRuleMutation(c.config, OpDelete)
-	return &ErrorPassthroughRuleDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *ErrorPassthroughRuleClient) DeleteOne(_m *ErrorPassthroughRule) *ErrorPassthroughRuleDeleteOne {
-	return c.DeleteOneID(_m.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *ErrorPassthroughRuleClient) DeleteOneID(id int64) *ErrorPassthroughRuleDeleteOne {
-	builder := c.Delete().Where(errorpassthroughrule.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &ErrorPassthroughRuleDeleteOne{builder}
-}
-
-// Query returns a query builder for ErrorPassthroughRule.
-func (c *ErrorPassthroughRuleClient) Query() *ErrorPassthroughRuleQuery {
-	return &ErrorPassthroughRuleQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeErrorPassthroughRule},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a ErrorPassthroughRule entity by its id.
-func (c *ErrorPassthroughRuleClient) Get(ctx context.Context, id int64) (*ErrorPassthroughRule, error) {
-	return c.Query().Where(errorpassthroughrule.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *ErrorPassthroughRuleClient) GetX(ctx context.Context, id int64) *ErrorPassthroughRule {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// Hooks returns the client hooks.
-func (c *ErrorPassthroughRuleClient) Hooks() []Hook {
-	return c.hooks.ErrorPassthroughRule
-}
-
-// Interceptors returns the client interceptors.
-func (c *ErrorPassthroughRuleClient) Interceptors() []Interceptor {
-	return c.inters.ErrorPassthroughRule
-}
-
-func (c *ErrorPassthroughRuleClient) mutate(ctx context.Context, m *ErrorPassthroughRuleMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&ErrorPassthroughRuleCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&ErrorPassthroughRuleUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&ErrorPassthroughRuleUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&ErrorPassthroughRuleDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown ErrorPassthroughRule mutation op: %q", m.Op())
-	}
-}
-
 // GroupClient is a client for the Group schema.
 type GroupClient struct {
 	config
@@ -1480,22 +781,6 @@ func (c *GroupClient) GetX(ctx context.Context, id int64) *Group {
 	return obj
 }
 
-// QueryAPIKeys queries the api_keys edge of a Group.
-func (c *GroupClient) QueryAPIKeys(_m *Group) *APIKeyQuery {
-	query := (&APIKeyClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := _m.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(group.Table, group.FieldID, id),
-			sqlgraph.To(apikey.Table, apikey.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, group.APIKeysTable, group.APIKeysColumn),
-		)
-		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // QueryRedeemCodes queries the redeem_codes edge of a Group.
 func (c *GroupClient) QueryRedeemCodes(_m *Group) *RedeemCodeQuery {
 	query := (&RedeemCodeClient{config: c.config}).Query()
@@ -1521,38 +806,6 @@ func (c *GroupClient) QuerySubscriptions(_m *Group) *UserSubscriptionQuery {
 			sqlgraph.From(group.Table, group.FieldID, id),
 			sqlgraph.To(usersubscription.Table, usersubscription.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, group.SubscriptionsTable, group.SubscriptionsColumn),
-		)
-		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryUsageLogs queries the usage_logs edge of a Group.
-func (c *GroupClient) QueryUsageLogs(_m *Group) *UsageLogQuery {
-	query := (&UsageLogClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := _m.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(group.Table, group.FieldID, id),
-			sqlgraph.To(usagelog.Table, usagelog.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, group.UsageLogsTable, group.UsageLogsColumn),
-		)
-		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryAccounts queries the accounts edge of a Group.
-func (c *GroupClient) QueryAccounts(_m *Group) *AccountQuery {
-	query := (&AccountClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := _m.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(group.Table, group.FieldID, id),
-			sqlgraph.To(account.Table, account.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, group.AccountsTable, group.AccountsPrimaryKey...),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
@@ -1601,22 +854,6 @@ func (c *GroupClient) QueryPaymentChannels(_m *Group) *PaymentChannelQuery {
 			sqlgraph.From(group.Table, group.FieldID, id),
 			sqlgraph.To(paymentchannel.Table, paymentchannel.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, group.PaymentChannelsTable, group.PaymentChannelsColumn),
-		)
-		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryAccountGroups queries the account_groups edge of a Group.
-func (c *GroupClient) QueryAccountGroups(_m *Group) *AccountGroupQuery {
-	query := (&AccountGroupClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := _m.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(group.Table, group.FieldID, id),
-			sqlgraph.To(accountgroup.Table, accountgroup.GroupColumn),
-			sqlgraph.Edge(sqlgraph.O2M, true, group.AccountGroupsTable, group.AccountGroupsColumn),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
@@ -2758,157 +1995,6 @@ func (c *PromoCodeUsageClient) mutate(ctx context.Context, m *PromoCodeUsageMuta
 	}
 }
 
-// ProxyClient is a client for the Proxy schema.
-type ProxyClient struct {
-	config
-}
-
-// NewProxyClient returns a client for the Proxy from the given config.
-func NewProxyClient(c config) *ProxyClient {
-	return &ProxyClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `proxy.Hooks(f(g(h())))`.
-func (c *ProxyClient) Use(hooks ...Hook) {
-	c.hooks.Proxy = append(c.hooks.Proxy, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `proxy.Intercept(f(g(h())))`.
-func (c *ProxyClient) Intercept(interceptors ...Interceptor) {
-	c.inters.Proxy = append(c.inters.Proxy, interceptors...)
-}
-
-// Create returns a builder for creating a Proxy entity.
-func (c *ProxyClient) Create() *ProxyCreate {
-	mutation := newProxyMutation(c.config, OpCreate)
-	return &ProxyCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of Proxy entities.
-func (c *ProxyClient) CreateBulk(builders ...*ProxyCreate) *ProxyCreateBulk {
-	return &ProxyCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *ProxyClient) MapCreateBulk(slice any, setFunc func(*ProxyCreate, int)) *ProxyCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &ProxyCreateBulk{err: fmt.Errorf("calling to ProxyClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*ProxyCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &ProxyCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for Proxy.
-func (c *ProxyClient) Update() *ProxyUpdate {
-	mutation := newProxyMutation(c.config, OpUpdate)
-	return &ProxyUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *ProxyClient) UpdateOne(_m *Proxy) *ProxyUpdateOne {
-	mutation := newProxyMutation(c.config, OpUpdateOne, withProxy(_m))
-	return &ProxyUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *ProxyClient) UpdateOneID(id int64) *ProxyUpdateOne {
-	mutation := newProxyMutation(c.config, OpUpdateOne, withProxyID(id))
-	return &ProxyUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for Proxy.
-func (c *ProxyClient) Delete() *ProxyDelete {
-	mutation := newProxyMutation(c.config, OpDelete)
-	return &ProxyDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *ProxyClient) DeleteOne(_m *Proxy) *ProxyDeleteOne {
-	return c.DeleteOneID(_m.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *ProxyClient) DeleteOneID(id int64) *ProxyDeleteOne {
-	builder := c.Delete().Where(proxy.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &ProxyDeleteOne{builder}
-}
-
-// Query returns a query builder for Proxy.
-func (c *ProxyClient) Query() *ProxyQuery {
-	return &ProxyQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeProxy},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a Proxy entity by its id.
-func (c *ProxyClient) Get(ctx context.Context, id int64) (*Proxy, error) {
-	return c.Query().Where(proxy.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *ProxyClient) GetX(ctx context.Context, id int64) *Proxy {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QueryAccounts queries the accounts edge of a Proxy.
-func (c *ProxyClient) QueryAccounts(_m *Proxy) *AccountQuery {
-	query := (&AccountClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := _m.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(proxy.Table, proxy.FieldID, id),
-			sqlgraph.To(account.Table, account.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, true, proxy.AccountsTable, proxy.AccountsColumn),
-		)
-		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *ProxyClient) Hooks() []Hook {
-	hooks := c.hooks.Proxy
-	return append(hooks[:len(hooks):len(hooks)], proxy.Hooks[:]...)
-}
-
-// Interceptors returns the client interceptors.
-func (c *ProxyClient) Interceptors() []Interceptor {
-	inters := c.inters.Proxy
-	return append(inters[:len(inters):len(inters)], proxy.Interceptors[:]...)
-}
-
-func (c *ProxyClient) mutate(ctx context.Context, m *ProxyMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&ProxyCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&ProxyUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&ProxyUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&ProxyDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown Proxy mutation op: %q", m.Op())
-	}
-}
-
 // RedeemCodeClient is a client for the RedeemCode schema.
 type RedeemCodeClient struct {
 	config
@@ -3505,485 +2591,6 @@ func (c *SubscriptionPlanClient) mutate(ctx context.Context, m *SubscriptionPlan
 	}
 }
 
-// TLSFingerprintProfileClient is a client for the TLSFingerprintProfile schema.
-type TLSFingerprintProfileClient struct {
-	config
-}
-
-// NewTLSFingerprintProfileClient returns a client for the TLSFingerprintProfile from the given config.
-func NewTLSFingerprintProfileClient(c config) *TLSFingerprintProfileClient {
-	return &TLSFingerprintProfileClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `tlsfingerprintprofile.Hooks(f(g(h())))`.
-func (c *TLSFingerprintProfileClient) Use(hooks ...Hook) {
-	c.hooks.TLSFingerprintProfile = append(c.hooks.TLSFingerprintProfile, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `tlsfingerprintprofile.Intercept(f(g(h())))`.
-func (c *TLSFingerprintProfileClient) Intercept(interceptors ...Interceptor) {
-	c.inters.TLSFingerprintProfile = append(c.inters.TLSFingerprintProfile, interceptors...)
-}
-
-// Create returns a builder for creating a TLSFingerprintProfile entity.
-func (c *TLSFingerprintProfileClient) Create() *TLSFingerprintProfileCreate {
-	mutation := newTLSFingerprintProfileMutation(c.config, OpCreate)
-	return &TLSFingerprintProfileCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of TLSFingerprintProfile entities.
-func (c *TLSFingerprintProfileClient) CreateBulk(builders ...*TLSFingerprintProfileCreate) *TLSFingerprintProfileCreateBulk {
-	return &TLSFingerprintProfileCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *TLSFingerprintProfileClient) MapCreateBulk(slice any, setFunc func(*TLSFingerprintProfileCreate, int)) *TLSFingerprintProfileCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &TLSFingerprintProfileCreateBulk{err: fmt.Errorf("calling to TLSFingerprintProfileClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*TLSFingerprintProfileCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &TLSFingerprintProfileCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for TLSFingerprintProfile.
-func (c *TLSFingerprintProfileClient) Update() *TLSFingerprintProfileUpdate {
-	mutation := newTLSFingerprintProfileMutation(c.config, OpUpdate)
-	return &TLSFingerprintProfileUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *TLSFingerprintProfileClient) UpdateOne(_m *TLSFingerprintProfile) *TLSFingerprintProfileUpdateOne {
-	mutation := newTLSFingerprintProfileMutation(c.config, OpUpdateOne, withTLSFingerprintProfile(_m))
-	return &TLSFingerprintProfileUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *TLSFingerprintProfileClient) UpdateOneID(id int64) *TLSFingerprintProfileUpdateOne {
-	mutation := newTLSFingerprintProfileMutation(c.config, OpUpdateOne, withTLSFingerprintProfileID(id))
-	return &TLSFingerprintProfileUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for TLSFingerprintProfile.
-func (c *TLSFingerprintProfileClient) Delete() *TLSFingerprintProfileDelete {
-	mutation := newTLSFingerprintProfileMutation(c.config, OpDelete)
-	return &TLSFingerprintProfileDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *TLSFingerprintProfileClient) DeleteOne(_m *TLSFingerprintProfile) *TLSFingerprintProfileDeleteOne {
-	return c.DeleteOneID(_m.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *TLSFingerprintProfileClient) DeleteOneID(id int64) *TLSFingerprintProfileDeleteOne {
-	builder := c.Delete().Where(tlsfingerprintprofile.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &TLSFingerprintProfileDeleteOne{builder}
-}
-
-// Query returns a query builder for TLSFingerprintProfile.
-func (c *TLSFingerprintProfileClient) Query() *TLSFingerprintProfileQuery {
-	return &TLSFingerprintProfileQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeTLSFingerprintProfile},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a TLSFingerprintProfile entity by its id.
-func (c *TLSFingerprintProfileClient) Get(ctx context.Context, id int64) (*TLSFingerprintProfile, error) {
-	return c.Query().Where(tlsfingerprintprofile.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *TLSFingerprintProfileClient) GetX(ctx context.Context, id int64) *TLSFingerprintProfile {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// Hooks returns the client hooks.
-func (c *TLSFingerprintProfileClient) Hooks() []Hook {
-	return c.hooks.TLSFingerprintProfile
-}
-
-// Interceptors returns the client interceptors.
-func (c *TLSFingerprintProfileClient) Interceptors() []Interceptor {
-	return c.inters.TLSFingerprintProfile
-}
-
-func (c *TLSFingerprintProfileClient) mutate(ctx context.Context, m *TLSFingerprintProfileMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&TLSFingerprintProfileCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&TLSFingerprintProfileUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&TLSFingerprintProfileUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&TLSFingerprintProfileDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown TLSFingerprintProfile mutation op: %q", m.Op())
-	}
-}
-
-// UsageCleanupTaskClient is a client for the UsageCleanupTask schema.
-type UsageCleanupTaskClient struct {
-	config
-}
-
-// NewUsageCleanupTaskClient returns a client for the UsageCleanupTask from the given config.
-func NewUsageCleanupTaskClient(c config) *UsageCleanupTaskClient {
-	return &UsageCleanupTaskClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `usagecleanuptask.Hooks(f(g(h())))`.
-func (c *UsageCleanupTaskClient) Use(hooks ...Hook) {
-	c.hooks.UsageCleanupTask = append(c.hooks.UsageCleanupTask, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `usagecleanuptask.Intercept(f(g(h())))`.
-func (c *UsageCleanupTaskClient) Intercept(interceptors ...Interceptor) {
-	c.inters.UsageCleanupTask = append(c.inters.UsageCleanupTask, interceptors...)
-}
-
-// Create returns a builder for creating a UsageCleanupTask entity.
-func (c *UsageCleanupTaskClient) Create() *UsageCleanupTaskCreate {
-	mutation := newUsageCleanupTaskMutation(c.config, OpCreate)
-	return &UsageCleanupTaskCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of UsageCleanupTask entities.
-func (c *UsageCleanupTaskClient) CreateBulk(builders ...*UsageCleanupTaskCreate) *UsageCleanupTaskCreateBulk {
-	return &UsageCleanupTaskCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *UsageCleanupTaskClient) MapCreateBulk(slice any, setFunc func(*UsageCleanupTaskCreate, int)) *UsageCleanupTaskCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &UsageCleanupTaskCreateBulk{err: fmt.Errorf("calling to UsageCleanupTaskClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*UsageCleanupTaskCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &UsageCleanupTaskCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for UsageCleanupTask.
-func (c *UsageCleanupTaskClient) Update() *UsageCleanupTaskUpdate {
-	mutation := newUsageCleanupTaskMutation(c.config, OpUpdate)
-	return &UsageCleanupTaskUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *UsageCleanupTaskClient) UpdateOne(_m *UsageCleanupTask) *UsageCleanupTaskUpdateOne {
-	mutation := newUsageCleanupTaskMutation(c.config, OpUpdateOne, withUsageCleanupTask(_m))
-	return &UsageCleanupTaskUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *UsageCleanupTaskClient) UpdateOneID(id int64) *UsageCleanupTaskUpdateOne {
-	mutation := newUsageCleanupTaskMutation(c.config, OpUpdateOne, withUsageCleanupTaskID(id))
-	return &UsageCleanupTaskUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for UsageCleanupTask.
-func (c *UsageCleanupTaskClient) Delete() *UsageCleanupTaskDelete {
-	mutation := newUsageCleanupTaskMutation(c.config, OpDelete)
-	return &UsageCleanupTaskDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *UsageCleanupTaskClient) DeleteOne(_m *UsageCleanupTask) *UsageCleanupTaskDeleteOne {
-	return c.DeleteOneID(_m.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *UsageCleanupTaskClient) DeleteOneID(id int64) *UsageCleanupTaskDeleteOne {
-	builder := c.Delete().Where(usagecleanuptask.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &UsageCleanupTaskDeleteOne{builder}
-}
-
-// Query returns a query builder for UsageCleanupTask.
-func (c *UsageCleanupTaskClient) Query() *UsageCleanupTaskQuery {
-	return &UsageCleanupTaskQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeUsageCleanupTask},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a UsageCleanupTask entity by its id.
-func (c *UsageCleanupTaskClient) Get(ctx context.Context, id int64) (*UsageCleanupTask, error) {
-	return c.Query().Where(usagecleanuptask.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *UsageCleanupTaskClient) GetX(ctx context.Context, id int64) *UsageCleanupTask {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// Hooks returns the client hooks.
-func (c *UsageCleanupTaskClient) Hooks() []Hook {
-	return c.hooks.UsageCleanupTask
-}
-
-// Interceptors returns the client interceptors.
-func (c *UsageCleanupTaskClient) Interceptors() []Interceptor {
-	return c.inters.UsageCleanupTask
-}
-
-func (c *UsageCleanupTaskClient) mutate(ctx context.Context, m *UsageCleanupTaskMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&UsageCleanupTaskCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&UsageCleanupTaskUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&UsageCleanupTaskUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&UsageCleanupTaskDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown UsageCleanupTask mutation op: %q", m.Op())
-	}
-}
-
-// UsageLogClient is a client for the UsageLog schema.
-type UsageLogClient struct {
-	config
-}
-
-// NewUsageLogClient returns a client for the UsageLog from the given config.
-func NewUsageLogClient(c config) *UsageLogClient {
-	return &UsageLogClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `usagelog.Hooks(f(g(h())))`.
-func (c *UsageLogClient) Use(hooks ...Hook) {
-	c.hooks.UsageLog = append(c.hooks.UsageLog, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `usagelog.Intercept(f(g(h())))`.
-func (c *UsageLogClient) Intercept(interceptors ...Interceptor) {
-	c.inters.UsageLog = append(c.inters.UsageLog, interceptors...)
-}
-
-// Create returns a builder for creating a UsageLog entity.
-func (c *UsageLogClient) Create() *UsageLogCreate {
-	mutation := newUsageLogMutation(c.config, OpCreate)
-	return &UsageLogCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of UsageLog entities.
-func (c *UsageLogClient) CreateBulk(builders ...*UsageLogCreate) *UsageLogCreateBulk {
-	return &UsageLogCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *UsageLogClient) MapCreateBulk(slice any, setFunc func(*UsageLogCreate, int)) *UsageLogCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &UsageLogCreateBulk{err: fmt.Errorf("calling to UsageLogClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*UsageLogCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &UsageLogCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for UsageLog.
-func (c *UsageLogClient) Update() *UsageLogUpdate {
-	mutation := newUsageLogMutation(c.config, OpUpdate)
-	return &UsageLogUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *UsageLogClient) UpdateOne(_m *UsageLog) *UsageLogUpdateOne {
-	mutation := newUsageLogMutation(c.config, OpUpdateOne, withUsageLog(_m))
-	return &UsageLogUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *UsageLogClient) UpdateOneID(id int64) *UsageLogUpdateOne {
-	mutation := newUsageLogMutation(c.config, OpUpdateOne, withUsageLogID(id))
-	return &UsageLogUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for UsageLog.
-func (c *UsageLogClient) Delete() *UsageLogDelete {
-	mutation := newUsageLogMutation(c.config, OpDelete)
-	return &UsageLogDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *UsageLogClient) DeleteOne(_m *UsageLog) *UsageLogDeleteOne {
-	return c.DeleteOneID(_m.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *UsageLogClient) DeleteOneID(id int64) *UsageLogDeleteOne {
-	builder := c.Delete().Where(usagelog.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &UsageLogDeleteOne{builder}
-}
-
-// Query returns a query builder for UsageLog.
-func (c *UsageLogClient) Query() *UsageLogQuery {
-	return &UsageLogQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeUsageLog},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a UsageLog entity by its id.
-func (c *UsageLogClient) Get(ctx context.Context, id int64) (*UsageLog, error) {
-	return c.Query().Where(usagelog.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *UsageLogClient) GetX(ctx context.Context, id int64) *UsageLog {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QueryUser queries the user edge of a UsageLog.
-func (c *UsageLogClient) QueryUser(_m *UsageLog) *UserQuery {
-	query := (&UserClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := _m.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(usagelog.Table, usagelog.FieldID, id),
-			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, usagelog.UserTable, usagelog.UserColumn),
-		)
-		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryAPIKey queries the api_key edge of a UsageLog.
-func (c *UsageLogClient) QueryAPIKey(_m *UsageLog) *APIKeyQuery {
-	query := (&APIKeyClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := _m.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(usagelog.Table, usagelog.FieldID, id),
-			sqlgraph.To(apikey.Table, apikey.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, usagelog.APIKeyTable, usagelog.APIKeyColumn),
-		)
-		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryAccount queries the account edge of a UsageLog.
-func (c *UsageLogClient) QueryAccount(_m *UsageLog) *AccountQuery {
-	query := (&AccountClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := _m.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(usagelog.Table, usagelog.FieldID, id),
-			sqlgraph.To(account.Table, account.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, usagelog.AccountTable, usagelog.AccountColumn),
-		)
-		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryGroup queries the group edge of a UsageLog.
-func (c *UsageLogClient) QueryGroup(_m *UsageLog) *GroupQuery {
-	query := (&GroupClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := _m.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(usagelog.Table, usagelog.FieldID, id),
-			sqlgraph.To(group.Table, group.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, usagelog.GroupTable, usagelog.GroupColumn),
-		)
-		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QuerySubscription queries the subscription edge of a UsageLog.
-func (c *UsageLogClient) QuerySubscription(_m *UsageLog) *UserSubscriptionQuery {
-	query := (&UserSubscriptionClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := _m.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(usagelog.Table, usagelog.FieldID, id),
-			sqlgraph.To(usersubscription.Table, usersubscription.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, usagelog.SubscriptionTable, usagelog.SubscriptionColumn),
-		)
-		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *UsageLogClient) Hooks() []Hook {
-	return c.hooks.UsageLog
-}
-
-// Interceptors returns the client interceptors.
-func (c *UsageLogClient) Interceptors() []Interceptor {
-	return c.inters.UsageLog
-}
-
-func (c *UsageLogClient) mutate(ctx context.Context, m *UsageLogMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&UsageLogCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&UsageLogUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&UsageLogUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&UsageLogDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown UsageLog mutation op: %q", m.Op())
-	}
-}
-
 // UserClient is a client for the User schema.
 type UserClient struct {
 	config
@@ -4092,22 +2699,6 @@ func (c *UserClient) GetX(ctx context.Context, id int64) *User {
 	return obj
 }
 
-// QueryAPIKeys queries the api_keys edge of a User.
-func (c *UserClient) QueryAPIKeys(_m *User) *APIKeyQuery {
-	query := (&APIKeyClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := _m.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(user.Table, user.FieldID, id),
-			sqlgraph.To(apikey.Table, apikey.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, user.APIKeysTable, user.APIKeysColumn),
-		)
-		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // QueryRedeemCodes queries the redeem_codes edge of a User.
 func (c *UserClient) QueryRedeemCodes(_m *User) *RedeemCodeQuery {
 	query := (&RedeemCodeClient{config: c.config}).Query()
@@ -4181,22 +2772,6 @@ func (c *UserClient) QueryAllowedGroups(_m *User) *GroupQuery {
 			sqlgraph.From(user.Table, user.FieldID, id),
 			sqlgraph.To(group.Table, group.FieldID),
 			sqlgraph.Edge(sqlgraph.M2M, false, user.AllowedGroupsTable, user.AllowedGroupsPrimaryKey...),
-		)
-		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryUsageLogs queries the usage_logs edge of a User.
-func (c *UserClient) QueryUsageLogs(_m *User) *UsageLogQuery {
-	query := (&UsageLogClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := _m.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(user.Table, user.FieldID, id),
-			sqlgraph.To(usagelog.Table, usagelog.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, user.UsageLogsTable, user.UsageLogsColumn),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
@@ -4883,22 +3458,6 @@ func (c *UserSubscriptionClient) QueryAssignedByUser(_m *UserSubscription) *User
 	return query
 }
 
-// QueryUsageLogs queries the usage_logs edge of a UserSubscription.
-func (c *UserSubscriptionClient) QueryUsageLogs(_m *UserSubscription) *UsageLogQuery {
-	query := (&UsageLogClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := _m.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(usersubscription.Table, usersubscription.FieldID, id),
-			sqlgraph.To(usagelog.Table, usagelog.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, usersubscription.UsageLogsTable, usersubscription.UsageLogsColumn),
-		)
-		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // Hooks returns the client hooks.
 func (c *UserSubscriptionClient) Hooks() []Hook {
 	hooks := c.hooks.UserSubscription
@@ -4929,20 +3488,18 @@ func (c *UserSubscriptionClient) mutate(ctx context.Context, m *UserSubscription
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		APIKey, Account, AccountGroup, Announcement, AnnouncementRead,
-		ErrorPassthroughRule, Group, IdempotencyRecord, PaymentAuditLog,
+		Announcement, AnnouncementRead, Group, IdempotencyRecord, PaymentAuditLog,
 		PaymentChannel, PaymentOrder, PaymentProviderInstance, PromoCode,
-		PromoCodeUsage, Proxy, RedeemCode, SecuritySecret, Setting, SubscriptionPlan,
-		TLSFingerprintProfile, UsageCleanupTask, UsageLog, User, UserAllowedGroup,
-		UserAttributeDefinition, UserAttributeValue, UserSubscription []ent.Hook
+		PromoCodeUsage, RedeemCode, SecuritySecret, Setting, SubscriptionPlan, User,
+		UserAllowedGroup, UserAttributeDefinition, UserAttributeValue,
+		UserSubscription []ent.Hook
 	}
 	inters struct {
-		APIKey, Account, AccountGroup, Announcement, AnnouncementRead,
-		ErrorPassthroughRule, Group, IdempotencyRecord, PaymentAuditLog,
+		Announcement, AnnouncementRead, Group, IdempotencyRecord, PaymentAuditLog,
 		PaymentChannel, PaymentOrder, PaymentProviderInstance, PromoCode,
-		PromoCodeUsage, Proxy, RedeemCode, SecuritySecret, Setting, SubscriptionPlan,
-		TLSFingerprintProfile, UsageCleanupTask, UsageLog, User, UserAllowedGroup,
-		UserAttributeDefinition, UserAttributeValue, UserSubscription []ent.Interceptor
+		PromoCodeUsage, RedeemCode, SecuritySecret, Setting, SubscriptionPlan, User,
+		UserAllowedGroup, UserAttributeDefinition, UserAttributeValue,
+		UserSubscription []ent.Interceptor
 	}
 )
 

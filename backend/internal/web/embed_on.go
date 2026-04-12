@@ -7,6 +7,7 @@ import (
 	"context"
 	"embed"
 	"encoding/json"
+	"html"
 	"io"
 	"io/fs"
 	"net/http"
@@ -174,9 +175,10 @@ func (s *FrontendServer) serveIndexHTML(c *gin.Context) {
 }
 
 func (s *FrontendServer) injectSettings(settingsJSON []byte) []byte {
-	// Create the script tag to inject with nonce placeholder
-	// The placeholder will be replaced with actual nonce at request time
-	script := []byte(`<script nonce="` + NonceHTMLPlaceholder + `">window.__APP_CONFIG__=` + string(settingsJSON) + `;</script>`)
+	// Escape </script> sequences to prevent XSS via settings values
+	safeJSON := bytes.ReplaceAll(settingsJSON, []byte("</"), []byte(`<\/`))
+
+	script := []byte(`<script nonce="` + NonceHTMLPlaceholder + `">window.__APP_CONFIG__=` + string(safeJSON) + `;</script>`)
 
 	// Inject before </head>
 	headClose := []byte("</head>")
@@ -205,7 +207,9 @@ func injectSiteTitle(html, settingsJSON []byte) []byte {
 		return html
 	}
 
-	newTitle := []byte("<title>" + cfg.SiteName + " - AI API Gateway</title>")
+	// HTML-escape site name to prevent XSS
+	escaped := html.EscapeString(cfg.SiteName)
+	newTitle := []byte("<title>" + escaped + " - Platform</title>")
 	var buf bytes.Buffer
 	buf.Write(html[:titleStart])
 	buf.Write(newTitle)
@@ -256,8 +260,6 @@ func shouldBypassEmbeddedFrontend(path string) bool {
 	return strings.HasPrefix(trimmed, "/api/") ||
 		strings.HasPrefix(trimmed, "/v1/") ||
 		strings.HasPrefix(trimmed, "/v1beta/") ||
-		strings.HasPrefix(trimmed, "/sora/") ||
-		strings.HasPrefix(trimmed, "/antigravity/") ||
 		strings.HasPrefix(trimmed, "/setup/") ||
 		trimmed == "/health" ||
 		trimmed == "/responses" ||

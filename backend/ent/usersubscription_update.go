@@ -13,7 +13,6 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/Wei-Shaw/sub2api/ent/group"
 	"github.com/Wei-Shaw/sub2api/ent/predicate"
-	"github.com/Wei-Shaw/sub2api/ent/usagelog"
 	"github.com/Wei-Shaw/sub2api/ent/user"
 	"github.com/Wei-Shaw/sub2api/ent/usersubscription"
 )
@@ -333,21 +332,6 @@ func (_u *UserSubscriptionUpdate) SetAssignedByUser(v *User) *UserSubscriptionUp
 	return _u.SetAssignedByUserID(v.ID)
 }
 
-// AddUsageLogIDs adds the "usage_logs" edge to the UsageLog entity by IDs.
-func (_u *UserSubscriptionUpdate) AddUsageLogIDs(ids ...int64) *UserSubscriptionUpdate {
-	_u.mutation.AddUsageLogIDs(ids...)
-	return _u
-}
-
-// AddUsageLogs adds the "usage_logs" edges to the UsageLog entity.
-func (_u *UserSubscriptionUpdate) AddUsageLogs(v ...*UsageLog) *UserSubscriptionUpdate {
-	ids := make([]int64, len(v))
-	for i := range v {
-		ids[i] = v[i].ID
-	}
-	return _u.AddUsageLogIDs(ids...)
-}
-
 // Mutation returns the UserSubscriptionMutation object of the builder.
 func (_u *UserSubscriptionUpdate) Mutation() *UserSubscriptionMutation {
 	return _u.mutation
@@ -369,27 +353,6 @@ func (_u *UserSubscriptionUpdate) ClearGroup() *UserSubscriptionUpdate {
 func (_u *UserSubscriptionUpdate) ClearAssignedByUser() *UserSubscriptionUpdate {
 	_u.mutation.ClearAssignedByUser()
 	return _u
-}
-
-// ClearUsageLogs clears all "usage_logs" edges to the UsageLog entity.
-func (_u *UserSubscriptionUpdate) ClearUsageLogs() *UserSubscriptionUpdate {
-	_u.mutation.ClearUsageLogs()
-	return _u
-}
-
-// RemoveUsageLogIDs removes the "usage_logs" edge to UsageLog entities by IDs.
-func (_u *UserSubscriptionUpdate) RemoveUsageLogIDs(ids ...int64) *UserSubscriptionUpdate {
-	_u.mutation.RemoveUsageLogIDs(ids...)
-	return _u
-}
-
-// RemoveUsageLogs removes "usage_logs" edges to UsageLog entities.
-func (_u *UserSubscriptionUpdate) RemoveUsageLogs(v ...*UsageLog) *UserSubscriptionUpdate {
-	ids := make([]int64, len(v))
-	for i := range v {
-		ids[i] = v[i].ID
-	}
-	return _u.RemoveUsageLogIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -605,51 +568,6 @@ func (_u *UserSubscriptionUpdate) sqlSave(ctx context.Context) (_node int, err e
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt64),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if _u.mutation.UsageLogsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   usersubscription.UsageLogsTable,
-			Columns: []string{usersubscription.UsageLogsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usagelog.FieldID, field.TypeInt64),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := _u.mutation.RemovedUsageLogsIDs(); len(nodes) > 0 && !_u.mutation.UsageLogsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   usersubscription.UsageLogsTable,
-			Columns: []string{usersubscription.UsageLogsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usagelog.FieldID, field.TypeInt64),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := _u.mutation.UsageLogsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   usersubscription.UsageLogsTable,
-			Columns: []string{usersubscription.UsageLogsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usagelog.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -979,21 +897,6 @@ func (_u *UserSubscriptionUpdateOne) SetAssignedByUser(v *User) *UserSubscriptio
 	return _u.SetAssignedByUserID(v.ID)
 }
 
-// AddUsageLogIDs adds the "usage_logs" edge to the UsageLog entity by IDs.
-func (_u *UserSubscriptionUpdateOne) AddUsageLogIDs(ids ...int64) *UserSubscriptionUpdateOne {
-	_u.mutation.AddUsageLogIDs(ids...)
-	return _u
-}
-
-// AddUsageLogs adds the "usage_logs" edges to the UsageLog entity.
-func (_u *UserSubscriptionUpdateOne) AddUsageLogs(v ...*UsageLog) *UserSubscriptionUpdateOne {
-	ids := make([]int64, len(v))
-	for i := range v {
-		ids[i] = v[i].ID
-	}
-	return _u.AddUsageLogIDs(ids...)
-}
-
 // Mutation returns the UserSubscriptionMutation object of the builder.
 func (_u *UserSubscriptionUpdateOne) Mutation() *UserSubscriptionMutation {
 	return _u.mutation
@@ -1015,27 +918,6 @@ func (_u *UserSubscriptionUpdateOne) ClearGroup() *UserSubscriptionUpdateOne {
 func (_u *UserSubscriptionUpdateOne) ClearAssignedByUser() *UserSubscriptionUpdateOne {
 	_u.mutation.ClearAssignedByUser()
 	return _u
-}
-
-// ClearUsageLogs clears all "usage_logs" edges to the UsageLog entity.
-func (_u *UserSubscriptionUpdateOne) ClearUsageLogs() *UserSubscriptionUpdateOne {
-	_u.mutation.ClearUsageLogs()
-	return _u
-}
-
-// RemoveUsageLogIDs removes the "usage_logs" edge to UsageLog entities by IDs.
-func (_u *UserSubscriptionUpdateOne) RemoveUsageLogIDs(ids ...int64) *UserSubscriptionUpdateOne {
-	_u.mutation.RemoveUsageLogIDs(ids...)
-	return _u
-}
-
-// RemoveUsageLogs removes "usage_logs" edges to UsageLog entities.
-func (_u *UserSubscriptionUpdateOne) RemoveUsageLogs(v ...*UsageLog) *UserSubscriptionUpdateOne {
-	ids := make([]int64, len(v))
-	for i := range v {
-		ids[i] = v[i].ID
-	}
-	return _u.RemoveUsageLogIDs(ids...)
 }
 
 // Where appends a list predicates to the UserSubscriptionUpdate builder.
@@ -1281,51 +1163,6 @@ func (_u *UserSubscriptionUpdateOne) sqlSave(ctx context.Context) (_node *UserSu
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt64),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if _u.mutation.UsageLogsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   usersubscription.UsageLogsTable,
-			Columns: []string{usersubscription.UsageLogsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usagelog.FieldID, field.TypeInt64),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := _u.mutation.RemovedUsageLogsIDs(); len(nodes) > 0 && !_u.mutation.UsageLogsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   usersubscription.UsageLogsTable,
-			Columns: []string{usersubscription.UsageLogsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usagelog.FieldID, field.TypeInt64),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := _u.mutation.UsageLogsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   usersubscription.UsageLogsTable,
-			Columns: []string{usersubscription.UsageLogsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usagelog.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {

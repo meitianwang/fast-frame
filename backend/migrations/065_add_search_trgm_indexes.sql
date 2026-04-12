@@ -18,14 +18,6 @@ BEGIN
                  ON users USING gin (username gin_trgm_ops)';
         EXECUTE 'CREATE INDEX IF NOT EXISTS idx_users_notes_trgm
                  ON users USING gin (notes gin_trgm_ops)';
-
-        EXECUTE 'CREATE INDEX IF NOT EXISTS idx_accounts_name_trgm
-                 ON accounts USING gin (name gin_trgm_ops)';
-
-        EXECUTE 'CREATE INDEX IF NOT EXISTS idx_api_keys_key_trgm
-                 ON api_keys USING gin ("key" gin_trgm_ops)';
-        EXECUTE 'CREATE INDEX IF NOT EXISTS idx_api_keys_name_trgm
-                 ON api_keys USING gin (name gin_trgm_ops)';
     ELSE
         RAISE NOTICE 'skip trigram indexes because pg_trgm is unavailable';
     END IF;

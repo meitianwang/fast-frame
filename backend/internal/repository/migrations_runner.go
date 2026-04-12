@@ -60,17 +60,48 @@ type migrationChecksumCompatibilityRule struct {
 // migrationChecksumCompatibilityRules 仅用于兼容历史上误修改过的迁移文件 checksum。
 // 规则必须同时匹配「迁移名 + 当前文件 checksum + 历史库 checksum」才会放行，避免放宽全局校验。
 var migrationChecksumCompatibilityRules = map[string]migrationChecksumCompatibilityRule{
-	"054_drop_legacy_cache_columns.sql": {
-		fileChecksum: "82de761156e03876653e7a6a4eee883cd927847036f779b0b9f34c42a8af7a7d",
+	// SaaS 重构：移除 AI 网关相关表（accounts, api_keys, usage_logs, proxies 等）后重写的迁移文件。
+	// 已有数据库中记录的是旧 checksum，需要兼容。
+	"001_init.sql": {
+		fileChecksum: "f547f4ab15b93a6b0a4e7c7a23390796d04d7a1d20d20b6d65f43a5e2b153a61",
 		acceptedDBChecksum: map[string]struct{}{
-			"182c193f3359946cf094090cd9e57d5c3fd9abaffbc1e8fc378646b8a6fa12b4": {},
+			"488ede96ff8cc8a0566b312eb3be2f7a383d11a243390ccb4c3bbdaa1793d51f": {},
 		},
 	},
-	"061_add_usage_log_request_type.sql": {
-		fileChecksum: "66207e7aa5dd0429c2e2c0fabdaf79783ff157fa0af2e81adff2ee03790ec65c",
+	"003_subscription.sql": {
+		fileChecksum: "0baa7397be294c7e9e7f792a7acf2cde0e7bf42d80818c6d27cea64e257c3456",
 		acceptedDBChecksum: map[string]struct{}{
-			"08a248652cbab7cfde147fc6ef8cda464f2477674e20b718312faa252e0481c0": {},
-			"222b4a09c797c22e5922b6b172327c824f5463aaa8760e4f621bc5c22e2be0f3": {},
+			"f6f317f073a808c1f841525b47e84e2cde87fa889137a37f275ccf1defa53170": {},
+		},
+	},
+	"005_schema_parity.sql": {
+		fileChecksum: "8e87049a4c0247cd7e10f1cd84e2be53c44d7c42e1411a44a1724e4dad2ca763",
+		acceptedDBChecksum: map[string]struct{}{
+			"1eb39443f407f1c09e132dda0022e5b911b7af9b4ddcdffa6accaec2d3bd49a2": {},
+		},
+	},
+	"011_remove_duplicate_unique_indexes.sql": {
+		fileChecksum: "be4965091f72e52cbde8ee1889b66f5a57ddb143b81f8737c7efe3294e92b014",
+		acceptedDBChecksum: map[string]struct{}{
+			"a05f05153204add8c2e1e2eed8e0df9009eb245e3623d6987bdc97249b6871bb": {},
+		},
+	},
+	"016_soft_delete_partial_unique_indexes.sql": {
+		fileChecksum: "fabece444c340c1ca43bf111760ed1667c6ea44e6cae2f6f7afcab80c44088b3",
+		acceptedDBChecksum: map[string]struct{}{
+			"04087d58014de7ad7d04352fd9267008a03b409427aed57da74181e70d407832": {},
+		},
+	},
+	"065_add_search_trgm_indexes.sql": {
+		fileChecksum: "c3c5e0fb1b7f1fc59eca8bd44ffc6908f9a159f41f44856e4951103baa0572f3",
+		acceptedDBChecksum: map[string]struct{}{
+			"6850a870e5d3db4d96515e366b68a19df72d98d2d6c2587c34b6ce2a56a3c601": {},
+		},
+	},
+	"085_add_payment_tables.sql": {
+		fileChecksum: "bb4b9f494aa59c7cf6ba2dbb3dd23f9b0876baf25769d753621a7b10f803fea3",
+		acceptedDBChecksum: map[string]struct{}{
+			"608e5c95056b5ef92e54bd67fb02d2025123295aad4a94970240a3075c4bc3d9": {},
 		},
 	},
 }

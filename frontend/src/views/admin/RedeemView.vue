@@ -739,7 +739,7 @@ const confirmDeleteUnused = async () => {
 // 加载订阅类型分组
 const loadSubscriptionGroups = async () => {
   try {
-    const groups = await adminAPI.groups.getAll()
+    const groups: any[] = []
     subscriptionGroups.value = groups
   } catch (error) {
     console.error('Error loading subscription groups:', error)

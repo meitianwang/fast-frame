@@ -161,7 +161,7 @@ const load = async () => {
 
 const loadGroups = async () => {
   try {
-    const groups = await adminAPI.groups.getAll()
+    const groups: any[] = []
     allGroups.value = groups
   } catch (error) {
     console.error('Failed to load groups:', error)

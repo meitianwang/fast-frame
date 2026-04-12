@@ -30,10 +30,6 @@ func ProvideRouter(
 	handlers *handler.Handlers,
 	jwtAuth middleware2.JWTAuthMiddleware,
 	adminAuth middleware2.AdminAuthMiddleware,
-	apiKeyAuth middleware2.APIKeyAuthMiddleware,
-	apiKeyService *service.APIKeyService,
-	subscriptionService *service.SubscriptionService,
-	opsService *service.OpsService,
 	settingService *service.SettingService,
 	redisClient *redis.Client,
 ) *gin.Engine {
@@ -56,7 +52,7 @@ func ProvideRouter(
 		}
 	}
 
-	return SetupRouter(r, handlers, jwtAuth, adminAuth, apiKeyAuth, apiKeyService, subscriptionService, opsService, settingService, cfg, redisClient)
+	return SetupRouter(r, handlers, jwtAuth, adminAuth, settingService, cfg, redisClient)
 }
 
 // ProvideHTTPServer 提供 HTTP 服务器
@@ -64,9 +60,6 @@ func ProvideHTTPServer(cfg *config.Config, router *gin.Engine) *http.Server {
 	httpHandler := http.Handler(router)
 
 	globalMaxSize := cfg.Server.MaxRequestBodySize
-	if globalMaxSize <= 0 {
-		globalMaxSize = cfg.Gateway.MaxBodySize
-	}
 	if globalMaxSize > 0 {
 		httpHandler = http.MaxBytesHandler(httpHandler, globalMaxSize)
 		log.Printf("Global max request body size: %d bytes (%.2f MB)", globalMaxSize, float64(globalMaxSize)/(1<<20))

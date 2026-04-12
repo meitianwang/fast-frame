@@ -43,12 +43,6 @@ const (
 	FieldTotpEnabled = "totp_enabled"
 	// FieldTotpEnabledAt holds the string denoting the totp_enabled_at field in the database.
 	FieldTotpEnabledAt = "totp_enabled_at"
-	// FieldSoraStorageQuotaBytes holds the string denoting the sora_storage_quota_bytes field in the database.
-	FieldSoraStorageQuotaBytes = "sora_storage_quota_bytes"
-	// FieldSoraStorageUsedBytes holds the string denoting the sora_storage_used_bytes field in the database.
-	FieldSoraStorageUsedBytes = "sora_storage_used_bytes"
-	// EdgeAPIKeys holds the string denoting the api_keys edge name in mutations.
-	EdgeAPIKeys = "api_keys"
 	// EdgeRedeemCodes holds the string denoting the redeem_codes edge name in mutations.
 	EdgeRedeemCodes = "redeem_codes"
 	// EdgeSubscriptions holds the string denoting the subscriptions edge name in mutations.
@@ -59,8 +53,6 @@ const (
 	EdgeAnnouncementReads = "announcement_reads"
 	// EdgeAllowedGroups holds the string denoting the allowed_groups edge name in mutations.
 	EdgeAllowedGroups = "allowed_groups"
-	// EdgeUsageLogs holds the string denoting the usage_logs edge name in mutations.
-	EdgeUsageLogs = "usage_logs"
 	// EdgeAttributeValues holds the string denoting the attribute_values edge name in mutations.
 	EdgeAttributeValues = "attribute_values"
 	// EdgePromoCodeUsages holds the string denoting the promo_code_usages edge name in mutations.
@@ -71,13 +63,6 @@ const (
 	EdgeUserAllowedGroups = "user_allowed_groups"
 	// Table holds the table name of the user in the database.
 	Table = "users"
-	// APIKeysTable is the table that holds the api_keys relation/edge.
-	APIKeysTable = "api_keys"
-	// APIKeysInverseTable is the table name for the APIKey entity.
-	// It exists in this package in order to avoid circular dependency with the "apikey" package.
-	APIKeysInverseTable = "api_keys"
-	// APIKeysColumn is the table column denoting the api_keys relation/edge.
-	APIKeysColumn = "user_id"
 	// RedeemCodesTable is the table that holds the redeem_codes relation/edge.
 	RedeemCodesTable = "redeem_codes"
 	// RedeemCodesInverseTable is the table name for the RedeemCode entity.
@@ -111,13 +96,6 @@ const (
 	// AllowedGroupsInverseTable is the table name for the Group entity.
 	// It exists in this package in order to avoid circular dependency with the "group" package.
 	AllowedGroupsInverseTable = "groups"
-	// UsageLogsTable is the table that holds the usage_logs relation/edge.
-	UsageLogsTable = "usage_logs"
-	// UsageLogsInverseTable is the table name for the UsageLog entity.
-	// It exists in this package in order to avoid circular dependency with the "usagelog" package.
-	UsageLogsInverseTable = "usage_logs"
-	// UsageLogsColumn is the table column denoting the usage_logs relation/edge.
-	UsageLogsColumn = "user_id"
 	// AttributeValuesTable is the table that holds the attribute_values relation/edge.
 	AttributeValuesTable = "user_attribute_values"
 	// AttributeValuesInverseTable is the table name for the UserAttributeValue entity.
@@ -165,8 +143,6 @@ var Columns = []string{
 	FieldTotpSecretEncrypted,
 	FieldTotpEnabled,
 	FieldTotpEnabledAt,
-	FieldSoraStorageQuotaBytes,
-	FieldSoraStorageUsedBytes,
 }
 
 var (
@@ -223,10 +199,6 @@ var (
 	DefaultNotes string
 	// DefaultTotpEnabled holds the default value on creation for the "totp_enabled" field.
 	DefaultTotpEnabled bool
-	// DefaultSoraStorageQuotaBytes holds the default value on creation for the "sora_storage_quota_bytes" field.
-	DefaultSoraStorageQuotaBytes int64
-	// DefaultSoraStorageUsedBytes holds the default value on creation for the "sora_storage_used_bytes" field.
-	DefaultSoraStorageUsedBytes int64
 )
 
 // OrderOption defines the ordering options for the User queries.
@@ -307,30 +279,6 @@ func ByTotpEnabledAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldTotpEnabledAt, opts...).ToFunc()
 }
 
-// BySoraStorageQuotaBytes orders the results by the sora_storage_quota_bytes field.
-func BySoraStorageQuotaBytes(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldSoraStorageQuotaBytes, opts...).ToFunc()
-}
-
-// BySoraStorageUsedBytes orders the results by the sora_storage_used_bytes field.
-func BySoraStorageUsedBytes(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldSoraStorageUsedBytes, opts...).ToFunc()
-}
-
-// ByAPIKeysCount orders the results by api_keys count.
-func ByAPIKeysCount(opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newAPIKeysStep(), opts...)
-	}
-}
-
-// ByAPIKeys orders the results by api_keys terms.
-func ByAPIKeys(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newAPIKeysStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
-}
-
 // ByRedeemCodesCount orders the results by redeem_codes count.
 func ByRedeemCodesCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -401,20 +349,6 @@ func ByAllowedGroups(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	}
 }
 
-// ByUsageLogsCount orders the results by usage_logs count.
-func ByUsageLogsCount(opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newUsageLogsStep(), opts...)
-	}
-}
-
-// ByUsageLogs orders the results by usage_logs terms.
-func ByUsageLogs(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newUsageLogsStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
-}
-
 // ByAttributeValuesCount orders the results by attribute_values count.
 func ByAttributeValuesCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -470,13 +404,6 @@ func ByUserAllowedGroups(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption
 		sqlgraph.OrderByNeighborTerms(s, newUserAllowedGroupsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
-func newAPIKeysStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(APIKeysInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, APIKeysTable, APIKeysColumn),
-	)
-}
 func newRedeemCodesStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -510,13 +437,6 @@ func newAllowedGroupsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(AllowedGroupsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2M, false, AllowedGroupsTable, AllowedGroupsPrimaryKey...),
-	)
-}
-func newUsageLogsStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(UsageLogsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, UsageLogsTable, UsageLogsColumn),
 	)
 }
 func newAttributeValuesStep() *sqlgraph.Step {
