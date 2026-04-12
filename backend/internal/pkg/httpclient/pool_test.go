@@ -25,7 +25,7 @@ func TestValidatedTransport_CacheHostValidation(t *testing.T) {
 	var validateCalls int32
 	validateResolvedIP = func(host string) error {
 		atomic.AddInt32(&validateCalls, 1)
-		require.Equal(t, "api.openai.com", host)
+		require.Equal(t, "api.example.com", host)
 		return nil
 	}
 
@@ -43,7 +43,7 @@ func TestValidatedTransport_CacheHostValidation(t *testing.T) {
 	transport := newValidatedTransport(base)
 	transport.now = func() time.Time { return now }
 
-	req, err := http.NewRequest(http.MethodGet, "https://api.openai.com/v1/responses", nil)
+	req, err := http.NewRequest(http.MethodGet, "https://api.example.com/v1/responses", nil)
 	require.NoError(t, err)
 
 	_, err = transport.RoundTrip(req)
@@ -77,7 +77,7 @@ func TestValidatedTransport_ExpiredCacheTriggersRevalidation(t *testing.T) {
 	transport := newValidatedTransport(base)
 	transport.now = func() time.Time { return now }
 
-	req, err := http.NewRequest(http.MethodGet, "https://api.openai.com/v1/responses", nil)
+	req, err := http.NewRequest(http.MethodGet, "https://api.example.com/v1/responses", nil)
 	require.NoError(t, err)
 
 	_, err = transport.RoundTrip(req)
@@ -106,7 +106,7 @@ func TestValidatedTransport_ValidationErrorStopsRoundTrip(t *testing.T) {
 	})
 
 	transport := newValidatedTransport(base)
-	req, err := http.NewRequest(http.MethodGet, "https://api.openai.com/v1/responses", nil)
+	req, err := http.NewRequest(http.MethodGet, "https://api.example.com/v1/responses", nil)
 	require.NoError(t, err)
 
 	_, err = transport.RoundTrip(req)
