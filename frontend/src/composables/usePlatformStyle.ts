@@ -1,5 +1,5 @@
 /**
- * Composable for platform-specific styling (Claude, OpenAI, Gemini, etc.)
+ * Composable for platform-specific styling
  */
 
 import { computed, type Ref } from 'vue'
@@ -10,33 +10,6 @@ export interface PlatformStyleResult {
   modelTagClass: string
   dotClass: string
   buttonClass: string
-}
-
-const STYLES: Record<string, PlatformStyleResult> = {
-  claude: {
-    badgeClass: 'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300',
-    accentClass: 'text-orange-600 dark:text-orange-400',
-    modelTagClass:
-      'border-orange-200 bg-orange-50 text-orange-700 dark:border-orange-800 dark:bg-orange-900/20 dark:text-orange-300',
-    dotClass: 'bg-orange-500',
-    buttonClass: 'bg-orange-500 hover:bg-orange-600 dark:bg-orange-600 dark:hover:bg-orange-500'
-  },
-  openai: {
-    badgeClass: 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300',
-    accentClass: 'text-green-600 dark:text-green-400',
-    modelTagClass:
-      'border-green-200 bg-green-50 text-green-700 dark:border-green-800 dark:bg-green-900/20 dark:text-green-300',
-    dotClass: 'bg-green-500',
-    buttonClass: 'bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-500'
-  },
-  gemini: {
-    badgeClass: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
-    accentClass: 'text-blue-600 dark:text-blue-400',
-    modelTagClass:
-      'border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-300',
-    dotClass: 'bg-blue-500',
-    buttonClass: 'bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500'
-  }
 }
 
 const DEFAULT_STYLE: PlatformStyleResult = {
@@ -55,8 +28,8 @@ export function usePlatformStyle(platform: Ref<string> | (() => string)) {
   const resolve = typeof platform === 'function' ? platform : () => platform.value
 
   const style = computed(() => {
-    const p = (resolve() || '').toLowerCase()
-    return STYLES[p] || DEFAULT_STYLE
+    resolve()
+    return DEFAULT_STYLE
   })
 
   return {
@@ -71,6 +44,6 @@ export function usePlatformStyle(platform: Ref<string> | (() => string)) {
 /**
  * Non-reactive version for one-off lookups.
  */
-export function getPlatformStyleClasses(platform: string): PlatformStyleResult {
-  return STYLES[(platform || '').toLowerCase()] || DEFAULT_STYLE
+export function getPlatformStyleClasses(_platform: string): PlatformStyleResult {
+  return DEFAULT_STYLE
 }

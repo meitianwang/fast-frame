@@ -45,7 +45,6 @@ export interface AdminUser extends User {
   group_rates?: Record<number, number>
   // 当前并发数（仅管理员列表接口返回）
   current_concurrency?: number
-  // Sora 存储配额（字节）
 }
 
 export interface LoginRequest {
@@ -122,37 +121,6 @@ export interface AuthResponse {
 
 export interface CurrentUserResponse extends User {
   run_mode?: 'standard' | 'simple'
-}
-
-// ==================== Subscription Types ====================
-
-export interface Subscription {
-  id: number
-  user_id: number
-  name: string
-  url: string
-  type: 'clash' | 'v2ray' | 'surge' | 'quantumult' | 'shadowrocket'
-  update_interval: number // in hours
-  last_updated: string | null
-  node_count: number
-  is_active: boolean
-  created_at: string
-  updated_at: string
-}
-
-export interface CreateSubscriptionRequest {
-  name: string
-  url: string
-  type: Subscription['type']
-  update_interval?: number
-}
-
-export interface UpdateSubscriptionRequest {
-  name?: string
-  url?: string
-  type?: Subscription['type']
-  update_interval?: number
-  is_active?: boolean
 }
 
 // ==================== Announcement Types ====================
@@ -235,65 +203,7 @@ export interface AnnouncementUserReadStatus {
   read_at?: string
 }
 
-// ==================== Proxy Node Types ====================
-
-export interface ProxyNode {
-  id: number
-  subscription_id: number
-  name: string
-  type: 'ss' | 'ssr' | 'vmess' | 'vless' | 'trojan' | 'hysteria' | 'hysteria2'
-  server: string
-  port: number
-  config: Record<string, unknown> // JSON configuration specific to proxy type
-  latency: number | null // in milliseconds
-  last_checked: string | null
-  is_available: boolean
-  created_at: string
-  updated_at: string
-}
-
-// ==================== Conversion Types ====================
-
-export interface ConversionRequest {
-  subscription_ids: number[]
-  target_type: 'clash' | 'v2ray' | 'surge' | 'quantumult' | 'shadowrocket'
-  filter?: {
-    name_pattern?: string
-    types?: ProxyNode['type'][]
-    min_latency?: number
-    max_latency?: number
-    available_only?: boolean
-  }
-  sort?: {
-    by: 'name' | 'latency' | 'type'
-    order: 'asc' | 'desc'
-  }
-}
-
-export interface ConversionResult {
-  url: string // URL to download the converted subscription
-  expires_at: string
-  node_count: number
-}
-
 // ==================== Statistics Types ====================
-
-export interface SubscriptionStats {
-  subscription_id: number
-  total_nodes: number
-  available_nodes: number
-  avg_latency: number | null
-  by_type: Record<ProxyNode['type'], number>
-  last_update: string
-}
-
-export interface UserStats {
-  total_subscriptions: number
-  total_nodes: number
-  active_subscriptions: number
-  total_conversions: number
-  last_conversion: string | null
-}
 
 // ==================== API Response Types ====================
 
@@ -594,41 +504,18 @@ export interface DashboardStats {
   stats_stale: boolean
   total_api_keys: number
   active_api_keys: number
-  total_accounts: number
-  normal_accounts: number
-  error_accounts: number
-  ratelimit_accounts: number
-  overload_accounts: number
   total_requests: number
-  total_input_tokens: number
-  total_output_tokens: number
-  total_cache_creation_tokens: number
-  total_cache_read_tokens: number
-  total_tokens: number
   total_cost: number
   total_actual_cost: number
   today_requests: number
-  today_input_tokens: number
-  today_output_tokens: number
-  today_cache_creation_tokens: number
-  today_cache_read_tokens: number
-  today_tokens: number
   today_cost: number
   today_actual_cost: number
-  average_duration_ms: number
   uptime: number
-  rpm: number
-  tpm: number
 }
 
 export interface TrendDataPoint {
   date: string
   requests: number
-  input_tokens: number
-  output_tokens: number
-  cache_creation_tokens: number
-  cache_read_tokens: number
-  total_tokens: number
   cost: number
   actual_cost: number
 }
@@ -636,11 +523,6 @@ export interface TrendDataPoint {
 export interface ModelStat {
   model: string
   requests: number
-  input_tokens: number
-  output_tokens: number
-  cache_creation_tokens: number
-  cache_read_tokens: number
-  total_tokens: number
   cost: number
   actual_cost: number
 }
@@ -699,24 +581,7 @@ export interface ApiKeyUsageTrendPoint {
   tokens: number
 }
 
-export type UsageRequestType = 'unknown' | 'sync' | 'stream' | 'ws_v2'
-
 // ==================== Query Parameters ====================
-
-export interface UsageQueryParams {
-  page?: number
-  page_size?: number
-  api_key_id?: number
-  user_id?: number
-  account_id?: number
-  group_id?: number
-  model?: string
-  request_type?: UsageRequestType
-  stream?: boolean
-  billing_type?: number | null
-  start_date?: string
-  end_date?: string
-}
 
 // ==================== User Attribute Types ====================
 
