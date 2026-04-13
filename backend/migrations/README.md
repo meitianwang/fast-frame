@@ -10,7 +10,7 @@ Format: `NNN_description.sql`
 - `NNN`: Sequential number (e.g., 001, 002, 003)
 - `description`: Brief description in snake_case
 
-Example: `017_add_gemini_tier_id.sql`
+Example: `017_add_tier_id.sql`
 
 ### `_notx.sql` 命名与执行语义（并发索引专用）
 
@@ -96,16 +96,16 @@ Why?
 
 **Error message:**
 ```
-migration 017_add_gemini_tier_id.sql checksum mismatch (db=abc123... file=def456...)
+migration 017_add_tier_id.sql checksum mismatch (db=abc123... file=def456...)
 ```
 
 **Solution:**
 ```bash
 # 1. Find the original version
-git log --oneline -- migrations/017_add_gemini_tier_id.sql
+git log --oneline -- migrations/017_add_tier_id.sql
 
 # 2. Revert to the commit when it was first applied
-git checkout <commit-hash> -- migrations/017_add_gemini_tier_id.sql
+git checkout <commit-hash> -- migrations/017_add_tier_id.sql
 
 # 3. Create a NEW migration for your changes
 touch migrations/018_your_new_change.sql
@@ -144,7 +144,7 @@ touch migrations/018_your_new_change.sql
 ## Example Migration
 
 ```sql
--- Add tier_id field to Gemini OAuth accounts for quota tracking
+-- Add tier_id field to OAuth accounts for quota tracking
 UPDATE accounts
 SET credentials = jsonb_set(
     credentials,
@@ -152,8 +152,7 @@ SET credentials = jsonb_set(
     '"LEGACY"',
     true
 )
-WHERE platform = 'gemini'
-  AND type = 'oauth'
+WHERE type = 'oauth'
   AND credentials->>'tier_id' IS NULL;
 ```
 

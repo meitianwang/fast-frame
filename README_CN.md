@@ -10,7 +10,7 @@
 
 <a href="https://trendshift.io/repositories/21823" target="_blank"><img src="https://trendshift.io/api/badge/repositories/21823" alt="Wei-Shaw%2Fsub2api | Trendshift" width="250" height="55"/></a>
 
-**AI API 网关平台 - 订阅配额分发管理**
+**订阅制 SaaS 管理平台**
 
 [English](README.md) | 中文 | [日本語](README_JA.md)
 
@@ -31,16 +31,16 @@
 
 ## 项目概述
 
-Sub2API 是一个 AI API 网关平台，用于分发和管理 AI 产品订阅的 API 配额。用户通过平台生成的 API Key 调用上游 AI 服务，平台负责鉴权、计费、负载均衡和请求转发。
+Sub2API 是一个订阅制 SaaS 管理平台，用于分发和管理 API 配额。用户通过平台生成的 API Key 调用上游服务，平台负责鉴权、计费、负载均衡和请求转发。
 
 ## 核心功能
 
-- **多账号管理** - 支持多种上游账号类型（OAuth、API Key）
+- **多账号管理** - 支持多种上游账号类型
 - **API Key 分发** - 为用户生成和管理 API Key
-- **精确计费** - Token 级别的用量追踪和成本计算
+- **精确计费** - 用量追踪和成本计算
 - **智能调度** - 智能账号选择，支持粘性会话
 - **并发控制** - 用户级和账号级并发限制
-- **速率限制** - 可配置的请求和 Token 速率限制
+- **速率限制** - 可配置的请求速率限制
 - **管理后台** - Web 界面进行监控和管理
 - **外部系统集成** - 支持通过 iframe 嵌入外部系统（如支付、工单等），扩展管理后台功能
 
@@ -49,11 +49,11 @@ Sub2API 是一个 AI API 网关平台，用于分发和管理 AI 产品订阅的
 <table>
 <tr>
 <td width="180" align="center" valign="middle"><a href="https://shop.pincc.ai/"><img src="assets/partners/logos/pincc-logo.png" alt="pincc" width="150"></a></td>
-<td valign="middle"><b><a href="https://shop.pincc.ai/">PinCC</a></b> 是基于 Sub2API 搭建的官方中转服务，提供 Claude Code、Codex、Gemini 等主流模型的稳定中转，开箱即用，免去自建部署与运维烦恼。</td>
+<td valign="middle"><b><a href="https://shop.pincc.ai/">PinCC</a></b> 是基于 Sub2API 搭建的官方托管服务，开箱即用，免去自建部署与运维烦恼。</td>
 </tr>
 <tr>
 <td width="180"><a href="https://www.packyapi.com/register?aff=sub2api"><img src="assets/partners/logos/packycode.png" alt="PackyCode" width="150"></a></td>
-<td>感谢 PackyCode 赞助了本项目！PackyCode 是一家稳定、高效的API中转服务商，提供 Claude Code、Codex、Gemini 等多种中转服务。PackyCode 为本软件的用户提供了特别优惠，使用<a href="https://www.packyapi.com/register?aff=sub2api">此链接</a>注册并在充值时填写"sub2api"优惠码，首次充值可以享受9折优惠！</td>
+<td>感谢 PackyCode 赞助了本项目！PackyCode 是一家稳定、高效的 API 服务商。PackyCode 为本软件的用户提供了特别优惠，使用<a href="https://www.packyapi.com/register?aff=sub2api">此链接</a>注册并在充值时填写"sub2api"优惠码，首次充值可以享受9折优惠！</td>
 </tr>
 </table>
 
@@ -78,7 +78,7 @@ Sub2API 是一个 AI API 网关平台，用于分发和管理 AI 产品订阅的
 
 ## Nginx 反向代理注意事项
 
-通过 Nginx 反向代理 Sub2API（或 CRS 服务）并搭配 Codex CLI 使用时，需要在 Nginx 配置的 `http` 块中添加：
+通过 Nginx 反向代理 Sub2API 时，需要在 Nginx 配置的 `http` 块中添加：
 
 ```nginx
 underscores_in_headers on;
@@ -406,33 +406,6 @@ default:
   rate_multiplier: 1.0
 ```
 
-### Sora 功能状态（暂不可用）
-
-> ⚠️ 当前 Sora 相关功能因上游接入与媒体链路存在技术问题，暂时不可用。
-> 现阶段请勿在生产环境依赖 Sora 能力。
-> 文档中的 `gateway.sora_*` 配置仅作预留，待技术问题修复后再恢复可用。
-
-### Sora 媒体签名 URL（功能恢复后可选）
-
-当配置 `gateway.sora_media_signing_key` 且 `gateway.sora_media_signed_url_ttl_seconds > 0` 时，网关会将 Sora 输出的媒体地址改写为临时签名 URL（`/sora/media-signed/...`）。这样无需 API Key 即可在浏览器中直接访问，且具备过期控制与防篡改能力（签名包含 path + query）。
-
-```yaml
-gateway:
-  # /sora/media 是否强制要求 API Key（默认 false）
-  sora_media_require_api_key: false
-  # 媒体临时签名密钥（为空则禁用签名）
-  sora_media_signing_key: "your-signing-key"
-  # 临时签名 URL 有效期（秒）
-  sora_media_signed_url_ttl_seconds: 900
-```
-
-> 若未配置签名密钥，`/sora/media-signed` 将返回 503。  
-> 如需更严格的访问控制，可将 `sora_media_require_api_key` 设为 true，仅允许携带 API Key 的 `/sora/media` 访问。
-
-访问策略说明：
-- `/sora/media`：内部调用或客户端携带 API Key 才能下载
-- `/sora/media-signed`：外部可访问，但有签名 + 过期控制
-
 `config.yaml` 还支持以下安全相关配置：
 
 - `cors.allowed_origins` 配置 CORS 白名单
@@ -450,7 +423,6 @@ gateway:
 
 - `gateway.upstream_response_read_max_bytes`：限制非流式上游响应读取大小（默认 `8MB`），用于防止异常响应导致内存放大。
 - `gateway.proxy_probe_response_read_max_bytes`：限制代理探测响应读取大小（默认 `1MB`）。
-- `gateway.gemini_debug_response_headers`：默认 `false`，仅在排障时短时开启，避免高频请求日志开销。
 - `/auth/register`、`/auth/login`、`/auth/login/2fa`、`/auth/send-verify-code` 已提供服务端兜底限流（Redis 故障时 fail-close）。
 - 推荐将 WAF/CDN 作为第一层防护，服务端限流与响应读取上限作为第二层兜底；两层同时保留，避免旁路流量与误配置风险。
 
@@ -556,36 +528,6 @@ go generate ./cmd/server
 
 ---
 
-## Antigravity 使用说明
-
-Sub2API 支持 [Antigravity](https://antigravity.so/) 账户，授权后可通过专用端点访问 Claude 和 Gemini 模型。
-
-### 专用端点
-
-| 端点 | 模型 |
-|------|------|
-| `/antigravity/v1/messages` | Claude 模型 |
-| `/antigravity/v1beta/` | Gemini 模型 |
-
-### Claude Code 配置示例
-
-```bash
-export ANTHROPIC_BASE_URL="http://localhost:8080/antigravity"
-export ANTHROPIC_AUTH_TOKEN="sk-xxx"
-```
-
-### 混合调度模式
-
-Antigravity 账户支持可选的**混合调度**功能。开启后，通用端点 `/v1/messages` 和 `/v1beta/` 也会调度该账户。
-
-> **⚠️ 注意**：Anthropic Claude 和 Antigravity Claude **不能在同一上下文中混合使用**，请通过分组功能做好隔离。
-
-
-### 已知问题
-在 Claude Code 中，无法自动退出Plan Mode。（正常使用原生Claude Api时，Plan 完成后，Claude Code会弹出弹出选项让用户同意或拒绝Plan。） 
-解决办法：shift + Tab，手动退出Plan mode，然后输入内容 告诉 Claude Code 同意或拒绝 Plan
----
-
 ## 项目结构
 
 ```
@@ -597,7 +539,7 @@ sub2api/
 │   │   ├── model/            # 数据模型
 │   │   ├── service/          # 业务逻辑
 │   │   ├── handler/          # HTTP 处理器
-│   │   └── gateway/          # API 网关核心
+│   │   └── gateway/          # 请求路由核心
 │   └── resources/            # 静态资源
 │
 ├── frontend/                 # Vue 3 前端
@@ -618,7 +560,7 @@ sub2api/
 
 > **使用本项目前请仔细阅读：**
 >
-> :rotating_light: **服务条款风险**: 使用本项目可能违反 Anthropic 的服务条款。请在使用前仔细阅读 Anthropic 的用户协议，使用本项目的一切风险由用户自行承担。
+> :rotating_light: **服务条款风险**: 使用本项目可能违反上游服务提供商的服务条款。请在使用前仔细阅读相关用户协议，使用本项目的一切风险由用户自行承担。
 >
 > :book: **免责声明**: 本项目仅供技术学习和研究使用，作者不对因使用本项目导致的账户封禁、服务中断或其他损失承担任何责任。
 
