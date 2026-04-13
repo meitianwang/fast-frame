@@ -15,23 +15,35 @@ WHERE NOT EXISTS (
 );
 
 -- Step 2: Migrate existing wechat values to user_attribute_values
--- Only migrate non-empty values
-INSERT INTO user_attribute_values (user_id, attribute_id, value, created_at, updated_at)
-SELECT
-    u.id,
-    (SELECT id FROM user_attribute_definitions WHERE key = 'wechat' AND deleted_at IS NULL LIMIT 1),
-    u.wechat,
-    NOW(),
-    NOW()
-FROM users u
-WHERE u.wechat IS NOT NULL
-  AND u.wechat != ''
-  AND u.deleted_at IS NULL
-  AND NOT EXISTS (
-      SELECT 1 FROM user_attribute_values uav
-      WHERE uav.user_id = u.id
-        AND uav.attribute_id = (SELECT id FROM user_attribute_definitions WHERE key = 'wechat' AND deleted_at IS NULL LIMIT 1)
-  );
+-- Only migrate non-empty values; skip if wechat column does not exist (fresh install)
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_name = 'users' AND column_name = 'wechat'
+    ) THEN
+        INSERT INTO user_attribute_values (user_id, attribute_id, value, created_at, updated_at)
+        SELECT
+            u.id,
+            (SELECT id FROM user_attribute_definitions WHERE key = 'wechat' AND deleted_at IS NULL LIMIT 1),
+            u.wechat,
+            NOW(),
+            NOW()
+        FROM users u
+        WHERE u.wechat IS NOT NULL
+          AND u.wechat != ''
+          AND u.deleted_at IS NULL
+          AND NOT EXISTS (
+              SELECT 1 FROM user_attribute_values uav
+              WHERE uav.user_id = u.id
+                AND uav.attribute_id = (SELECT id FROM user_attribute_definitions WHERE key = 'wechat' AND deleted_at IS NULL LIMIT 1)
+          );
+
+        -- Drop the redundant wechat column
+        ALTER TABLE users DROP COLUMN wechat;
+    END IF;
+END
+$$;
 
 -- Step 3: Update display_order to ensure wechat appears first
 UPDATE user_attribute_definitions
@@ -48,9 +60,6 @@ UPDATE user_attribute_definitions
 SET display_order = ordered.new_order
 FROM ordered
 WHERE user_attribute_definitions.id = ordered.id;
-
--- Step 4: Drop the redundant wechat column from users table
-ALTER TABLE users DROP COLUMN IF EXISTS wechat;
 
 -- +goose StatementEnd
 

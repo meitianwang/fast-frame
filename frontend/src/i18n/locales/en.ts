@@ -1983,7 +1983,8 @@ export default {
       failedToSave: 'Failed to save settings',
       failedToTestSmtp: 'SMTP connection test failed',
       failedToSendTestEmail: 'Failed to send test email'
-    },
+    }
+  },
 
   // Subscription Progress (Header component)
   subscriptionProgress: {

@@ -805,8 +805,6 @@ export default {
       hour: '按小时',
       noDataAvailable: '暂无数据',
       recentUsage: '最近使用',
-      failedToLoad: '加载仪表盘统计失败'
-    },
       last7Days: '近 7 天',
       noUsageRecords: '暂无使用记录',
       startUsingApi: '开始使用 API 后，使用历史将显示在这里。',
@@ -2082,9 +2080,8 @@ export default {
       failedToSave: '保存设置失败',
       failedToTestSmtp: 'SMTP 连接测试失败',
       failedToSendTestEmail: '发送测试邮件失败'
-    },
-
-    // Error Passthrough Rules
+    }
+  },
 
   // Subscription Progress (Header component)
   subscriptionProgress: {
