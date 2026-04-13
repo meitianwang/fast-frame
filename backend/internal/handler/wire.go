@@ -1,8 +1,8 @@
 package handler
 
 import (
-	"github.com/Wei-Shaw/sub2api/internal/handler/admin"
-	"github.com/Wei-Shaw/sub2api/internal/service"
+	"github.com/meitianwang/fast-frame/internal/handler/admin"
+	"github.com/meitianwang/fast-frame/internal/service"
 
 	"github.com/google/wire"
 )

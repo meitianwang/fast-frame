@@ -11,10 +11,10 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/Wei-Shaw/sub2api/ent/group"
-	"github.com/Wei-Shaw/sub2api/ent/paymentorder"
-	"github.com/Wei-Shaw/sub2api/ent/predicate"
-	"github.com/Wei-Shaw/sub2api/ent/subscriptionplan"
+	"github.com/meitianwang/fast-frame/ent/group"
+	"github.com/meitianwang/fast-frame/ent/paymentorder"
+	"github.com/meitianwang/fast-frame/ent/predicate"
+	"github.com/meitianwang/fast-frame/ent/subscriptionplan"
 	"github.com/shopspring/decimal"
 )
 

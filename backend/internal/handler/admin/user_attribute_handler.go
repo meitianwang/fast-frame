@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/Wei-Shaw/sub2api/internal/pkg/response"
-	"github.com/Wei-Shaw/sub2api/internal/service"
+	"github.com/meitianwang/fast-frame/internal/pkg/response"
+	"github.com/meitianwang/fast-frame/internal/service"
 
 	"github.com/gin-gonic/gin"
 )

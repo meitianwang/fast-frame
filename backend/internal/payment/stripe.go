@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/Wei-Shaw/sub2api/internal/domain"
-	"github.com/Wei-Shaw/sub2api/internal/service"
+	"github.com/meitianwang/fast-frame/internal/domain"
+	"github.com/meitianwang/fast-frame/internal/service"
 	"github.com/shopspring/decimal"
 	"github.com/stripe/stripe-go/v82"
 	piClient "github.com/stripe/stripe-go/v82/paymentintent"

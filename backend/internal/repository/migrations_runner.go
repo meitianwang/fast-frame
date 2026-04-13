@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Wei-Shaw/sub2api/migrations"
+	"github.com/meitianwang/fast-frame/migrations"
 )
 
 // schemaMigrationsTableDDL 定义迁移记录表的 DDL。
@@ -60,7 +60,7 @@ type migrationChecksumCompatibilityRule struct {
 // migrationChecksumCompatibilityRules 仅用于兼容历史上误修改过的迁移文件 checksum。
 // 规则必须同时匹配「迁移名 + 当前文件 checksum + 历史库 checksum」才会放行，避免放宽全局校验。
 var migrationChecksumCompatibilityRules = map[string]migrationChecksumCompatibilityRule{
-	// SaaS 重构：移除 AI 网关相关表（accounts, api_keys, usage_logs, proxies 等）后重写的迁移文件。
+	// SaaS 重构：移除旧业务相关表（accounts, api_keys, usage_logs, proxies 等）后重写的迁移文件。
 	// 已有数据库中记录的是旧 checksum，需要兼容。
 	"001_init.sql": {
 		fileChecksum: "f547f4ab15b93a6b0a4e7c7a23390796d04d7a1d20d20b6d65f43a5e2b153a61",

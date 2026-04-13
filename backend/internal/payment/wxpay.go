@@ -19,8 +19,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Wei-Shaw/sub2api/internal/domain"
-	"github.com/Wei-Shaw/sub2api/internal/service"
+	"github.com/meitianwang/fast-frame/internal/domain"
+	"github.com/meitianwang/fast-frame/internal/service"
 	"github.com/shopspring/decimal"
 )
 

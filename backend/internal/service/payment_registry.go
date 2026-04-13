@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/Wei-Shaw/sub2api/internal/domain"
+	"github.com/meitianwang/fast-frame/internal/domain"
 )
 
 // PaymentProviderFactory creates a PaymentProvider from decrypted config JSON.

@@ -1,4 +1,4 @@
--- Sub2API 初始化数据库迁移脚本
+-- Fast-Frame 初始化数据库迁移脚本
 -- PostgreSQL 15+
 
 -- 1. groups 分组表

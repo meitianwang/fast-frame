@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/Wei-Shaw/sub2api/internal/config"
+	"github.com/meitianwang/fast-frame/internal/config"
 	"github.com/google/wire"
 )
 

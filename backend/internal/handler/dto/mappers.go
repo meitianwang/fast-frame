@@ -4,7 +4,7 @@ package dto
 import (
 	"strconv"
 
-	"github.com/Wei-Shaw/sub2api/internal/service"
+	"github.com/meitianwang/fast-frame/internal/service"
 )
 
 func UserFromServiceShallow(u *service.User) *User {

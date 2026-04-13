@@ -16,13 +16,13 @@ import (
 	"time"
 	_ "time/tzdata" // embed timezone database for minimal containers
 
-	_ "github.com/Wei-Shaw/sub2api/ent/runtime"
-	"github.com/Wei-Shaw/sub2api/internal/config"
-	"github.com/Wei-Shaw/sub2api/internal/handler"
-	"github.com/Wei-Shaw/sub2api/internal/pkg/logger"
-	"github.com/Wei-Shaw/sub2api/internal/server/middleware"
-	"github.com/Wei-Shaw/sub2api/internal/setup"
-	"github.com/Wei-Shaw/sub2api/internal/web"
+	_ "github.com/meitianwang/fast-frame/ent/runtime"
+	"github.com/meitianwang/fast-frame/internal/config"
+	"github.com/meitianwang/fast-frame/internal/handler"
+	"github.com/meitianwang/fast-frame/internal/pkg/logger"
+	"github.com/meitianwang/fast-frame/internal/server/middleware"
+	"github.com/meitianwang/fast-frame/internal/setup"
+	"github.com/meitianwang/fast-frame/internal/web"
 
 	"github.com/gin-gonic/gin"
 	"golang.org/x/net/http2"
@@ -65,7 +65,7 @@ func main() {
 	flag.Parse()
 
 	if *showVersion {
-		log.Printf("Sub2API %s (commit: %s, built: %s)\n", Version, Commit, Date)
+		log.Printf("Fast-Frame %s (commit: %s, built: %s)\n", Version, Commit, Date)
 		return
 	}
 
@@ -115,7 +115,7 @@ func runSetupServer() {
 	// This allows users to run setup on a different address if needed
 	addr := config.GetServerAddress()
 	log.Printf("Setup wizard available at http://%s", addr)
-	log.Println("Complete the setup wizard to configure Sub2API")
+	log.Println("Complete the setup wizard to configure Fast-Frame")
 
 	server := &http.Server{
 		Addr:              addr,

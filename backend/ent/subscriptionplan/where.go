@@ -7,7 +7,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"github.com/Wei-Shaw/sub2api/ent/predicate"
+	"github.com/meitianwang/fast-frame/ent/predicate"
 	"github.com/shopspring/decimal"
 )
 

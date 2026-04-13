@@ -13,10 +13,10 @@ import (
 	"sync/atomic"
 	"time"
 
-	dbent "github.com/Wei-Shaw/sub2api/ent"
-	"github.com/Wei-Shaw/sub2api/internal/domain"
-	infraerrors "github.com/Wei-Shaw/sub2api/internal/pkg/errors"
-	"github.com/Wei-Shaw/sub2api/internal/pkg/pagination"
+	dbent "github.com/meitianwang/fast-frame/ent"
+	"github.com/meitianwang/fast-frame/internal/domain"
+	infraerrors "github.com/meitianwang/fast-frame/internal/pkg/errors"
+	"github.com/meitianwang/fast-frame/internal/pkg/pagination"
 	"github.com/shopspring/decimal"
 )
 
@@ -221,7 +221,7 @@ func (s *PaymentConfigService) GetMaxDailyRechargeAmount(ctx context.Context) de
 }
 
 func (s *PaymentConfigService) GetProductName(ctx context.Context) string {
-	return s.getString(ctx, SettingKeyPayProductName, "Sub2API Balance Recharge")
+	return s.getString(ctx, SettingKeyPayProductName, "Fast-Frame Balance Recharge")
 }
 
 func (s *PaymentConfigService) GetLoadBalanceStrategy(ctx context.Context) string {
@@ -1465,13 +1465,13 @@ func (s *PaymentOrderService) buildPaymentSubject(ctx context.Context, order *Pa
 		if plan.ProductName != nil && *plan.ProductName != "" {
 			return *plan.ProductName
 		}
-		// Subscription fallback: "Sub2API 订阅 {groupName}"
+		// Subscription fallback: "Fast-Frame 订阅 {groupName}"
 		if plan.GroupID != nil {
 			if group, err := s.groupRepo.GetByID(ctx, *plan.GroupID); err == nil {
-				return "Sub2API 订阅 " + group.Name
+				return "Fast-Frame 订阅 " + group.Name
 			}
 		}
-		return "Sub2API 订阅 " + plan.Name
+		return "Fast-Frame 订阅 " + plan.Name
 	}
 
 	// Balance order: include the actual pay amount in the subject, matching TypeScript:
@@ -1495,7 +1495,7 @@ func (s *PaymentOrderService) buildPaymentSubject(ctx context.Context, order *Pa
 		}
 		return strings.Join(parts, " ")
 	}
-	return "Sub2API " + payAmountStr + " CNY"
+	return "Fast-Frame " + payAmountStr + " CNY"
 }
 
 func (s *PaymentOrderService) writeAuditLog(ctx context.Context, orderID int64, action, detail string) {

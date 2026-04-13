@@ -3,9 +3,9 @@ package repository
 import (
 	"context"
 
-	dbent "github.com/Wei-Shaw/sub2api/ent"
-	"github.com/Wei-Shaw/sub2api/ent/paymentchannel"
-	"github.com/Wei-Shaw/sub2api/internal/service"
+	dbent "github.com/meitianwang/fast-frame/ent"
+	"github.com/meitianwang/fast-frame/ent/paymentchannel"
+	"github.com/meitianwang/fast-frame/internal/service"
 )
 
 type paymentChannelRepository struct {

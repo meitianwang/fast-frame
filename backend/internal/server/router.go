@@ -6,12 +6,12 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/Wei-Shaw/sub2api/internal/config"
-	"github.com/Wei-Shaw/sub2api/internal/handler"
-	middleware2 "github.com/Wei-Shaw/sub2api/internal/server/middleware"
-	"github.com/Wei-Shaw/sub2api/internal/server/routes"
-	"github.com/Wei-Shaw/sub2api/internal/service"
-	"github.com/Wei-Shaw/sub2api/internal/web"
+	"github.com/meitianwang/fast-frame/internal/config"
+	"github.com/meitianwang/fast-frame/internal/handler"
+	middleware2 "github.com/meitianwang/fast-frame/internal/server/middleware"
+	"github.com/meitianwang/fast-frame/internal/server/routes"
+	"github.com/meitianwang/fast-frame/internal/service"
+	"github.com/meitianwang/fast-frame/internal/web"
 
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"

@@ -11,8 +11,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/Wei-Shaw/sub2api/ent/paymentauditlog"
-	"github.com/Wei-Shaw/sub2api/ent/paymentorder"
+	"github.com/meitianwang/fast-frame/ent/paymentauditlog"
+	"github.com/meitianwang/fast-frame/ent/paymentorder"
 )
 
 // PaymentAuditLogCreate is the builder for creating a PaymentAuditLog entity.

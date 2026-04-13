@@ -1,4 +1,4 @@
-# Sub2API
+# Fast-Frame
 
 <div align="center">
 
@@ -8,7 +8,7 @@
 [![Redis](https://img.shields.io/badge/Redis-7+-DC382D.svg)](https://redis.io/)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg)](https://www.docker.com/)
 
-<a href="https://trendshift.io/repositories/21823" target="_blank"><img src="https://trendshift.io/api/badge/repositories/21823" alt="Wei-Shaw%2Fsub2api | Trendshift" width="250" height="55"/></a>
+<a href="https://trendshift.io/repositories/21823" target="_blank"><img src="https://trendshift.io/api/badge/repositories/21823" alt="meitianwang%2Ffast-frame | Trendshift" width="250" height="55"/></a>
 
 **Subscription-Based SaaS Management Platform**
 
@@ -16,23 +16,23 @@ English | [中文](README_CN.md) | [日本語](README_JA.md)
 
 </div>
 
-> **Sub2API officially uses only the domains `sub2api.org` and `pincc.ai`. Other websites using the Sub2API name may be third-party deployments or services and are not affiliated with this project. Please verify and exercise your own judgment.**
+> **Fast-Frame officially uses only the domains `fast-frame.dev` and `fast-frame.dev`. Other websites using the Fast-Frame name may be third-party deployments or services and are not affiliated with this project. Please verify and exercise your own judgment.**
 
 ---
 
 ## Demo
 
-Try Sub2API online: **[https://demo.sub2api.org/](https://demo.sub2api.org/)**
+Try Fast-Frame online: **[https://demo.fast-frame.dev/](https://demo.fast-frame.dev/)**
 
 Demo credentials (shared demo environment; **not** created automatically for self-hosted installs):
 
 | Email | Password |
 |-------|----------|
-| admin@sub2api.org | admin123 |
+| admin@fast-frame.dev | admin123 |
 
 ## Overview
 
-Sub2API is a subscription-based SaaS management platform for distributing and managing API quotas. Users access services through platform-generated API Keys, while the platform handles authentication, billing, load balancing, and request forwarding.
+Fast-Frame is a subscription-based SaaS management platform for distributing and managing API quotas. Users access services through platform-generated API Keys, while the platform handles authentication, billing, load balancing, and request forwarding.
 
 ## Features
 
@@ -49,22 +49,22 @@ Sub2API is a subscription-based SaaS management platform for distributing and ma
 
 <table>
 <tr>
-<td width="180" align="center" valign="middle"><a href="https://shop.pincc.ai/"><img src="assets/partners/logos/pincc-logo.png" alt="pincc" width="150"></a></td>
-<td valign="middle"><b><a href="https://shop.pincc.ai/">PinCC</a></b> is the official hosted service built on Sub2API — ready to use, no deployment or maintenance required.</td>
+<td width="180" align="center" valign="middle"><a href="https://fast-frame.dev/"><img src="assets/partners/logos/fast-frame-logo.png" alt="fast-frame" width="150"></a></td>
+<td valign="middle"><b><a href="https://fast-frame.dev/">Fast-Frame Cloud</a></b> is the official hosted service built on Fast-Frame — ready to use, no deployment or maintenance required.</td>
 </tr>
 <tr>
-<td width="180"><a href="https://www.packyapi.com/register?aff=sub2api"><img src="assets/partners/logos/packycode.png" alt="PackyCode" width="150"></a></td>
-<td>Thanks to PackyCode for sponsoring this project! PackyCode provides reliable API services. Special discounts for our users: register using <a href="https://www.packyapi.com/register?aff=sub2api">this link</a> and enter the "sub2api" promo code during first recharge to get 10% off.</td>
+<td width="180"><a href="https://www.packyapi.com/register?aff=fast-frame"><img src="assets/partners/logos/packycode.png" alt="PackyCode" width="150"></a></td>
+<td>Thanks to PackyCode for sponsoring this project! PackyCode provides reliable API services. Special discounts for our users: register using <a href="https://www.packyapi.com/register?aff=fast-frame">this link</a> and enter the "fast-frame" promo code during first recharge to get 10% off.</td>
 </tr>
 </table>
 
 ## Ecosystem
 
-Community projects that extend or integrate with Sub2API:
+Community projects that extend or integrate with Fast-Frame:
 
 | Project | Description | Features |
 |---------|-------------|----------|
-| [sub2api-mobile](https://github.com/ckken/sub2api-mobile) | Mobile admin console | Cross-platform app (iOS/Android/Web) for user management, account management, monitoring dashboard, and multi-backend switching; built with Expo + React Native |
+| [fast-frame-mobile](https://github.com/ckken/fast-frame-mobile) | Mobile admin console | Cross-platform app (iOS/Android/Web) for user management, account management, monitoring dashboard, and multi-backend switching; built with Expo + React Native |
 
 ## Tech Stack
 
@@ -79,7 +79,7 @@ Community projects that extend or integrate with Sub2API:
 
 ## Nginx Reverse Proxy Note
 
-When using Nginx as a reverse proxy for Sub2API, add the following to the `http` block in your Nginx configuration:
+When using Nginx as a reverse proxy for Fast-Frame, add the following to the `http` block in your Nginx configuration:
 
 ```nginx
 underscores_in_headers on;
@@ -105,13 +105,13 @@ One-click installation script that downloads pre-built binaries from GitHub Rele
 #### Installation Steps
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/Wei-Shaw/sub2api/main/deploy/install.sh | sudo bash
+curl -sSL https://raw.githubusercontent.com/meitianwang/fast-frame/main/deploy/install.sh | sudo bash
 ```
 
 The script will:
 1. Detect your system architecture
 2. Download the latest release
-3. Install binary to `/opt/sub2api`
+3. Install binary to `/opt/fast-frame`
 4. Create systemd service
 5. Configure system user and permissions
 
@@ -119,10 +119,10 @@ The script will:
 
 ```bash
 # 1. Start the service
-sudo systemctl start sub2api
+sudo systemctl start fast-frame
 
 # 2. Enable auto-start on boot
-sudo systemctl enable sub2api
+sudo systemctl enable fast-frame
 
 # 3. Open Setup Wizard in browser
 # http://YOUR_SERVER_IP:8080
@@ -146,16 +146,16 @@ The web interface will:
 
 ```bash
 # Check status
-sudo systemctl status sub2api
+sudo systemctl status fast-frame
 
 # View logs
-sudo journalctl -u sub2api -f
+sudo journalctl -u fast-frame -f
 
 # Restart service
-sudo systemctl restart sub2api
+sudo systemctl restart fast-frame
 
 # Uninstall
-curl -sSL https://raw.githubusercontent.com/Wei-Shaw/sub2api/main/deploy/install.sh | sudo bash -s -- uninstall -y
+curl -sSL https://raw.githubusercontent.com/meitianwang/fast-frame/main/deploy/install.sh | sudo bash -s -- uninstall -y
 ```
 
 ---
@@ -175,16 +175,16 @@ Use the automated deployment script for easy setup:
 
 ```bash
 # Create deployment directory
-mkdir -p sub2api-deploy && cd sub2api-deploy
+mkdir -p fast-frame-deploy && cd fast-frame-deploy
 
 # Download and run deployment preparation script
-curl -sSL https://raw.githubusercontent.com/Wei-Shaw/sub2api/main/deploy/docker-deploy.sh | bash
+curl -sSL https://raw.githubusercontent.com/meitianwang/fast-frame/main/deploy/docker-deploy.sh | bash
 
 # Start services
 docker compose up -d
 
 # View logs
-docker compose logs -f sub2api
+docker compose logs -f fast-frame
 ```
 
 **What the script does:**
@@ -200,8 +200,8 @@ If you prefer manual setup:
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/Wei-Shaw/sub2api.git
-cd sub2api/deploy
+git clone https://github.com/meitianwang/fast-frame.git
+cd fast-frame/deploy
 
 # 2. Copy environment configuration
 cp .env.example .env
@@ -257,7 +257,7 @@ docker compose up -d
 docker compose -f docker-compose.local.yml ps
 
 # 7. View logs
-docker compose -f docker-compose.local.yml logs -f sub2api
+docker compose -f docker-compose.local.yml logs -f fast-frame
 ```
 
 #### Deployment Versions
@@ -275,7 +275,7 @@ Open `http://YOUR_SERVER_IP:8080` in your browser.
 
 If admin password was auto-generated, find it in logs:
 ```bash
-docker compose -f docker-compose.local.yml logs sub2api | grep "admin password"
+docker compose -f docker-compose.local.yml logs fast-frame | grep "admin password"
 ```
 
 #### Upgrade
@@ -294,14 +294,14 @@ When using `docker-compose.local.yml`, migrate to a new server easily:
 # On source server
 docker compose -f docker-compose.local.yml down
 cd ..
-tar czf sub2api-complete.tar.gz sub2api-deploy/
+tar czf fast-frame-complete.tar.gz fast-frame-deploy/
 
 # Transfer to new server
-scp sub2api-complete.tar.gz user@new-server:/path/
+scp fast-frame-complete.tar.gz user@new-server:/path/
 
 # On new server
-tar xzf sub2api-complete.tar.gz
-cd sub2api-deploy/
+tar xzf fast-frame-complete.tar.gz
+cd fast-frame-deploy/
 docker compose -f docker-compose.local.yml up -d
 ```
 
@@ -339,8 +339,8 @@ Build and run from source code for development or customization.
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/Wei-Shaw/sub2api.git
-cd sub2api
+git clone https://github.com/meitianwang/fast-frame.git
+cd fast-frame
 
 # 2. Install pnpm (if not already installed)
 npm install -g pnpm
@@ -353,7 +353,7 @@ pnpm run build
 
 # 4. Build backend with embedded frontend
 cd ../backend
-go build -tags embed -o sub2api ./cmd/server
+go build -tags embed -o fast-frame ./cmd/server
 
 # 5. Create configuration file
 cp ../deploy/config.example.yaml ./config.yaml
@@ -377,7 +377,7 @@ database:
   port: 5432
   user: "postgres"
   password: "your_password"
-  dbname: "sub2api"
+  dbname: "fast-frame"
 
 redis:
   host: "localhost"
@@ -450,7 +450,7 @@ If you disable URL validation or response header filtering, harden your network 
 
 ```bash
 # 6. Run the application
-./sub2api
+./fast-frame
 ```
 
 #### Development Mode
@@ -490,7 +490,7 @@ Simple Mode is designed for individual developers or internal teams who want qui
 ## Project Structure
 
 ```
-sub2api/
+fast-frame/
 ├── backend/                  # Go backend service
 │   ├── cmd/server/           # Application entry
 │   ├── internal/             # Internal modules
@@ -527,11 +527,11 @@ sub2api/
 
 ## Star History
 
-<a href="https://star-history.com/#Wei-Shaw/sub2api&Date">
+<a href="https://star-history.com/#meitianwang/fast-frame&Date">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=Wei-Shaw/sub2api&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=Wei-Shaw/sub2api&type=Date" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=Wei-Shaw/sub2api&type=Date" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=meitianwang/fast-frame&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=meitianwang/fast-frame&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=meitianwang/fast-frame&type=Date" />
  </picture>
 </a>
 

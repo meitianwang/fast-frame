@@ -8,14 +8,14 @@ package main
 
 import (
 	"context"
-	"github.com/Wei-Shaw/sub2api/ent"
-	"github.com/Wei-Shaw/sub2api/internal/config"
-	"github.com/Wei-Shaw/sub2api/internal/handler"
-	"github.com/Wei-Shaw/sub2api/internal/handler/admin"
-	"github.com/Wei-Shaw/sub2api/internal/repository"
-	"github.com/Wei-Shaw/sub2api/internal/server"
-	"github.com/Wei-Shaw/sub2api/internal/server/middleware"
-	"github.com/Wei-Shaw/sub2api/internal/service"
+	"github.com/meitianwang/fast-frame/ent"
+	"github.com/meitianwang/fast-frame/internal/config"
+	"github.com/meitianwang/fast-frame/internal/handler"
+	"github.com/meitianwang/fast-frame/internal/handler/admin"
+	"github.com/meitianwang/fast-frame/internal/repository"
+	"github.com/meitianwang/fast-frame/internal/server"
+	"github.com/meitianwang/fast-frame/internal/server/middleware"
+	"github.com/meitianwang/fast-frame/internal/service"
 	"github.com/redis/go-redis/v9"
 	"log"
 	"net/http"
@@ -24,7 +24,7 @@ import (
 
 import (
 	_ "embed"
-	_ "github.com/Wei-Shaw/sub2api/ent/runtime"
+	_ "github.com/meitianwang/fast-frame/ent/runtime"
 	_ "time/tzdata"
 )
 

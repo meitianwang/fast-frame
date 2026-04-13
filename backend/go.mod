@@ -1,4 +1,4 @@
-module github.com/Wei-Shaw/sub2api
+module github.com/meitianwang/fast-frame
 
 go 1.26.1
 

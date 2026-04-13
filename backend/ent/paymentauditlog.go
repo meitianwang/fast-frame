@@ -9,8 +9,8 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/Wei-Shaw/sub2api/ent/paymentauditlog"
-	"github.com/Wei-Shaw/sub2api/ent/paymentorder"
+	"github.com/meitianwang/fast-frame/ent/paymentauditlog"
+	"github.com/meitianwang/fast-frame/ent/paymentorder"
 )
 
 // PaymentAuditLog is the model entity for the PaymentAuditLog schema.

@@ -15,7 +15,7 @@ import (
 	"strings"
 	"time"
 
-	infraerrors "github.com/Wei-Shaw/sub2api/internal/pkg/errors"
+	infraerrors "github.com/meitianwang/fast-frame/internal/pkg/errors"
 )
 
 var (

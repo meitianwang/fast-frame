@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Wei-Shaw/sub2api/internal/domain"
+	"github.com/meitianwang/fast-frame/internal/domain"
 )
 
 // PaymentOrderExpiryService expires stale pending payment orders.

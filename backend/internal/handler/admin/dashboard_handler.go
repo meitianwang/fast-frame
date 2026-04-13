@@ -3,7 +3,7 @@ package admin
 import (
 	"time"
 
-	"github.com/Wei-Shaw/sub2api/internal/pkg/response"
+	"github.com/meitianwang/fast-frame/internal/pkg/response"
 
 	"github.com/gin-gonic/gin"
 )

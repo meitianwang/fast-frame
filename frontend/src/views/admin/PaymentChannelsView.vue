@@ -233,7 +233,7 @@ onMounted(loadChannels)
 
 function resetForm() {
   form.name = ''
-  form.platform = 'claude'
+  form.platform = 'default'
   form.rate_multiplier = '1.0'
   form.group_id = undefined
   form.sort_order = 0

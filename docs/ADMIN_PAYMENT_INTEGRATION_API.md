@@ -2,9 +2,9 @@
 
 > **⚠️ DEPRECATED / 已废弃**
 >
-> 支付系统已内置于 Sub2API，无需再对接外部支付服务。本文档仅供需要对接自定义外部支付系统的高级用户参考。
+> 支付系统已内置于 Fast-Frame，无需再对接外部支付服务。本文档仅供需要对接自定义外部支付系统的高级用户参考。
 >
-> The payment system is now built into Sub2API. There is no need to integrate an external payment service. This document is retained only for advanced users who want to integrate a custom external payment system.
+> The payment system is now built into Fast-Frame. There is no need to integrate an external payment service. This document is retained only for advanced users who want to integrate a custom external payment system.
 
 > 单文件中英双语文档 / Single-file bilingual documentation (Chinese + English)
 
@@ -13,7 +13,7 @@
 ## 中文
 
 ### 目标
-本文档用于对接外部支付系统与 Sub2API 的 Admin API，覆盖：
+本文档用于对接外部支付系统与 Fast-Frame 的 Admin API，覆盖：
 - 支付成功后充值
 - 用户查询
 - 人工余额修正
@@ -47,7 +47,7 @@
   "type": "balance",
   "value": 100.0,
   "user_id": 123,
-  "notes": "sub2apipay order: cm1234567890"
+  "notes": "fast-framepay order: cm1234567890"
 }
 ```
 
@@ -67,7 +67,7 @@ curl -X POST "${BASE}/api/v1/admin/redeem-codes/create-and-redeem" \
     "type":"balance",
     "value":100.00,
     "user_id":123,
-    "notes":"sub2apipay order: cm1234567890"
+    "notes":"fast-framepay order: cm1234567890"
   }'
 ```
 
@@ -106,7 +106,7 @@ curl -X POST "${BASE}/api/v1/admin/users/123/balance" \
 ```
 
 ### 4) 购买页 / 自定义页面 URL Query 透传（iframe / 新窗口一致）
-当 Sub2API 打开 `purchase_subscription_url` 或用户侧自定义页面 iframe URL 时，会统一追加：
+当 Fast-Frame 打开 `purchase_subscription_url` 或用户侧自定义页面 iframe URL 时，会统一追加：
 - `user_id`
 - `token`
 - `theme`（`light` / `dark`）
@@ -125,15 +125,15 @@ https://pay.example.com/pay?user_id=123&token=<jwt>&theme=light&lang=zh&ui_mode=
 - 重试保持相同 `code`，并使用新的 `Idempotency-Key`
 
 ### 6) `doc_url` 配置建议
-- 查看链接：`https://github.com/Wei-Shaw/sub2api/blob/main/ADMIN_PAYMENT_INTEGRATION_API.md`
-- 下载链接：`https://raw.githubusercontent.com/Wei-Shaw/sub2api/main/ADMIN_PAYMENT_INTEGRATION_API.md`
+- 查看链接：`https://github.com/meitianwang/fast-frame/blob/main/ADMIN_PAYMENT_INTEGRATION_API.md`
+- 下载链接：`https://raw.githubusercontent.com/meitianwang/fast-frame/main/ADMIN_PAYMENT_INTEGRATION_API.md`
 
 ---
 
 ## English
 
 ### Purpose
-This document describes the minimal Sub2API Admin API surface for external payment integrations (for example, `sub2apipay`), including:
+This document describes the minimal Fast-Frame Admin API surface for external payment integrations (for example, `fast-framepay`), including:
 - Recharge after payment success
 - User lookup
 - Manual balance correction
@@ -167,7 +167,7 @@ Request body:
   "type": "balance",
   "value": 100.0,
   "user_id": 123,
-  "notes": "sub2apipay order: cm1234567890"
+  "notes": "fast-framepay order: cm1234567890"
 }
 ```
 
@@ -187,7 +187,7 @@ curl -X POST "${BASE}/api/v1/admin/redeem-codes/create-and-redeem" \
     "type":"balance",
     "value":100.00,
     "user_id":123,
-    "notes":"sub2apipay order: cm1234567890"
+    "notes":"fast-framepay order: cm1234567890"
   }'
 ```
 
@@ -226,7 +226,7 @@ curl -X POST "${BASE}/api/v1/admin/users/123/balance" \
 ```
 
 ### 4) Purchase / Custom Page URL query forwarding (iframe and new tab)
-When Sub2API opens `purchase_subscription_url` or a user-facing custom page iframe URL, it appends:
+When Fast-Frame opens `purchase_subscription_url` or a user-facing custom page iframe URL, it appends:
 - `user_id`
 - `token`
 - `theme` (`light` / `dark`)
@@ -245,5 +245,5 @@ https://pay.example.com/pay?user_id=123&token=<jwt>&theme=light&lang=zh&ui_mode=
 - Keep the same `code` for retry, and use a new `Idempotency-Key`
 
 ### 6) Recommended `doc_url`
-- View URL: `https://github.com/Wei-Shaw/sub2api/blob/main/ADMIN_PAYMENT_INTEGRATION_API.md`
-- Download URL: `https://raw.githubusercontent.com/Wei-Shaw/sub2api/main/ADMIN_PAYMENT_INTEGRATION_API.md`
+- View URL: `https://github.com/meitianwang/fast-frame/blob/main/ADMIN_PAYMENT_INTEGRATION_API.md`
+- Download URL: `https://raw.githubusercontent.com/meitianwang/fast-frame/main/ADMIN_PAYMENT_INTEGRATION_API.md`

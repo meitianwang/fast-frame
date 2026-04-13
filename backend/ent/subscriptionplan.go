@@ -9,8 +9,8 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/Wei-Shaw/sub2api/ent/group"
-	"github.com/Wei-Shaw/sub2api/ent/subscriptionplan"
+	"github.com/meitianwang/fast-frame/ent/group"
+	"github.com/meitianwang/fast-frame/ent/subscriptionplan"
 	"github.com/shopspring/decimal"
 )
 

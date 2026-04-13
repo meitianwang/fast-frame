@@ -7,9 +7,9 @@ import (
 	"testing"
 	"time"
 
-	dbent "github.com/Wei-Shaw/sub2api/ent"
-	"github.com/Wei-Shaw/sub2api/internal/pkg/pagination"
-	"github.com/Wei-Shaw/sub2api/internal/service"
+	dbent "github.com/meitianwang/fast-frame/ent"
+	"github.com/meitianwang/fast-frame/internal/pkg/pagination"
+	"github.com/meitianwang/fast-frame/internal/service"
 	"github.com/stretchr/testify/suite"
 )
 

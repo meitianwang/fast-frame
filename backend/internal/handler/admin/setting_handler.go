@@ -11,11 +11,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Wei-Shaw/sub2api/internal/config"
-	"github.com/Wei-Shaw/sub2api/internal/handler/dto"
-	"github.com/Wei-Shaw/sub2api/internal/pkg/response"
-	"github.com/Wei-Shaw/sub2api/internal/server/middleware"
-	"github.com/Wei-Shaw/sub2api/internal/service"
+	"github.com/meitianwang/fast-frame/internal/config"
+	"github.com/meitianwang/fast-frame/internal/handler/dto"
+	"github.com/meitianwang/fast-frame/internal/pkg/response"
+	"github.com/meitianwang/fast-frame/internal/server/middleware"
+	"github.com/meitianwang/fast-frame/internal/service"
 
 	"github.com/gin-gonic/gin"
 )
@@ -57,7 +57,6 @@ func (h *SettingHandler) GetSettings(c *gin.Context) {
 		return
 	}
 
-	// Check if ops monitoring is enabled (respects config.ops.enabled)
 	defaultSubscriptions := make([]dto.DefaultSubscriptionSetting, 0, len(settings.DefaultSubscriptions))
 	for _, sub := range settings.DefaultSubscriptions {
 		defaultSubscriptions = append(defaultSubscriptions, dto.DefaultSubscriptionSetting{

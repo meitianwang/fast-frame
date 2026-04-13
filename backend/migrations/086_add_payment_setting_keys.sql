@@ -6,7 +6,7 @@ INSERT INTO settings (key, value, updated_at) VALUES
     ('pay_min_recharge_amount',      '1',                       NOW()),
     ('pay_max_recharge_amount',      '1000',                    NOW()),
     ('pay_max_daily_recharge_amount','10000',                   NOW()),
-    ('pay_product_name',             'Sub2API Balance Recharge', NOW()),
+    ('pay_product_name',             'Fast-Frame Balance Recharge', NOW()),
     ('pay_providers',                '',                        NOW()),
     ('pay_help_image_url',           '',                        NOW()),
     ('pay_help_text',                '',                        NOW()),

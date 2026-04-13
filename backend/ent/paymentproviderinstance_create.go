@@ -11,8 +11,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/Wei-Shaw/sub2api/ent/paymentorder"
-	"github.com/Wei-Shaw/sub2api/ent/paymentproviderinstance"
+	"github.com/meitianwang/fast-frame/ent/paymentorder"
+	"github.com/meitianwang/fast-frame/ent/paymentproviderinstance"
 )
 
 // PaymentProviderInstanceCreate is the builder for creating a PaymentProviderInstance entity.

@@ -8,8 +8,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/Wei-Shaw/sub2api/ent/paymentchannel"
-	"github.com/Wei-Shaw/sub2api/ent/predicate"
+	"github.com/meitianwang/fast-frame/ent/paymentchannel"
+	"github.com/meitianwang/fast-frame/ent/predicate"
 )
 
 // PaymentChannelDelete is the builder for deleting a PaymentChannel entity.

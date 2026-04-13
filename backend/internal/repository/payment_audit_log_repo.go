@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 
-	dbent "github.com/Wei-Shaw/sub2api/ent"
-	"github.com/Wei-Shaw/sub2api/ent/paymentauditlog"
-	"github.com/Wei-Shaw/sub2api/internal/service"
+	dbent "github.com/meitianwang/fast-frame/ent"
+	"github.com/meitianwang/fast-frame/ent/paymentauditlog"
+	"github.com/meitianwang/fast-frame/internal/service"
 )
 
 type paymentAuditLogRepository struct {

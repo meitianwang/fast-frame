@@ -4,11 +4,11 @@ import (
 	"context"
 	"time"
 
-	dbent "github.com/Wei-Shaw/sub2api/ent"
-	"github.com/Wei-Shaw/sub2api/ent/redeemcode"
-	"github.com/Wei-Shaw/sub2api/ent/user"
-	"github.com/Wei-Shaw/sub2api/internal/pkg/pagination"
-	"github.com/Wei-Shaw/sub2api/internal/service"
+	dbent "github.com/meitianwang/fast-frame/ent"
+	"github.com/meitianwang/fast-frame/ent/redeemcode"
+	"github.com/meitianwang/fast-frame/ent/user"
+	"github.com/meitianwang/fast-frame/internal/pkg/pagination"
+	"github.com/meitianwang/fast-frame/internal/service"
 )
 
 type redeemCodeRepository struct {

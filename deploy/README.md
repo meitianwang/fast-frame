@@ -1,6 +1,6 @@
-# Sub2API Deployment Files
+# Fast-Frame Deployment Files
 
-This directory contains files for deploying Sub2API on Linux servers.
+This directory contains files for deploying Fast-Frame on Linux servers.
 
 ## Deployment Methods
 
@@ -20,8 +20,8 @@ This directory contains files for deploying Sub2API on Linux servers.
 | `DOCKER.md` | Docker Hub documentation |
 | `install.sh` | One-click binary installation script |
 | `install-datamanagementd.sh` | datamanagementd 一键安装脚本 |
-| `sub2api.service` | Systemd service unit file |
-| `sub2api-datamanagementd.service` | datamanagementd systemd service unit file |
+| `fast-frame.service` | Systemd service unit file |
+| `fast-frame-datamanagementd.service` | datamanagementd systemd service unit file |
 | `DATAMANAGEMENTD_CN.md` | datamanagementd 部署与联动说明（中文） |
 | `config.example.yaml` | Example configuration file |
 
@@ -35,10 +35,10 @@ Use the automated preparation script for the easiest setup:
 
 ```bash
 # Download and run the preparation script
-curl -sSL https://raw.githubusercontent.com/Wei-Shaw/sub2api/main/deploy/docker-deploy.sh | bash
+curl -sSL https://raw.githubusercontent.com/meitianwang/fast-frame/main/deploy/docker-deploy.sh | bash
 
 # Or download first, then run
-curl -sSL https://raw.githubusercontent.com/Wei-Shaw/sub2api/main/deploy/docker-deploy.sh -o docker-deploy.sh
+curl -sSL https://raw.githubusercontent.com/meitianwang/fast-frame/main/deploy/docker-deploy.sh -o docker-deploy.sh
 chmod +x docker-deploy.sh
 ./docker-deploy.sh
 ```
@@ -56,10 +56,10 @@ chmod +x docker-deploy.sh
 docker compose -f docker-compose.local.yml up -d
 
 # View logs
-docker compose -f docker-compose.local.yml logs -f sub2api
+docker compose -f docker-compose.local.yml logs -f fast-frame
 
 # If admin password was auto-generated, find it in logs:
-docker compose -f docker-compose.local.yml logs sub2api | grep "admin password"
+docker compose -f docker-compose.local.yml logs fast-frame | grep "admin password"
 
 # Access Web UI
 # http://localhost:8080
@@ -71,8 +71,8 @@ If you prefer manual control:
 
 ```bash
 # Clone repository
-git clone https://github.com/Wei-Shaw/sub2api.git
-cd sub2api/deploy
+git clone https://github.com/meitianwang/fast-frame.git
+cd fast-frame/deploy
 
 # Configure environment
 cp .env.example .env
@@ -91,7 +91,7 @@ mkdir -p data postgres_data redis_data
 docker compose -f docker-compose.local.yml up -d
 
 # View logs (check for auto-generated admin password)
-docker compose -f docker-compose.local.yml logs -f sub2api
+docker compose -f docker-compose.local.yml logs -f fast-frame
 
 # Access Web UI
 # http://localhost:8080
@@ -121,7 +121,7 @@ When using Docker Compose with `AUTO_SETUP=true`:
 
 3. If `ADMIN_PASSWORD` is not set, check logs for the generated password:
    ```bash
-   docker compose logs sub2api | grep "admin password"
+   docker compose logs fast-frame | grep "admin password"
    ```
 
 ### Database Migration Notes (PostgreSQL)
@@ -152,7 +152,7 @@ SELECT
 
 如需启用管理后台“数据管理”功能，请额外部署宿主机 `datamanagementd`：
 
-- 主进程固定探测 `/tmp/sub2api-datamanagement.sock`
+- 主进程固定探测 `/tmp/fast-frame-datamanagement.sock`
 - Docker 场景下需把宿主机 Socket 挂载到容器内同路径
 - 详细步骤见：`deploy/DATAMANAGEMENTD_CN.md`
 
@@ -168,10 +168,10 @@ docker compose -f docker-compose.local.yml up -d
 docker compose -f docker-compose.local.yml down
 
 # View logs
-docker compose -f docker-compose.local.yml logs -f sub2api
+docker compose -f docker-compose.local.yml logs -f fast-frame
 
-# Restart Sub2API only
-docker compose -f docker-compose.local.yml restart sub2api
+# Restart Fast-Frame only
+docker compose -f docker-compose.local.yml restart fast-frame
 
 # Update to latest version
 docker compose -f docker-compose.local.yml pull
@@ -192,10 +192,10 @@ docker compose up -d
 docker compose down
 
 # View logs
-docker compose logs -f sub2api
+docker compose logs -f fast-frame
 
-# Restart Sub2API only
-docker compose restart sub2api
+# Restart Fast-Frame only
+docker compose restart fast-frame
 
 # Update to latest version
 docker compose pull
@@ -213,7 +213,7 @@ docker compose down -v
 | `JWT_SECRET` | **Recommended** | *(auto-generated)* | JWT secret (fixed for persistent sessions) |
 | `TOTP_ENCRYPTION_KEY` | **Recommended** | *(auto-generated)* | TOTP encryption key (fixed for persistent 2FA) |
 | `SERVER_PORT` | No | `8080` | Server port |
-| `ADMIN_EMAIL` | No | `admin@sub2api.local` | Admin email |
+| `ADMIN_EMAIL` | No | `admin@fast-frame.local` | Admin email |
 | `ADMIN_PASSWORD` | No | *(auto-generated)* | Admin password |
 | `TZ` | No | `Asia/Shanghai` | Timezone |
 
@@ -230,13 +230,13 @@ When using `docker-compose.local.yml`, all data is stored in local directories, 
 cd /path/to/deployment
 docker compose -f docker-compose.local.yml down
 cd ..
-tar czf sub2api-complete.tar.gz deployment/
+tar czf fast-frame-complete.tar.gz deployment/
 
 # Transfer to new server
-scp sub2api-complete.tar.gz user@new-server:/path/to/destination/
+scp fast-frame-complete.tar.gz user@new-server:/path/to/destination/
 
 # On new server: Extract and start
-tar xzf sub2api-complete.tar.gz
+tar xzf fast-frame-complete.tar.gz
 cd deployment/
 docker compose -f docker-compose.local.yml up -d
 ```
@@ -252,19 +252,19 @@ For production servers using systemd.
 ### One-Line Installation
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/Wei-Shaw/sub2api/main/deploy/install.sh | sudo bash
+curl -sSL https://raw.githubusercontent.com/meitianwang/fast-frame/main/deploy/install.sh | sudo bash
 ```
 
 ### Manual Installation
 
-1. Download the latest release from [GitHub Releases](https://github.com/Wei-Shaw/sub2api/releases)
-2. Extract and copy the binary to `/opt/sub2api/`
-3. Copy `sub2api.service` to `/etc/systemd/system/`
+1. Download the latest release from [GitHub Releases](https://github.com/meitianwang/fast-frame/releases)
+2. Extract and copy the binary to `/opt/fast-frame/`
+3. Copy `fast-frame.service` to `/etc/systemd/system/`
 4. Run:
    ```bash
    sudo systemctl daemon-reload
-   sudo systemctl enable sub2api
-   sudo systemctl start sub2api
+   sudo systemctl enable fast-frame
+   sudo systemctl start fast-frame
    ```
 5. Open the Setup Wizard in your browser to complete configuration
 
@@ -285,22 +285,22 @@ sudo ./install.sh uninstall
 
 ```bash
 # Start the service
-sudo systemctl start sub2api
+sudo systemctl start fast-frame
 
 # Stop the service
-sudo systemctl stop sub2api
+sudo systemctl stop fast-frame
 
 # Restart the service
-sudo systemctl restart sub2api
+sudo systemctl restart fast-frame
 
 # Check status
-sudo systemctl status sub2api
+sudo systemctl status fast-frame
 
 # View logs
-sudo journalctl -u sub2api -f
+sudo journalctl -u fast-frame -f
 
 # Enable auto-start on boot
-sudo systemctl enable sub2api
+sudo systemctl enable fast-frame
 ```
 
 ### Configuration
@@ -313,7 +313,7 @@ To change after installation:
 
 1. Edit the systemd service:
    ```bash
-   sudo systemctl edit sub2api
+   sudo systemctl edit fast-frame
    ```
 
 2. Add or modify:
@@ -326,12 +326,12 @@ To change after installation:
 3. Reload and restart:
    ```bash
    sudo systemctl daemon-reload
-   sudo systemctl restart sub2api
+   sudo systemctl restart fast-frame
    ```
 
 #### Application Configuration
 
-The main config file is at `/etc/sub2api/config.yaml` (created by Setup Wizard).
+The main config file is at `/etc/fast-frame/config.yaml` (created by Setup Wizard).
 
 ### Prerequisites
 
@@ -343,12 +343,12 @@ The main config file is at `/etc/sub2api/config.yaml` (created by Setup Wizard).
 ### Directory Structure
 
 ```
-/opt/sub2api/
-├── sub2api              # Main binary
-├── sub2api.backup       # Backup (after upgrade)
+/opt/fast-frame/
+├── fast-frame              # Main binary
+├── fast-frame.backup       # Backup (after upgrade)
 └── data/                # Runtime data
 
-/etc/sub2api/
+/etc/fast-frame/
 └── config.yaml          # Configuration file
 ```
 
@@ -365,7 +365,7 @@ For **local directory version**:
 docker compose -f docker-compose.local.yml ps
 
 # View detailed logs
-docker compose -f docker-compose.local.yml logs --tail=100 sub2api
+docker compose -f docker-compose.local.yml logs --tail=100 fast-frame
 
 # Check database connection
 docker compose -f docker-compose.local.yml exec postgres pg_isready
@@ -387,7 +387,7 @@ For **named volumes version**:
 docker compose ps
 
 # View detailed logs
-docker compose logs --tail=100 sub2api
+docker compose logs --tail=100 fast-frame
 
 # Check database connection
 docker compose exec postgres pg_isready
@@ -403,13 +403,13 @@ docker compose restart
 
 ```bash
 # Check service status
-sudo systemctl status sub2api
+sudo systemctl status fast-frame
 
 # View recent logs
-sudo journalctl -u sub2api -n 50
+sudo journalctl -u fast-frame -n 50
 
 # Check config file
-sudo cat /etc/sub2api/config.yaml
+sudo cat /etc/fast-frame/config.yaml
 
 # Check PostgreSQL
 sudo systemctl status postgresql

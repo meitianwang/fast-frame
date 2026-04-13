@@ -6,8 +6,8 @@ import (
 	"log"
 	"time"
 
-	infraerrors "github.com/Wei-Shaw/sub2api/internal/pkg/errors"
-	"github.com/Wei-Shaw/sub2api/internal/pkg/pagination"
+	infraerrors "github.com/meitianwang/fast-frame/internal/pkg/errors"
+	"github.com/meitianwang/fast-frame/internal/pkg/pagination"
 )
 
 var (
