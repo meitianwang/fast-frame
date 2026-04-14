@@ -1,489 +1,166 @@
 # Fast-Frame
 
-<div align="center">
+**Fast-Frame** is a production-ready SaaS backend framework built with Go and Vue 3. It provides a complete infrastructure layer for subscription-based services, including user management, payment processing, API key management, and an admin dashboard — all packaged as a single deployable binary with an embedded frontend.
 
-[![Go](https://img.shields.io/badge/Go-1.25.7-00ADD8.svg)](https://golang.org/)
-[![Vue](https://img.shields.io/badge/Vue-3.4+-4FC08D.svg)](https://vuejs.org/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15+-336791.svg)](https://www.postgresql.org/)
-[![Redis](https://img.shields.io/badge/Redis-7+-DC382D.svg)](https://redis.io/)
-[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg)](https://www.docker.com/)
-
-<a href="https://trendshift.io/repositories/21823" target="_blank"><img src="https://trendshift.io/api/badge/repositories/21823" alt="meitianwang%2Ffast-frame | Trendshift" width="250" height="55"/></a>
-
-**Subscription-Based SaaS Management Platform**
-
-English | [中文](README_CN.md) | [日本語](README_JA.md)
-
-</div>
-
-> **Fast-Frame officially uses only the domains `fast-frame.dev` and `fast-frame.dev`. Other websites using the Fast-Frame name may be third-party deployments or services and are not affiliated with this project. Please verify and exercise your own judgment.**
+[中文文档](README_CN.md)
 
 ---
-
-## Demo
-
-Try Fast-Frame online: **[https://demo.fast-frame.dev/](https://demo.fast-frame.dev/)**
-
-Demo credentials (shared demo environment; **not** created automatically for self-hosted installs):
-
-| Email | Password |
-|-------|----------|
-| admin@fast-frame.dev | admin123 |
-
-## Overview
-
-Fast-Frame is a subscription-based SaaS management platform for distributing and managing API quotas. Users access services through platform-generated API Keys, while the platform handles authentication, billing, load balancing, and request forwarding.
 
 ## Features
 
-- **Multi-Account Management** - Support multiple upstream account types
-- **API Key Distribution** - Generate and manage API Keys for users
-- **Precise Billing** - Usage tracking and cost calculation
-- **Smart Scheduling** - Intelligent account selection with sticky sessions
-- **Concurrency Control** - Per-user and per-account concurrency limits
-- **Rate Limiting** - Configurable request rate limits
-- **Admin Dashboard** - Web interface for monitoring and management
-- **External System Integration** - Embed external systems (e.g. payment, ticketing) via iframe to extend the admin dashboard
+### Authentication & Security
+- Email/password registration and login with email verification
+- OAuth2 social login (LinuxDo)
+- Two-factor authentication (TOTP) with QR code setup
+- JWT-based auth with access/refresh token pairs
+- Cloudflare Turnstile CAPTCHA integration
+- Rate limiting on auth endpoints (Redis-backed, fail-close)
+- Security headers: CSP with nonce injection, HSTS, X-Frame-Options
 
-## Don't Want to Self-Host?
+### User Management
+- Profile management (username, password, 2FA settings)
+- Account balance tracking and top-up history
+- Custom user attributes system
+- Admin: full CRUD, usage statistics, balance adjustments
 
-<table>
-<tr>
-<td width="180" align="center" valign="middle"><a href="https://fast-frame.dev/"><img src="assets/partners/logos/fast-frame-logo.png" alt="fast-frame" width="150"></a></td>
-<td valign="middle"><b><a href="https://fast-frame.dev/">Fast-Frame Cloud</a></b> is the official hosted service built on Fast-Frame — ready to use, no deployment or maintenance required.</td>
-</tr>
-<tr>
-<td width="180"><a href="https://www.packyapi.com/register?aff=fast-frame"><img src="assets/partners/logos/packycode.png" alt="PackyCode" width="150"></a></td>
-<td>Thanks to PackyCode for sponsoring this project! PackyCode provides reliable API services. Special discounts for our users: register using <a href="https://www.packyapi.com/register?aff=fast-frame">this link</a> and enter the "fast-frame" promo code during first recharge to get 10% off.</td>
-</tr>
-</table>
+### Subscription System
+- Subscription groups and plans with configurable pricing tiers
+- Daily/monthly spending limits (USD)
+- Real-time usage progress tracking
+- Subscription renewal and expiry handling
+- Active subscription filtering and summary
 
-## Ecosystem
+### Payment Processing
+- Built-in support for multiple payment providers:
+  - **Stripe**
+  - **Alipay**
+  - **WeChat Pay**
+  - **EasyPay**
+- Payment channel management and load balancing across providers
+- Order lifecycle management (create, cancel, refund request)
+- Webhook handling for all supported providers
+- Payment dashboard with statistics
 
-Community projects that extend or integrate with Fast-Frame:
+### Promotional System
+- Redeem codes: balance-based or subscription-based, bulk generation and CSV export
+- Promo codes: percentage discounts, usage limits, expiry management
+- Redemption history tracking
 
-| Project | Description | Features |
-|---------|-------------|----------|
-| [fast-frame-mobile](https://github.com/ckken/fast-frame-mobile) | Mobile admin console | Cross-platform app (iOS/Android/Web) for user management, account management, monitoring dashboard, and multi-backend switching; built with Expo + React Native |
+### Admin Dashboard
+- Real-time metrics: active API keys, request counts, new users
+- User management with search and filtering
+- Announcement system with targeted delivery
+- SMTP configuration and test email sending
+- System settings management through web UI
+
+### Operations & Infrastructure
+- S3-compatible backup scheduling and restore
+- Structured logging with log rotation (Zap)
+- Idempotency support for critical operations
+- Embedded Vue 3 frontend — single binary, zero external static file dependencies
+- Setup wizard for first-time installation
+
+---
 
 ## Tech Stack
 
-| Component | Technology |
-|-----------|------------|
-| Backend | Go 1.25.7, Gin, Ent |
-| Frontend | Vue 3.4+, Vite 5+, TailwindCSS |
+| Layer | Technology |
+|---|---|
+| Backend language | Go 1.25+ |
+| Web framework | Gin |
+| ORM | Ent |
 | Database | PostgreSQL 15+ |
-| Cache/Queue | Redis 7+ |
+| Cache | Redis |
+| Frontend framework | Vue 3 + TypeScript |
+| Frontend build | Vite 5 |
+| Styling | TailwindCSS 3 |
+| State management | Pinia |
+| Package manager | pnpm |
 
 ---
 
-## Nginx Reverse Proxy Note
+## Quick Start
 
-When using Nginx as a reverse proxy for Fast-Frame, add the following to the `http` block in your Nginx configuration:
+### Prerequisites
 
-```nginx
-underscores_in_headers on;
-```
-
-Nginx drops headers containing underscores by default (e.g. `session_id`), which breaks sticky session routing in multi-account setups.
-
----
-
-## Deployment
-
-### Method 1: Script Installation (Recommended)
-
-One-click installation script that downloads pre-built binaries from GitHub Releases.
-
-#### Prerequisites
-
-- Linux server (amd64 or arm64)
-- PostgreSQL 15+ (installed and running)
-- Redis 7+ (installed and running)
-- Root privileges
-
-#### Installation Steps
-
-```bash
-curl -sSL https://raw.githubusercontent.com/meitianwang/fast-frame/main/deploy/install.sh | sudo bash
-```
-
-The script will:
-1. Detect your system architecture
-2. Download the latest release
-3. Install binary to `/opt/fast-frame`
-4. Create systemd service
-5. Configure system user and permissions
-
-#### Post-Installation
-
-```bash
-# 1. Start the service
-sudo systemctl start fast-frame
-
-# 2. Enable auto-start on boot
-sudo systemctl enable fast-frame
-
-# 3. Open Setup Wizard in browser
-# http://YOUR_SERVER_IP:8080
-```
-
-The Setup Wizard will guide you through:
-- Database configuration
-- Redis configuration
-- Admin account creation
-
-#### Upgrade
-
-You can upgrade directly from the **Admin Dashboard** by clicking the **Check for Updates** button in the top-left corner.
-
-The web interface will:
-- Check for new versions automatically
-- Download and apply updates with one click
-- Support rollback if needed
-
-#### Useful Commands
-
-```bash
-# Check status
-sudo systemctl status fast-frame
-
-# View logs
-sudo journalctl -u fast-frame -f
-
-# Restart service
-sudo systemctl restart fast-frame
-
-# Uninstall
-curl -sSL https://raw.githubusercontent.com/meitianwang/fast-frame/main/deploy/install.sh | sudo bash -s -- uninstall -y
-```
-
----
-
-### Method 2: Docker Compose (Recommended)
-
-Deploy with Docker Compose, including PostgreSQL and Redis containers.
-
-#### Prerequisites
-
-- Docker 20.10+
-- Docker Compose v2+
-
-#### Quick Start (One-Click Deployment)
-
-Use the automated deployment script for easy setup:
-
-```bash
-# Create deployment directory
-mkdir -p fast-frame-deploy && cd fast-frame-deploy
-
-# Download and run deployment preparation script
-curl -sSL https://raw.githubusercontent.com/meitianwang/fast-frame/main/deploy/docker-deploy.sh | bash
-
-# Start services
-docker compose up -d
-
-# View logs
-docker compose logs -f fast-frame
-```
-
-**What the script does:**
-- Downloads `docker-compose.local.yml` (saved as `docker-compose.yml`) and `.env.example`
-- Generates secure credentials (JWT_SECRET, TOTP_ENCRYPTION_KEY, POSTGRES_PASSWORD)
-- Creates `.env` file with auto-generated secrets
-- Creates data directories (uses local directories for easy backup/migration)
-- Displays generated credentials for your reference
-
-#### Manual Deployment
-
-If you prefer manual setup:
-
-```bash
-# 1. Clone the repository
-git clone https://github.com/meitianwang/fast-frame.git
-cd fast-frame/deploy
-
-# 2. Copy environment configuration
-cp .env.example .env
-
-# 3. Edit configuration (generate secure passwords)
-nano .env
-```
-
-**Required configuration in `.env`:**
-
-```bash
-# PostgreSQL password (REQUIRED)
-POSTGRES_PASSWORD=your_secure_password_here
-
-# JWT Secret (RECOMMENDED - keeps users logged in after restart)
-JWT_SECRET=your_jwt_secret_here
-
-# TOTP Encryption Key (RECOMMENDED - preserves 2FA after restart)
-TOTP_ENCRYPTION_KEY=your_totp_key_here
-
-# Optional: Admin account
-ADMIN_EMAIL=admin@example.com
-ADMIN_PASSWORD=your_admin_password
-
-# Optional: Custom port
-SERVER_PORT=8080
-```
-
-**Generate secure secrets:**
-```bash
-# Generate JWT_SECRET
-openssl rand -hex 32
-
-# Generate TOTP_ENCRYPTION_KEY
-openssl rand -hex 32
-
-# Generate POSTGRES_PASSWORD
-openssl rand -hex 32
-```
-
-```bash
-# 4. Create data directories (for local version)
-mkdir -p data postgres_data redis_data
-
-# 5. Start all services
-# Option A: Local directory version (recommended - easy migration)
-docker compose -f docker-compose.local.yml up -d
-
-# Option B: Named volumes version (simple setup)
-docker compose up -d
-
-# 6. Check status
-docker compose -f docker-compose.local.yml ps
-
-# 7. View logs
-docker compose -f docker-compose.local.yml logs -f fast-frame
-```
-
-#### Deployment Versions
-
-| Version | Data Storage | Migration | Best For |
-|---------|-------------|-----------|----------|
-| **docker-compose.local.yml** | Local directories | ✅ Easy (tar entire directory) | Production, frequent backups |
-| **docker-compose.yml** | Named volumes | ⚠️ Requires docker commands | Simple setup |
-
-**Recommendation:** Use `docker-compose.local.yml` (deployed by script) for easier data management.
-
-#### Access
-
-Open `http://YOUR_SERVER_IP:8080` in your browser.
-
-If admin password was auto-generated, find it in logs:
-```bash
-docker compose -f docker-compose.local.yml logs fast-frame | grep "admin password"
-```
-
-#### Upgrade
-
-```bash
-# Pull latest image and recreate container
-docker compose -f docker-compose.local.yml pull
-docker compose -f docker-compose.local.yml up -d
-```
-
-#### Easy Migration (Local Directory Version)
-
-When using `docker-compose.local.yml`, migrate to a new server easily:
-
-```bash
-# On source server
-docker compose -f docker-compose.local.yml down
-cd ..
-tar czf fast-frame-complete.tar.gz fast-frame-deploy/
-
-# Transfer to new server
-scp fast-frame-complete.tar.gz user@new-server:/path/
-
-# On new server
-tar xzf fast-frame-complete.tar.gz
-cd fast-frame-deploy/
-docker compose -f docker-compose.local.yml up -d
-```
-
-#### Useful Commands
-
-```bash
-# Stop all services
-docker compose -f docker-compose.local.yml down
-
-# Restart
-docker compose -f docker-compose.local.yml restart
-
-# View all logs
-docker compose -f docker-compose.local.yml logs -f
-
-# Remove all data (caution!)
-docker compose -f docker-compose.local.yml down
-rm -rf data/ postgres_data/ redis_data/
-```
-
----
-
-### Method 3: Build from Source
-
-Build and run from source code for development or customization.
-
-#### Prerequisites
-
-- Go 1.21+
-- Node.js 18+
+- Go 1.25+
+- Node.js 20+ and pnpm
 - PostgreSQL 15+
-- Redis 7+
+- Redis
 
-#### Build Steps
+### 1. Clone the repository
 
 ```bash
-# 1. Clone the repository
 git clone https://github.com/meitianwang/fast-frame.git
 cd fast-frame
+```
 
-# 2. Install pnpm (if not already installed)
-npm install -g pnpm
+### 2. Start the backend
 
-# 3. Build frontend
+```bash
+cd backend
+go run ./cmd/server/
+```
+
+On first run, the server detects no configuration and starts a **setup wizard** at `http://localhost:8080`. Complete the wizard to configure your database, JWT secret, SMTP, and other settings. The resulting `config.yaml` is saved to the working directory.
+
+### 3. Start the frontend dev server
+
+In a separate terminal:
+
+```bash
 cd frontend
 pnpm install
-pnpm run build
-# Output will be in ../backend/internal/web/dist/
-
-# 4. Build backend with embedded frontend
-cd ../backend
-go build -tags embed -o fast-frame ./cmd/server
-
-# 5. Create configuration file
-cp ../deploy/config.example.yaml ./config.yaml
-
-# 6. Edit configuration
-nano config.yaml
+pnpm dev
 ```
 
-> **Note:** The `-tags embed` flag embeds the frontend into the binary. Without this flag, the binary will not serve the frontend UI.
+The frontend dev server runs at `http://localhost:3000` and proxies `/api`, `/v1`, and `/setup` to the backend at `http://localhost:8080`.
 
-**Key configuration in `config.yaml`:**
-
-```yaml
-server:
-  host: "0.0.0.0"
-  port: 8080
-  mode: "release"
-
-database:
-  host: "localhost"
-  port: 5432
-  user: "postgres"
-  password: "your_password"
-  dbname: "fast-frame"
-
-redis:
-  host: "localhost"
-  port: 6379
-  password: ""
-
-jwt:
-  secret: "change-this-to-a-secure-random-string"
-  expire_hour: 24
-
-default:
-  user_concurrency: 5
-  user_balance: 0
-  api_key_prefix: "sk-"
-  rate_multiplier: 1.0
-```
-
-Additional security-related options are available in `config.yaml`:
-
-- `cors.allowed_origins` for CORS allowlist
-- `security.url_allowlist` for upstream/pricing/CRS host allowlists
-- `security.url_allowlist.enabled` to disable URL validation (use with caution)
-- `security.url_allowlist.allow_insecure_http` to allow HTTP URLs when validation is disabled
-- `security.url_allowlist.allow_private_hosts` to allow private/local IP addresses
-- `security.response_headers.enabled` to enable configurable response header filtering (disabled uses default allowlist)
-- `security.csp` to control Content-Security-Policy headers
-- `billing.circuit_breaker` to fail closed on billing errors
-- `server.trusted_proxies` to enable X-Forwarded-For parsing
-- `turnstile.required` to require Turnstile in release mode
-
-**⚠️ Security Warning: HTTP URL Configuration**
-
-When `security.url_allowlist.enabled=false`, the system performs minimal URL validation by default, **rejecting HTTP URLs** and only allowing HTTPS. To allow HTTP URLs (e.g., for development or internal testing), you must explicitly set:
-
-```yaml
-security:
-  url_allowlist:
-    enabled: false                # Disable allowlist checks
-    allow_insecure_http: true     # Allow HTTP URLs (⚠️ INSECURE)
-```
-
-**Or via environment variable:**
+### 4. Build a production binary
 
 ```bash
-SECURITY_URL_ALLOWLIST_ENABLED=false
-SECURITY_URL_ALLOWLIST_ALLOW_INSECURE_HTTP=true
+make build
 ```
 
-**Risks of allowing HTTP:**
-- API keys and data transmitted in **plaintext** (vulnerable to interception)
-- Susceptible to **man-in-the-middle (MITM) attacks**
-- **NOT suitable for production** environments
-
-**When to use HTTP:**
-- ✅ Development/testing with local servers (http://localhost)
-- ✅ Internal networks with trusted endpoints
-- ✅ Testing account connectivity before obtaining HTTPS
-- ❌ Production environments (use HTTPS only)
-
-**Example error without this setting:**
-```
-Invalid base URL: invalid url scheme: http
-```
-
-If you disable URL validation or response header filtering, harden your network layer:
-- Enforce an egress allowlist for upstream domains/IPs
-- Block private/loopback/link-local ranges
-- Enforce TLS-only outbound traffic
-- Strip sensitive upstream response headers at the proxy
-
-```bash
-# 6. Run the application
-./fast-frame
-```
-
-#### Development Mode
-
-```bash
-# Backend (with hot reload)
-cd backend
-go run ./cmd/server
-
-# Frontend (with hot reload)
-cd frontend
-pnpm run dev
-```
-
-#### Code Generation
-
-When editing `backend/ent/schema`, regenerate Ent + Wire:
-
-```bash
-cd backend
-go generate ./ent
-go generate ./cmd/server
-```
+This compiles the Vue 3 frontend, embeds it into the Go binary, and produces a single self-contained executable.
 
 ---
 
-## Simple Mode
+## Configuration
 
-Simple Mode is designed for individual developers or internal teams who want quick access without full SaaS features.
+Configuration is stored in `config.yaml` (generated by the setup wizard) in the working directory, or in the path specified by the `DATA_DIR` environment variable.
 
-- Enable: Set environment variable `RUN_MODE=simple`
-- Difference: Hides SaaS-related features and skips billing process
-- Security note: In production, you must also set `SIMPLE_MODE_CONFIRM=true` to allow startup
+Key configuration sections:
+
+| Section | Description |
+|---|---|
+| `server` | Host, port, trusted proxies, request size limits |
+| `database` | PostgreSQL connection, pool settings |
+| `redis` | Redis connection, pool, TLS |
+| `jwt` | Secret, token expiry, refresh window |
+| `smtp` | Email server for verification and notifications |
+| `payment` | Provider credentials and channel configuration |
+| `cors` | Allowed origins |
+| `csp` | Content Security Policy |
+| `log` | Level, format, file rotation |
+| `s3` | Backup storage endpoint and credentials |
+
+All configuration values can be overridden with environment variables. The admin settings UI allows updating most settings without restarting the server.
+
+---
+
+## Docker Deployment
+
+```bash
+docker build -f backend/Dockerfile -t fast-frame .
+docker run -d \
+  -p 8080:8080 \
+  -e DATA_DIR=/app/data \
+  -v /your/data/dir:/app/data \
+  fast-frame
+```
+
+On first run with an empty `DATA_DIR`, the setup wizard starts automatically. Set `AUTO_SETUP=true` with the required environment variables to skip the interactive wizard for automated deployments.
 
 ---
 
@@ -491,60 +168,129 @@ Simple Mode is designed for individual developers or internal teams who want qui
 
 ```
 fast-frame/
-├── backend/                  # Go backend service
-│   ├── cmd/server/           # Application entry
-│   ├── internal/             # Internal modules
-│   │   ├── config/           # Configuration
-│   │   ├── model/            # Data models
-│   │   ├── service/          # Business logic
-│   │   ├── handler/          # HTTP handlers
-│   │   └── middleware/        # HTTP middleware
-│   └── resources/            # Static resources
-│
-├── frontend/                 # Vue 3 frontend
-│   └── src/
-│       ├── api/              # API calls
-│       ├── stores/           # State management
-│       ├── views/            # Page components
-│       └── components/       # Reusable components
-│
-└── deploy/                   # Deployment files
-    ├── docker-compose.yml    # Docker Compose configuration
-    ├── .env.example          # Environment variables for Docker Compose
-    ├── config.example.yaml   # Full config file for binary deployment
-    └── install.sh            # One-click installation script
+├── backend/
+│   ├── cmd/server/          # Application entry point
+│   ├── ent/                 # Ent ORM schema and generated code
+│   ├── internal/
+│   │   ├── config/          # Configuration loading and types
+│   │   ├── domain/          # Domain models and constants
+│   │   ├── handler/         # HTTP handlers (+ admin/ sub-package)
+│   │   ├── repository/      # Data access layer
+│   │   ├── service/         # Business logic (+ payment/, admin/)
+│   │   ├── server/
+│   │   │   ├── middleware/  # Auth, CORS, CSP, rate limiting, logging
+│   │   │   └── routes/      # Route registration
+│   │   ├── web/             # Embedded frontend serving
+│   │   └── pkg/             # Shared utilities
+│   └── migrations/          # Database migration files
+├── frontend/
+│   ├── src/
+│   │   ├── views/
+│   │   │   ├── auth/        # Login, register, password reset, OAuth callback
+│   │   │   ├── user/        # Profile, subscriptions, purchase
+│   │   │   ├── admin/       # Dashboard, users, payments, settings, ...
+│   │   │   └── setup/       # First-run setup wizard
+│   │   ├── components/      # Reusable Vue components
+│   │   ├── stores/          # Pinia stores
+│   │   ├── api/             # Axios API client
+│   │   └── i18n/            # Internationalization
+│   └── vite.config.ts
+├── docs/                    # Additional documentation
+├── tools/                   # Build and utility scripts
+└── Makefile
 ```
-
-## Disclaimer
-
-> **Please read carefully before using this project:**
->
-> :rotating_light: **Terms of Service Risk**: Using this project may violate upstream service providers' Terms of Service. Please read the relevant user agreements carefully before use. All risks arising from the use of this project are borne solely by the user.
->
-> :book: **Disclaimer**: This project is for technical learning and research purposes only. The author assumes no responsibility for account suspension, service interruption, or any other losses caused by the use of this project.
 
 ---
 
-## Star History
+## API Overview
 
-<a href="https://star-history.com/#meitianwang/fast-frame&Date">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=meitianwang/fast-frame&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=meitianwang/fast-frame&type=Date" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=meitianwang/fast-frame&type=Date" />
- </picture>
-</a>
+All API endpoints are versioned under `/api/v1/`.
+
+### Authentication
+| Method | Path | Description |
+|---|---|---|
+| POST | `/api/v1/auth/register` | Register a new user |
+| POST | `/api/v1/auth/login` | Login with email and password |
+| POST | `/api/v1/auth/login/2fa` | Complete 2FA verification |
+| POST | `/api/v1/auth/logout` | Logout |
+| POST | `/api/v1/auth/send-verify-code` | Send email verification code |
+| POST | `/api/v1/auth/verify-code` | Submit email verification code |
+
+### User (requires JWT)
+| Method | Path | Description |
+|---|---|---|
+| GET | `/api/v1/user/profile` | Get current user profile |
+| PUT | `/api/v1/user` | Update profile |
+| PUT | `/api/v1/user/password` | Change password |
+| GET/POST | `/api/v1/user/totp/*` | 2FA setup and management |
+
+### Payments (requires JWT)
+| Method | Path | Description |
+|---|---|---|
+| POST | `/api/v1/pay/orders` | Create a payment order |
+| GET | `/api/v1/pay/orders` | List user orders |
+| POST | `/api/v1/pay/orders/:id/cancel` | Cancel an order |
+| POST | `/api/v1/pay/orders/:id/refund-request` | Request a refund |
+| GET | `/api/v1/pay/subscription-plans` | List available plans |
+
+### Admin (requires admin API key or admin JWT)
+| Method | Path | Description |
+|---|---|---|
+| GET | `/api/v1/admin/dashboard/realtime` | Real-time system metrics |
+| GET/POST/PUT/DELETE | `/api/v1/admin/users/*` | User management |
+| GET/POST/PUT/DELETE | `/api/v1/admin/announcements/*` | Announcements |
+| POST | `/api/v1/admin/redeem-codes/generate` | Bulk redeem code generation |
+| GET/PUT | `/api/v1/admin/settings` | System settings |
+| GET/POST | `/api/v1/admin/backups` | Backup management |
+
+### Response format
+
+```json
+{
+  "code": 0,
+  "msg": "success",
+  "data": { ... }
+}
+```
+
+`code: 0` indicates success. Non-zero codes indicate errors with corresponding `msg` descriptions.
+
+---
+
+## Development
+
+### Backend tests
+
+```bash
+cd backend
+
+# Unit tests
+go test -tags=unit ./...
+
+# Integration tests (requires PostgreSQL and Redis)
+go test -tags=integration ./...
+
+# Lint
+golangci-lint run ./...
+```
+
+### Frontend checks
+
+```bash
+cd frontend
+pnpm typecheck
+pnpm lint:check
+```
+
+### Regenerate Ent code after schema changes
+
+```bash
+cd backend
+go generate ./ent
+```
 
 ---
 
 ## License
 
-MIT License
-
----
-
-<div align="center">
-
-**If you find this project useful, please give it a star!**
-
-</div>
+[LICENSE](LICENSE)

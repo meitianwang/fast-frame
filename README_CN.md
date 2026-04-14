@@ -1,528 +1,166 @@
 # Fast-Frame
 
-<div align="center">
+**Fast-Frame** 是一个面向生产环境的 SaaS 后端框架，基于 Go 和 Vue 3 构建。它为订阅制服务提供完整的基础设施层，包含用户管理、支付处理、API Key 管理和管理员后台——所有功能打包为单一可部署二进制文件，内嵌前端，无需额外静态资源服务。
 
-[![Go](https://img.shields.io/badge/Go-1.25.7-00ADD8.svg)](https://golang.org/)
-[![Vue](https://img.shields.io/badge/Vue-3.4+-4FC08D.svg)](https://vuejs.org/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15+-336791.svg)](https://www.postgresql.org/)
-[![Redis](https://img.shields.io/badge/Redis-7+-DC382D.svg)](https://redis.io/)
-[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg)](https://www.docker.com/)
+[English](README.md)
 
-<a href="https://trendshift.io/repositories/21823" target="_blank"><img src="https://trendshift.io/api/badge/repositories/21823" alt="meitianwang%2Ffast-frame | Trendshift" width="250" height="55"/></a>
-
-**订阅制 SaaS 管理平台**
-
-[English](README.md) | 中文 | [日本語](README_JA.md)
-
-</div>
-
-> **Fast-Frame 官方仅使用  `fast-frame.dev` 与 `fast-frame.dev` 两个域名。其他使用 Fast-Frame 名义的网站可能为第三方部署或服务，与本项目无关，请自行甄别。**
 ---
 
-## 在线体验
+## 功能特性
 
-体验地址：**[https://demo.fast-frame.dev/](https://demo.fast-frame.dev/)**
+### 认证与安全
+- 邮箱/密码注册登录，附带邮箱验证流程
+- OAuth2 社交登录（LinuxDo）
+- 两步验证（TOTP），支持二维码扫码绑定
+- JWT 认证，access/refresh token 双令牌机制
+- Cloudflare Turnstile 人机验证集成
+- 基于 Redis 的接口限速（fail-close 策略）
+- 安全响应头：CSP nonce 注入、HSTS、X-Frame-Options
 
-演示账号（共享演示环境；自建部署不会自动创建该账号）：
+### 用户管理
+- 个人资料管理（用户名、密码、两步验证设置）
+- 账户余额追踪和充值历史记录
+- 自定义用户属性扩展字段
+- 管理员：完整增删改查、用量统计、余额调整
 
-| 邮箱 | 密码 |
-|------|------|
-| admin@fast-frame.dev | admin123 |
+### 订阅系统
+- 订阅组和订阅计划管理，支持灵活定价层级
+- 每日/每月消费上限（美元）
+- 实时用量进度追踪
+- 订阅续期和到期处理
+- 有效订阅筛选和汇总统计
 
-## 项目概述
+### 支付处理
+- 内置多支付渠道支持：
+  - **Stripe**
+  - **支付宝（Alipay）**
+  - **微信支付（WeChat Pay）**
+  - **EasyPay**
+- 支付渠道管理与多实例负载均衡
+- 订单全生命周期管理（创建、取消、退款申请）
+- 所有支付渠道的 Webhook 回调处理
+- 支付数据统计看板
 
-Fast-Frame 是一个订阅制 SaaS 管理平台，用于分发和管理 API 配额。用户通过平台生成的 API Key 调用上游服务，平台负责鉴权、计费、负载均衡和请求转发。
+### 营销推广
+- 兑换码：余额型或订阅型，支持批量生成和 CSV 导出
+- 优惠码：折扣比例、使用次数限制、到期时间管理
+- 兑换历史记录追踪
 
-## 核心功能
+### 管理后台
+- 实时监控指标：活跃 API Key 数、请求量、新增用户数
+- 用户管理，支持搜索和筛选
+- 系统公告，支持定向推送
+- SMTP 邮件服务配置和发送测试
+- 系统设置可通过 Web 界面管理
 
-- **多账号管理** - 支持多种上游账号类型
-- **API Key 分发** - 为用户生成和管理 API Key
-- **精确计费** - 用量追踪和成本计算
-- **智能调度** - 智能账号选择，支持粘性会话
-- **并发控制** - 用户级和账号级并发限制
-- **速率限制** - 可配置的请求速率限制
-- **管理后台** - Web 界面进行监控和管理
-- **外部系统集成** - 支持通过 iframe 嵌入外部系统（如支付、工单等），扩展管理后台功能
+### 运维与基础设施
+- 兼容 S3 的数据库定时备份与恢复
+- 结构化日志 + 日志文件轮转（Zap）
+- 关键操作幂等性保障
+- 内嵌 Vue 3 前端——单一二进制文件，无需外部静态资源服务
+- 首次安装向导（Setup Wizard）
 
-## 不想自建？试试官方中转
-
-<table>
-<tr>
-<td width="180" align="center" valign="middle"><a href="https://fast-frame.dev/"><img src="assets/partners/logos/fast-frame-logo.png" alt="fast-frame" width="150"></a></td>
-<td valign="middle"><b><a href="https://fast-frame.dev/">Fast-Frame Cloud</a></b> 是基于 Fast-Frame 搭建的官方托管服务，开箱即用，免去自建部署与运维烦恼。</td>
-</tr>
-<tr>
-<td width="180"><a href="https://www.packyapi.com/register?aff=fast-frame"><img src="assets/partners/logos/packycode.png" alt="PackyCode" width="150"></a></td>
-<td>感谢 PackyCode 赞助了本项目！PackyCode 是一家稳定、高效的 API 服务商。PackyCode 为本软件的用户提供了特别优惠，使用<a href="https://www.packyapi.com/register?aff=fast-frame">此链接</a>注册并在充值时填写"fast-frame"优惠码，首次充值可以享受9折优惠！</td>
-</tr>
-</table>
-
-## 生态项目
-
-围绕 Fast-Frame 的社区扩展与集成项目：
-
-| 项目 | 说明 | 功能 |
-|------|------|------|
-| [fast-frame-mobile](https://github.com/ckken/fast-frame-mobile) | 移动端管理控制台 | 跨平台应用（iOS/Android/Web），支持用户管理、账号管理、监控看板、多后端切换；基于 Expo + React Native 构建 |
+---
 
 ## 技术栈
 
-| 组件 | 技术 |
-|------|------|
-| 后端 | Go 1.25.7, Gin, Ent |
-| 前端 | Vue 3.4+, Vite 5+, TailwindCSS |
+| 层级 | 技术选型 |
+|---|---|
+| 后端语言 | Go 1.25+ |
+| Web 框架 | Gin |
+| ORM | Ent |
 | 数据库 | PostgreSQL 15+ |
-| 缓存/队列 | Redis 7+ |
+| 缓存 | Redis |
+| 前端框架 | Vue 3 + TypeScript |
+| 前端构建 | Vite 5 |
+| 样式 | TailwindCSS 3 |
+| 状态管理 | Pinia |
+| 包管理器 | pnpm |
 
 ---
 
-## Nginx 反向代理注意事项
+## 快速开始
 
-通过 Nginx 反向代理 Fast-Frame 时，需要在 Nginx 配置的 `http` 块中添加：
+### 环境要求
 
-```nginx
-underscores_in_headers on;
-```
-
-Nginx 默认会丢弃名称中含下划线的请求头（如 `session_id`），这会导致多账号环境下的粘性会话功能失效。
-
----
-
-## 部署方式
-
-### 方式一：脚本安装（推荐）
-
-一键安装脚本，自动从 GitHub Releases 下载预编译的二进制文件。
-
-#### 前置条件
-
-- Linux 服务器（amd64 或 arm64）
-- PostgreSQL 15+（已安装并运行）
-- Redis 7+（已安装并运行）
-- Root 权限
-
-#### 安装步骤
-
-```bash
-curl -sSL https://raw.githubusercontent.com/meitianwang/fast-frame/main/deploy/install.sh | sudo bash
-```
-
-脚本会自动：
-1. 检测系统架构
-2. 下载最新版本
-3. 安装二进制文件到 `/opt/fast-frame`
-4. 创建 systemd 服务
-5. 配置系统用户和权限
-
-#### 安装后配置
-
-```bash
-# 1. 启动服务
-sudo systemctl start fast-frame
-
-# 2. 设置开机自启
-sudo systemctl enable fast-frame
-
-# 3. 在浏览器中打开设置向导
-# http://你的服务器IP:8080
-```
-
-设置向导将引导你完成：
-- 数据库配置
-- Redis 配置
-- 管理员账号创建
-
-#### 升级
-
-可以直接在 **管理后台** 左上角点击 **检测更新** 按钮进行在线升级。
-
-网页升级功能支持：
-- 自动检测新版本
-- 一键下载并应用更新
-- 支持回滚
-
-#### 常用命令
-
-```bash
-# 查看状态
-sudo systemctl status fast-frame
-
-# 查看日志
-sudo journalctl -u fast-frame -f
-
-# 重启服务
-sudo systemctl restart fast-frame
-
-# 卸载
-curl -sSL https://raw.githubusercontent.com/meitianwang/fast-frame/main/deploy/install.sh | sudo bash -s -- uninstall -y
-```
-
----
-
-### 方式二：Docker Compose（推荐）
-
-使用 Docker Compose 部署，包含 PostgreSQL 和 Redis 容器。
-
-#### 前置条件
-
-- Docker 20.10+
-- Docker Compose v2+
-
-#### 快速开始（一键部署）
-
-使用自动化部署脚本快速搭建：
-
-```bash
-# 创建部署目录
-mkdir -p fast-frame-deploy && cd fast-frame-deploy
-
-# 下载并运行部署准备脚本
-curl -sSL https://raw.githubusercontent.com/meitianwang/fast-frame/main/deploy/docker-deploy.sh | bash
-
-# 启动服务
-docker compose up -d
-
-# 查看日志
-docker compose logs -f fast-frame
-```
-
-**脚本功能：**
-- 下载 `docker-compose.local.yml`（本地保存为 `docker-compose.yml`）和 `.env.example`
-- 自动生成安全凭证（JWT_SECRET、TOTP_ENCRYPTION_KEY、POSTGRES_PASSWORD）
-- 创建 `.env` 文件并填充自动生成的密钥
-- 创建数据目录（使用本地目录，便于备份和迁移）
-- 显示生成的凭证供你记录
-
-#### 手动部署
-
-如果你希望手动配置：
-
-```bash
-# 1. 克隆仓库
-git clone https://github.com/meitianwang/fast-frame.git
-cd fast-frame/deploy
-
-# 2. 复制环境配置文件
-cp .env.example .env
-
-# 3. 编辑配置（生成安全密码）
-nano .env
-```
-
-**`.env` 必须配置项：**
-
-```bash
-# PostgreSQL 密码（必需）
-POSTGRES_PASSWORD=your_secure_password_here
-
-# JWT 密钥（推荐 - 重启后保持用户登录状态）
-JWT_SECRET=your_jwt_secret_here
-
-# TOTP 加密密钥（推荐 - 重启后保留双因素认证）
-TOTP_ENCRYPTION_KEY=your_totp_key_here
-
-# 可选：管理员账号
-ADMIN_EMAIL=admin@example.com
-ADMIN_PASSWORD=your_admin_password
-
-# 可选：自定义端口
-SERVER_PORT=8080
-```
-
-**生成安全密钥：**
-```bash
-# 生成 JWT_SECRET
-openssl rand -hex 32
-
-# 生成 TOTP_ENCRYPTION_KEY
-openssl rand -hex 32
-
-# 生成 POSTGRES_PASSWORD
-openssl rand -hex 32
-```
-
-```bash
-# 4. 创建数据目录（本地版）
-mkdir -p data postgres_data redis_data
-
-# 5. 启动所有服务
-# 选项 A：本地目录版（推荐 - 易于迁移）
-docker compose -f docker-compose.local.yml up -d
-
-# 选项 B：命名卷版（简单设置）
-docker compose up -d
-
-# 6. 查看状态
-docker compose -f docker-compose.local.yml ps
-
-# 7. 查看日志
-docker compose -f docker-compose.local.yml logs -f fast-frame
-```
-
-#### 部署版本对比
-
-| 版本 | 数据存储 | 迁移便利性 | 适用场景 |
-|------|---------|-----------|---------|
-| **docker-compose.local.yml** | 本地目录 | ✅ 简单（打包整个目录） | 生产环境、频繁备份 |
-| **docker-compose.yml** | 命名卷 | ⚠️ 需要 docker 命令 | 简单设置 |
-
-**推荐：** 使用 `docker-compose.local.yml`（脚本部署）以便更轻松地管理数据。
-
-#### 启用“数据管理”功能（datamanagementd）
-
-如需启用管理后台“数据管理”，需要额外部署宿主机数据管理进程 `datamanagementd`。
-
-关键点：
-
-- 主进程固定探测：`/tmp/fast-frame-datamanagement.sock`
-- 只有该 Socket 可连通时，数据管理功能才会开启
-- Docker 场景需将宿主机 Socket 挂载到容器同路径
-
-详细部署步骤见：`deploy/DATAMANAGEMENTD_CN.md`
-
-#### 访问
-
-在浏览器中打开 `http://你的服务器IP:8080`
-
-如果管理员密码是自动生成的，在日志中查找：
-```bash
-docker compose -f docker-compose.local.yml logs fast-frame | grep "admin password"
-```
-
-#### 升级
-
-```bash
-# 拉取最新镜像并重建容器
-docker compose -f docker-compose.local.yml pull
-docker compose -f docker-compose.local.yml up -d
-```
-
-#### 轻松迁移（本地目录版）
-
-使用 `docker-compose.local.yml` 时，可以轻松迁移到新服务器：
-
-```bash
-# 源服务器
-docker compose -f docker-compose.local.yml down
-cd ..
-tar czf fast-frame-complete.tar.gz fast-frame-deploy/
-
-# 传输到新服务器
-scp fast-frame-complete.tar.gz user@new-server:/path/
-
-# 新服务器
-tar xzf fast-frame-complete.tar.gz
-cd fast-frame-deploy/
-docker compose -f docker-compose.local.yml up -d
-```
-
-#### 常用命令
-
-```bash
-# 停止所有服务
-docker compose -f docker-compose.local.yml down
-
-# 重启
-docker compose -f docker-compose.local.yml restart
-
-# 查看所有日志
-docker compose -f docker-compose.local.yml logs -f
-
-# 删除所有数据（谨慎！）
-docker compose -f docker-compose.local.yml down
-rm -rf data/ postgres_data/ redis_data/
-```
-
----
-
-### 方式三：源码编译
-
-从源码编译安装，适合开发或定制需求。
-
-#### 前置条件
-
-- Go 1.21+
-- Node.js 18+
+- Go 1.25+
+- Node.js 20+ 及 pnpm
 - PostgreSQL 15+
-- Redis 7+
+- Redis
 
-#### 编译步骤
+### 1. 克隆仓库
 
 ```bash
-# 1. 克隆仓库
 git clone https://github.com/meitianwang/fast-frame.git
 cd fast-frame
+```
 
-# 2. 安装 pnpm（如果还没有安装）
-npm install -g pnpm
+### 2. 启动后端
 
-# 3. 编译前端
+```bash
+cd backend
+go run ./cmd/server/
+```
+
+首次运行时，服务器检测到没有配置文件，会自动在 `http://localhost:8080` 启动**安装向导**。通过向导完成数据库、JWT 密钥、SMTP 等配置后，生成的 `config.yaml` 将保存到当前工作目录。
+
+### 3. 启动前端开发服务器
+
+另开一个终端：
+
+```bash
 cd frontend
 pnpm install
-pnpm run build
-# 构建产物输出到 ../backend/internal/web/dist/
-
-# 4. 编译后端（嵌入前端）
-cd ../backend
-go build -tags embed -o fast-frame ./cmd/server
-
-# 5. 创建配置文件
-cp ../deploy/config.example.yaml ./config.yaml
-
-# 6. 编辑配置
-nano config.yaml
+pnpm dev
 ```
 
-> **注意：** `-tags embed` 参数会将前端嵌入到二进制文件中。不使用此参数编译的程序将不包含前端界面。
+前端开发服务器运行在 `http://localhost:3000`，并将 `/api`、`/v1`、`/setup` 路径代理到后端 `http://localhost:8080`。
 
-**`config.yaml` 关键配置：**
-
-```yaml
-server:
-  host: "0.0.0.0"
-  port: 8080
-  mode: "release"
-
-database:
-  host: "localhost"
-  port: 5432
-  user: "postgres"
-  password: "your_password"
-  dbname: "fast-frame"
-
-redis:
-  host: "localhost"
-  port: 6379
-  password: ""
-
-jwt:
-  secret: "change-this-to-a-secure-random-string"
-  expire_hour: 24
-
-default:
-  user_concurrency: 5
-  user_balance: 0
-  api_key_prefix: "sk-"
-  rate_multiplier: 1.0
-```
-
-`config.yaml` 还支持以下安全相关配置：
-
-- `cors.allowed_origins` 配置 CORS 白名单
-- `security.url_allowlist` 配置上游/价格数据/CRS 主机白名单
-- `security.url_allowlist.enabled` 可关闭 URL 校验（慎用）
-- `security.url_allowlist.allow_insecure_http` 关闭校验时允许 HTTP URL
-- `security.url_allowlist.allow_private_hosts` 允许私有/本地 IP 地址
-- `security.response_headers.enabled` 可启用可配置响应头过滤（关闭时使用默认白名单）
-- `security.csp` 配置 Content-Security-Policy
-- `billing.circuit_breaker` 计费异常时 fail-closed
-- `server.trusted_proxies` 启用可信代理解析 X-Forwarded-For
-- `turnstile.required` 在 release 模式强制启用 Turnstile
-
-**防御纵深建议（重点）**
-
-- `/auth/register`、`/auth/login`、`/auth/login/2fa`、`/auth/send-verify-code` 已提供服务端兜底限流（Redis 故障时 fail-close）。
-- 推荐将 WAF/CDN 作为第一层防护，服务端限流作为第二层兜底；两层同时保留，避免旁路流量与误配置风险。
-
-**⚠️ 安全警告：HTTP URL 配置**
-
-当 `security.url_allowlist.enabled=false` 时，系统默认执行最小 URL 校验，**拒绝 HTTP URL**，仅允许 HTTPS。要允许 HTTP URL（例如用于开发或内网测试），必须显式设置：
-
-```yaml
-security:
-  url_allowlist:
-    enabled: false                # 禁用白名单检查
-    allow_insecure_http: true     # 允许 HTTP URL（⚠️ 不安全）
-```
-
-**或通过环境变量：**
+### 4. 构建生产版本
 
 ```bash
-SECURITY_URL_ALLOWLIST_ENABLED=false
-SECURITY_URL_ALLOWLIST_ALLOW_INSECURE_HTTP=true
+make build
 ```
 
-**允许 HTTP 的风险：**
-- API 密钥和数据以**明文传输**（可被截获）
-- 易受**中间人攻击 (MITM)**
-- **不适合生产环境**
-
-**适用场景：**
-- ✅ 开发/测试环境的本地服务器（http://localhost）
-- ✅ 内网可信端点
-- ✅ 获取 HTTPS 前测试账号连通性
-- ❌ 生产环境（仅使用 HTTPS）
-
-**未设置此项时的错误示例：**
-```
-Invalid base URL: invalid url scheme: http
-```
-
-如关闭 URL 校验或响应头过滤，请加强网络层防护：
-- 出站访问白名单限制上游域名/IP
-- 阻断私网/回环/链路本地地址
-- 强制仅允许 TLS 出站
-- 在反向代理层移除敏感响应头
-
-```bash
-# 6. 运行应用
-./fast-frame
-```
-
-#### HTTP/2 (h2c) 与 HTTP/1.1 回退
-
-后端明文端口默认支持 h2c，并保留 HTTP/1.1 回退用于 WebSocket 与旧客户端。浏览器通常不支持 h2c，性能收益主要在反向代理或内网链路。
-
-**反向代理示例（Caddy）：**
-
-```caddyfile
-transport http {
-	versions h2c h1
-}
-```
-
-**验证：**
-
-```bash
-# h2c prior knowledge
-curl --http2-prior-knowledge -I http://localhost:8080/health
-# HTTP/1.1 回退
-curl --http1.1 -I http://localhost:8080/health
-# WebSocket 回退验证（需管理员 token）
-websocat -H="Sec-WebSocket-Protocol: fast-frame-admin, jwt.<ADMIN_TOKEN>" ws://localhost:8080/api/v1/admin/ops/ws/qps
-```
-
-#### 开发模式
-
-```bash
-# 后端（支持热重载）
-cd backend
-go run ./cmd/server
-
-# 前端（支持热重载）
-cd frontend
-pnpm run dev
-```
-
-#### 代码生成
-
-修改 `backend/ent/schema` 后，需要重新生成 Ent + Wire：
-
-```bash
-cd backend
-go generate ./ent
-go generate ./cmd/server
-```
+此命令先构建 Vue 3 前端，再将其嵌入 Go 二进制文件，最终生成单一的自包含可执行文件。
 
 ---
 
-## 简易模式
+## 配置说明
 
-简易模式适合个人开发者或内部团队快速使用，不依赖完整 SaaS 功能。
+配置存储在工作目录的 `config.yaml` 文件中（由安装向导生成），或存储在 `DATA_DIR` 环境变量指定的路径下。
 
-- 启用方式：设置环境变量 `RUN_MODE=simple`
-- 功能差异：隐藏 SaaS 相关功能，跳过计费流程
-- 安全注意事项：生产环境需同时设置 `SIMPLE_MODE_CONFIRM=true` 才允许启动
+主要配置节：
+
+| 配置节 | 说明 |
+|---|---|
+| `server` | 监听地址、端口、可信代理、请求体大小限制 |
+| `database` | PostgreSQL 连接信息、连接池配置 |
+| `redis` | Redis 连接、连接池、TLS |
+| `jwt` | 签名密钥、Token 有效期、刷新窗口 |
+| `smtp` | 邮件服务器（用于验证码和通知邮件） |
+| `payment` | 各支付渠道凭证和配置 |
+| `cors` | 允许的跨域来源 |
+| `csp` | 内容安全策略 |
+| `log` | 日志级别、格式、文件轮转 |
+| `s3` | 备份存储端点和凭证 |
+
+所有配置均可通过环境变量覆盖。管理员设置界面支持在不重启服务器的情况下更新大多数配置。
+
+---
+
+## Docker 部署
+
+```bash
+docker build -f backend/Dockerfile -t fast-frame .
+docker run -d \
+  -p 8080:8080 \
+  -e DATA_DIR=/app/data \
+  -v /your/data/dir:/app/data \
+  fast-frame
+```
+
+当 `DATA_DIR` 为空目录时，首次运行会自动启动安装向导。自动化部署场景下，设置 `AUTO_SETUP=true` 并配置所需的环境变量即可跳过交互式向导。
 
 ---
 
@@ -530,60 +168,131 @@ go generate ./cmd/server
 
 ```
 fast-frame/
-├── backend/                  # Go 后端服务
-│   ├── cmd/server/           # 应用入口
-│   ├── internal/             # 内部模块
-│   │   ├── config/           # 配置管理
-│   │   ├── model/            # 数据模型
-│   │   ├── service/          # 业务逻辑
-│   │   ├── handler/          # HTTP 处理器
-│   │   └── middleware/        # HTTP 中间件
-│   └── resources/            # 静态资源
-│
-├── frontend/                 # Vue 3 前端
-│   └── src/
-│       ├── api/              # API 调用
-│       ├── stores/           # 状态管理
-│       ├── views/            # 页面组件
-│       └── components/       # 通用组件
-│
-└── deploy/                   # 部署文件
-    ├── docker-compose.yml    # Docker Compose 配置
-    ├── .env.example          # Docker Compose 环境变量
-    ├── config.example.yaml   # 二进制部署完整配置文件
-    └── install.sh            # 一键安装脚本
+├── backend/
+│   ├── cmd/server/          # 应用程序入口
+│   ├── ent/                 # Ent ORM Schema 及生成代码
+│   ├── internal/
+│   │   ├── config/          # 配置加载与类型定义
+│   │   ├── domain/          # 领域模型与常量
+│   │   ├── handler/         # HTTP 处理器（含 admin/ 子包）
+│   │   ├── repository/      # 数据访问层
+│   │   ├── service/         # 业务逻辑（含 payment/、admin/）
+│   │   ├── server/
+│   │   │   ├── middleware/  # 认证、CORS、CSP、限速、日志
+│   │   │   └── routes/      # 路由注册
+│   │   ├── web/             # 内嵌前端服务
+│   │   └── pkg/             # 公共工具库
+│   └── migrations/          # 数据库迁移文件
+├── frontend/
+│   ├── src/
+│   │   ├── views/
+│   │   │   ├── auth/        # 登录、注册、密码重置、OAuth 回调
+│   │   │   ├── user/        # 个人资料、订阅、购买
+│   │   │   ├── admin/       # 控制台、用户、支付、设置等
+│   │   │   └── setup/       # 首次安装向导
+│   │   ├── components/      # 可复用 Vue 组件
+│   │   ├── stores/          # Pinia 状态管理
+│   │   ├── api/             # Axios API 客户端
+│   │   └── i18n/            # 国际化配置
+│   └── vite.config.ts
+├── docs/                    # 补充文档
+├── tools/                   # 构建和工具脚本
+└── Makefile
 ```
 
-## 免责声明
+---
 
-> **使用本项目前请仔细阅读：**
->
-> :rotating_light: **服务条款风险**: 使用本项目可能违反上游服务提供商的服务条款。请在使用前仔细阅读相关用户协议，使用本项目的一切风险由用户自行承担。
->
-> :book: **免责声明**: 本项目仅供技术学习和研究使用，作者不对因使用本项目导致的账户封禁、服务中断或其他损失承担任何责任。
+## API 概览
+
+所有 API 端点统一在 `/api/v1/` 路径下进行版本管理。
+
+### 认证
+| 方法 | 路径 | 说明 |
+|---|---|---|
+| POST | `/api/v1/auth/register` | 注册新用户 |
+| POST | `/api/v1/auth/login` | 邮箱密码登录 |
+| POST | `/api/v1/auth/login/2fa` | 完成两步验证 |
+| POST | `/api/v1/auth/logout` | 登出 |
+| POST | `/api/v1/auth/send-verify-code` | 发送邮箱验证码 |
+| POST | `/api/v1/auth/verify-code` | 提交邮箱验证码 |
+
+### 用户（需要 JWT）
+| 方法 | 路径 | 说明 |
+|---|---|---|
+| GET | `/api/v1/user/profile` | 获取当前用户信息 |
+| PUT | `/api/v1/user` | 更新个人资料 |
+| PUT | `/api/v1/user/password` | 修改密码 |
+| GET/POST | `/api/v1/user/totp/*` | 两步验证设置与管理 |
+
+### 支付（需要 JWT）
+| 方法 | 路径 | 说明 |
+|---|---|---|
+| POST | `/api/v1/pay/orders` | 创建支付订单 |
+| GET | `/api/v1/pay/orders` | 查看用户订单列表 |
+| POST | `/api/v1/pay/orders/:id/cancel` | 取消订单 |
+| POST | `/api/v1/pay/orders/:id/refund-request` | 申请退款 |
+| GET | `/api/v1/pay/subscription-plans` | 获取可用订阅计划 |
+
+### 管理员（需要管理员 API Key 或管理员 JWT）
+| 方法 | 路径 | 说明 |
+|---|---|---|
+| GET | `/api/v1/admin/dashboard/realtime` | 实时系统指标 |
+| GET/POST/PUT/DELETE | `/api/v1/admin/users/*` | 用户管理 |
+| GET/POST/PUT/DELETE | `/api/v1/admin/announcements/*` | 公告管理 |
+| POST | `/api/v1/admin/redeem-codes/generate` | 批量生成兑换码 |
+| GET/PUT | `/api/v1/admin/settings` | 系统设置 |
+| GET/POST | `/api/v1/admin/backups` | 备份管理 |
+
+### 响应格式
+
+```json
+{
+  "code": 0,
+  "msg": "success",
+  "data": { ... }
+}
+```
+
+`code: 0` 表示成功，非零值表示错误，`msg` 字段包含具体错误描述。
 
 ---
 
-## Star History
+## 开发指南
 
-<a href="https://star-history.com/#meitianwang/fast-frame&Date">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=meitianwang/fast-frame&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=meitianwang/fast-frame&type=Date" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=meitianwang/fast-frame&type=Date" />
- </picture>
-</a>
+### 后端测试
+
+```bash
+cd backend
+
+# 单元测试
+go test -tags=unit ./...
+
+# 集成测试（需要 PostgreSQL 和 Redis）
+go test -tags=integration ./...
+
+# 代码检查
+golangci-lint run ./...
+```
+
+### 前端检查
+
+```bash
+cd frontend
+pnpm typecheck
+pnpm lint:check
+```
+
+### 修改 Ent Schema 后重新生成代码
+
+```bash
+cd backend
+go generate ./ent
+```
+
+更多开发细节、常见坑点和环境配置说明，请参阅 [DEV_GUIDE.md](DEV_GUIDE.md)。
 
 ---
 
-## 许可证
+## License
 
-MIT License
-
----
-
-<div align="center">
-
-**如果觉得有用，请给个 Star 支持一下！**
-
-</div>
+[LICENSE](LICENSE)
